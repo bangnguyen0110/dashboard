@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "digital-dashboard",
+  "name": "dashboard",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-08-12",
   "compatibility_flags": [

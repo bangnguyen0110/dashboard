@@ -62,7 +62,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      success: true,
+      success: true,git add .
       message: `Đã nạp thành công ${totalCommunesInserted} Xã/Phường/Đặc khu vào Supabase!`,
     });
   } catch (error: any) {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { errorMessage } from '@/lib/server-utils';
 
 export async function POST(request: Request) {
   try {
@@ -35,9 +36,9 @@ export async function POST(request: Request) {
       message: 'Đã lưu liên kết thành công!',
       data,
     });
-  } catch (error: any) {
+    } catch (error: unknown) {
     return NextResponse.json(
-      { error: error.message || 'Lỗi lưu liên kết' },
+      { error: errorMessage(error, 'Lỗi lưu liên kết') },
       { status: 500 }
     );
   }

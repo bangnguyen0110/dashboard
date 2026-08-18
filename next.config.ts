@@ -1,12 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Bỏ qua lỗi TypeScript khi build
   typescript: {
-    ignoreBuildErrors: true,
-  },
-  // Bỏ qua cảnh báo ESLint khi build
-  eslint: {
-    ignoreDuringBuilds: true,
+    // Kiểm tra kiểu TypeScript thực sự khi build (dự án đã vượt qua `tsc --noEmit`).
+    ignoreBuildErrors: false,
   },
 };
 

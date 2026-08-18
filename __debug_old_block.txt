@@ -1,0 +1,39 @@
+// 3. TỰ ĐỘNG TRUY VẤN TẤT CẢ XÃ/PHƯỜNG THỰC TẾ THUỘC TỈNH NÀY TRONG CSDL
+    const { data: childCommunes } = await supabaseAdmin
+      .from('administrative_units')
+      .select('*')
+      .eq('parent_id', targetProvinceId);
+
+    // 4. Sinh Dashboard tự động cho tất cả các Xã/Phường sau sáp nhập
+    if (childCommunes && childCommunes.length > 0) {
+      const communeDashboards = childCommunes.map((commune) => {
+        const communePayload = {
+          unit_id: commune.id,
+          title: `DASHBOARD KINH TẾ SỐ ${commune.name.toUpperCase()}`,
+          sync_schedule: syncSchedule || '0 0 * * *',
+          metadata: {
+            code: commune.code ?? commune.id,
+            name: commune.name,
+            slug: makeSlug(commune.name),
+          },
+        };
+        return filterExistingColumns(communePayload, dashboardColumns);
+      });
+
+      console.error(
+        `[create-province] INSERT ${DASHBOARD_TABLE} (Xã/Phường) → ${communeDashboards.length} bản ghi`
+      );
+      const { error: communeErr } = await supabaseAdmin
+        .from(DASHBOARD_TABLE)
+        .insert(communeDashboards);
+      if (communeErr) {
+        logSupabaseError('insert Dashboard Xã/Phường', communeErr);
+        throw communeErr;
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Đã tạo thành công Dashboard Tỉnh và ${childCommunes?.length || 0} Dashboard Xã/Phường trực thuộc`,
+      data: provinceDashboard,
+    });

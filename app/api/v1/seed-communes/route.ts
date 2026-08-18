@@ -1,5 +1,23 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { errorMessage, type CommuneInsert, type OfficialProvince } from '@/lib/server-utils';
+
+/** Tải danh sách đơn vị hành chính mở Việt Nam với timeout để tránh gặt treo. */
+async function fetchOfficialProvinces(): Promise<OfficialProvince[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const response = await fetch('https://provinces.open-api.vn/api/?depth=3', {
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} — provinces.open-api.vn`);
+    }
+    return (await response.json()) as OfficialProvince[];
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 export async function GET() {
   try {
@@ -16,31 +34,30 @@ export async function GET() {
     }
 
     // 2. Tải CSDL Đơn vị Hành chính mở Việt Nam (Bao gồm Tỉnh -> Huyện -> Xã)
-    const response = await fetch('https://provinces.open-api.vn/api/?depth=3');
-    const officialData = await response.json();
+    const officialData = await fetchOfficialProvinces();
 
     let totalCommunesInserted = 0;
 
     // 3. Duyệt qua từng Tỉnh trong CSDL của bạn để ghép nối Xã/Phường
     for (const provDB of provinces) {
       // Tìm Tỉnh tương ứng trong API mở
-      const matchedProvinceAPI = officialData.find((p: any) =>
-        p.name.toLowerCase().includes(provDB.name.replace(/(Tỉnh|Thành phố)\s+/gi, '').trim().toLowerCase())
+      const matchedProvinceAPI = officialData.find((p: OfficialProvince) =>
+        (p.name ?? "").toLowerCase().includes(provDB.name.replace(/(Tỉnh|Thành phố)\s+/gi, '').trim().toLowerCase())
       );
 
       if (matchedProvinceAPI && matchedProvinceAPI.districts) {
-        const communesToInsert: any[] = [];
+        const communesToInsert: CommuneInsert[] = [];
 
         // Duyệt qua các Huyện/Quận/Thị xã -> Lấy danh sách Xã/Phường/Thị trấn
         for (const district of matchedProvinceAPI.districts) {
           if (district.wards) {
             for (const ward of district.wards) {
               // Phân loại: Nếu là Đặc khu hoặc Xã/Phường
-              const isSpecialZone = ward.name.toLowerCase().includes('đặc khu');
+              const isSpecialZone = (ward.name ?? "").toLowerCase().includes('đặc khu');
               
               communesToInsert.push({
                 code: `COMM_${ward.code}`,
-                name: ward.name,
+                name: ward.name ?? "",
                 type: isSpecialZone ? 'SPECIAL_ZONE' : 'COMMUNE',
                 parent_id: provDB.id, // Gán ID Tỉnh làm cha
               });
@@ -65,8 +82,8 @@ export async function GET() {
       success: true,
       message: `Đã nạp thành công ${totalCommunesInserted} Xã/Phường/Đặc khu vào Supabase!`,
     });
-  } catch (error: any) {
+    } catch (error: unknown) {
     console.error('Lỗi seed-communes:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
   }
 }

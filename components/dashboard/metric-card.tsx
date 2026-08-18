@@ -44,7 +44,7 @@ export function MetricCard({ metric, info, targetUrl, onEditLink }: MetricCardPr
       }}
       className={`glass group relative cursor-pointer overflow-hidden rounded-2xl p-5 transition duration-300 select-none hover:-translate-y-1 ${
         targetUrl
-          ? "hover:shadow-[0_0_42px_-6px_var(--accent)]"
+                    ? "hover:shadow-[0_0_42px_-6px_var(--accent-cyan)]"
           : "hover:shadow-glass"
       }`}
       style={{ borderTop: `2px solid ${metric.color}` }}
@@ -87,7 +87,7 @@ export function MetricCard({ metric, info, targetUrl, onEditLink }: MetricCardPr
             <span>Mục tiêu: {info.goal.toLocaleString("vi-VN")}</span>
             <span>{pct}%</span>
           </div>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15">
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-800/50">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{ width: `${pct ?? 0}%`, background: metric.color }}

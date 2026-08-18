@@ -5,6 +5,7 @@ import type { CSSProperties, FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   BarChart3,
+  BookOpen,
   Building2,
   Globe,
   Landmark,
@@ -73,7 +74,8 @@ const MENU_ITEMS = [
   { id: 2, label: "Tiêu chí nền tảng kinh tế số", icon: Layers },
   { id: 3, label: "Dự án kêu gọi đầu tư – Quy hoạch", icon: Building2 },
   { id: 4, label: "Chính sách & giải đáp kiến nghị", icon: ScrollText },
-  { id: 5, label: "Điểm trưng bày & Hội quán (Tài liệu CĐS)", icon: Landmark },
+  { id: 5, label: "Điểm trưng bày & Hội quán", icon: Landmark },
+  { id: 6, label: "Tài liệu chuyển đổi số cho doanh nghiệp", icon: BookOpen }
 ] as const;
 
 const tooltipStyle: CSSProperties = {

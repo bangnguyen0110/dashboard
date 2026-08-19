@@ -65,8 +65,8 @@ export function StatCell({
                   e.stopPropagation();
                   onEditLink();
                 }}
-                aria-label={`Thiết lập link cho ${label}`}
-                title="Thiết lập link chuyển hướng"
+                aria-label={`Thiết lập ID cho ${label}`}
+                title="Thiết lập ID"
                 className="rounded-lg border border-slate-700/60 bg-slate-800/40 p-2 text-amber-400/60 transition hover:text-amber-400 group-hover:rotate-90"
               >
                 <Link2 size={14} />

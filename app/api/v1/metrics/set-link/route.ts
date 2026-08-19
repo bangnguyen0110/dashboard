@@ -1,44 +1,46 @@
-import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase';
-import { errorMessage } from '@/lib/server-utils';
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const supabaseAdmin = getSupabaseAdmin();
-    const body = await request.json();
-    const { dashboardId, metricKey, targetUrl } = body;
+    const body = await req.json();
+    const { dashboardId, metricKey, targetUrl, metricId } = body;
 
     if (!dashboardId || !metricKey) {
       return NextResponse.json(
-        { error: 'Thiếu dashboardId hoặc metricKey' },
+        { error: "Thiếu dashboardId hoặc metricKey" },
         { status: 400 }
       );
     }
 
-    // Upsert (Cập nhật nếu đã có, Thêm mới nếu chưa)
-    const { data, error } = await supabaseAdmin
-      .from('metric_links')
+    // Upsert vào bảng metric_links (dựa trên dashboard_id và metric_key)
+    const { data, error } = await supabase
+      .from("metric_links")
       .upsert(
         {
           dashboard_id: dashboardId,
           metric_key: metricKey,
-          target_url: targetUrl || '',
+          target_url: targetUrl || "",
+          metric_id: metricId || "",
         },
-        { onConflict: 'dashboard_id, metric_key' }
+        { onConflict: "dashboard_id,metric_key" }
       )
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("❌ Lỗi Supabase tại set-link:", error);
+      return NextResponse.json(
+        { error: error.message || "Không thể lưu vào bảng metric_links" },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Đã lưu liên kết thành công!',
-      data,
-    });
-    } catch (error: unknown) {
+    return NextResponse.json({ success: true, data });
+  } catch (err: any) {
+    console.error("❌ Lỗi API set-link:", err);
     return NextResponse.json(
-      { error: errorMessage(error, 'Lỗi lưu liên kết') },
+      { error: err?.message || "Lỗi xử lý yêu cầu phía máy chủ" },
       { status: 500 }
     );
   }

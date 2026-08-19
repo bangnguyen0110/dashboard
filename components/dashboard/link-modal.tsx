@@ -16,10 +16,14 @@ interface LinkModalProps {
   dashboard: DashboardRow;
   onClose: () => void;
   onSaved: () => void;
+  /** Khi có: ưu tiên handler parent (ghi base_domain qua API route admin, RLS-safe). */
+  onSave?: (domainLink: string, slug: string) => Promise<void>;
 }
 
-export function LinkModal({ dashboard, onClose, onSaved }: LinkModalProps) {
-  const [domainLink, setDomainLink] = useState(dashboard.domain_link ?? "");
+export function LinkModal({ dashboard, onClose, onSaved, onSave }: LinkModalProps) {
+  const [domainLink, setDomainLink] = useState(
+    dashboard.base_domain ?? dashboard.metadata?.base_domain ?? dashboard.domain_link ?? ""
+  );
   const [slug, setSlug] = useState(dashboard.metadata?.slug ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +34,15 @@ export function LinkModal({ dashboard, onClose, onSaved }: LinkModalProps) {
     setSaving(true);
     setError(null);
     try {
+      // Khi parent cung cấp onSave (Header Tầng 1): ưu tiên handler trực tiếp —
+      // ghi base_domain qua API route admin (getSupabaseAdmin, không bị chặn RLS)
+      // + cập nhật State + thông báo bằng alert (UX theo spec). Không dùng fetch mặc định.
+      if (onSave) {
+        await onSave(domainLink, slug);
+        onClose();
+        onSaved();
+        return;
+      }
       const res = await fetch(`/api/v1/dashboards/${dashboard.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

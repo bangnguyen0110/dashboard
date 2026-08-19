@@ -2,9 +2,9 @@
 
 import React from "react";
 import { Building2, Zap, Settings, Link as LinkIcon, Edit3, ExternalLink } from "lucide-react";
-import { CellLinkModal } from "./cell-link-modal";
 import { CellQuantityModal } from "./cell-quantity-modal";
 import { BlockIdModal } from "./block-id-modal";
+import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow } from "@/lib/types";
 
@@ -18,9 +18,10 @@ export interface B1SectionProps {
   onOpenLinkModal?: (key: string) => void;
   onOpenQtyModal?: (key: string) => void;
   onOpenSetupId?: () => void;
+  onOpenMetricId?: (key: string, label: string) => void;
+  onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
 }
 
-interface LinkState { metricKey: string; label: string; initialUrl: string; }
 interface QuantityState { field: string; label: string; current: number; matchTokens: string[]; }
 
 const LINK_LABELS: Record<string, string> = {
@@ -55,13 +56,15 @@ export function B1Section({
   onOpenLinkModal,
   onOpenQtyModal,
   onOpenSetupId,
+  onOpenMetricId,
+  onSaveMetricId,
 }: B1SectionProps) {
   const source = data || b1 || {};
   const { isAdmin } = useAuth();
 
   const [showBlockId, setShowBlockId] = React.useState(false);
-  const [linkState, setLinkState] = React.useState<LinkState | null>(null);
-  const [quantityState, setQuantityState] = React.useState<QuantityState | null>(null);
+  const [quantityState, setQuantityState] = React.useState<{ field: string; label: string; current: number; matchTokens: string[] } | null>(null);
+  const [metricIdState, setMetricIdState] = React.useState<{ metricKey: string; metricId: string | null } | null>(null);
 
   const currentValueOf = (key: string): number => {
     const field = QTY_MAP[key]?.field ?? "";
@@ -69,14 +72,14 @@ export function B1Section({
   };
 
   const handleOpenLink = (key: string): void => {
-    if (onOpenLinkModal) {
-      onOpenLinkModal(key);
+    if (onOpenMetricId) {
+      onOpenMetricId(key, LINK_LABELS[key] ?? key);
       return;
     }
-    setLinkState({
+    // Mở MetricIdModal để thiết lập ID + đồng bộ số liệu qua web scraping
+    setMetricIdState({
       metricKey: key,
-      label: LINK_LABELS[key] ?? key,
-      initialUrl: metricLinks[key] ?? "",
+      metricId: null,
     });
   };
 
@@ -194,11 +197,70 @@ export function B1Section({
       {showBlockId && dashboard && (
         <BlockIdModal dashboard={dashboard} section="B1" currentId={dashboard.b1_custom_id} onClose={() => setShowBlockId(false)} onSaved={() => onChanged?.()} />
       )}
-      {linkState && dashboard && (
-        <CellLinkModal dashboard={dashboard} metricKey={linkState.metricKey} label={linkState.label} initialUrl={linkState.initialUrl} onClose={() => setLinkState(null)} onSaved={() => onChanged?.()} />
-      )}
       {quantityState && dashboard && (
         <CellQuantityModal dashboard={dashboard} section="B1" field={quantityState.field} label={quantityState.label} currentValue={quantityState.current} matchTokens={quantityState.matchTokens} onClose={() => setQuantityState(null)} onSaved={() => onChanged?.()} />
+      )}
+      {metricIdState && dashboard && (
+        <MetricIdModal
+          dashboard={dashboard}
+          metricKey={metricIdState.metricKey}
+          label={LINK_LABELS[metricIdState.metricKey] ?? metricIdState.metricKey}
+          baseDomain={dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || ""}
+          initialId={metricIdState.metricId ?? ""}
+          onClose={() => setMetricIdState(null)}
+          onSave={onSaveMetricId ?? (async (metricKey: string, metricId: string) => {
+            const base = (dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || "").trim().replace(/\/+$/, "");
+            const fullUrl = base ? `${base}/${metricId}` : metricId;
+
+            // 1) Ghi metric_id + URL vào bảng metric_links
+            const linkRes = await fetch("/api/v1/metrics/set-link", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                dashboardId: dashboard.id,
+                metricKey,
+                targetUrl: fullUrl,
+                metricId,
+              }),
+            });
+            if (!linkRes.ok) {
+              const d = await linkRes.json();
+              throw new Error(d.error ?? "Lỗi lưu ID liên kết");
+            }
+
+            // 2) Cào dữ liệu qua API scrape-metric
+            const scrapeRes = await fetch("/api/scrape-metric", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ targetUrl: fullUrl }),
+            });
+            const scrapeData = await scrapeRes.json();
+            if (!scrapeRes.ok || !scrapeData.success || typeof scrapeData.value !== "number") {
+              throw new Error(scrapeData?.error ?? "Không bóc tách được số liệu từ URL");
+            }
+
+            // 3) Cập nhật chỉ tiêu theo field mapping (B1)
+            const field = QTY_MAP[metricKey]?.field;
+            if (field) {
+              const upRes = await fetch("/api/v1/metrics/update-value", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  dashboardId: dashboard.id,
+                  section: "B1",
+                  field,
+                  fields: [field],
+                  value: scrapeData.value,
+                }),
+              });
+              if (!upRes.ok) {
+                const d = await upRes.json();
+                throw new Error(d.error ?? "Lỗi cập nhật số liệu");
+              }
+            }
+          })}
+          onSaved={() => onChanged?.()}
+        />
       )}
     </div>
   );
@@ -241,7 +303,7 @@ function BannerCard({ label, value, metricKey, link, onOpenLink, onOpenQty }: Ba
                 if (onOpenLink) onOpenLink(metricKey);
               }}
               className="p-1.5 rounded-lg bg-slate-800/90 hover:bg-cyan-600 text-slate-300 hover:text-white border border-[#1d293d]"
-              title="Thiết lập Link"
+              title="Thiết lập ID"
             >
               <LinkIcon size={13}/>
             </button>
@@ -302,7 +364,7 @@ function StatCard({ title, value, subText, metricKey, link, onOpenLink, onOpenQt
               if (onOpenLink) onOpenLink(metricKey);
             }}
             className="p-1 rounded-md bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white transition-colors"
-            title="Thiết lập Link"
+            title="Thiết lập ID"
           >
             <LinkIcon size={12}/>
           </button>

@@ -10,6 +10,7 @@ import {
   Link2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { errorMessage } from "@/lib/server-utils";
 import type { DashboardRow, KpiRow } from "@/lib/types";
 import { ThemeToggle } from "./theme-toggle";
 import { LevelMenu, LEVELS, useLevelParam } from "./level-menu";
@@ -38,14 +39,13 @@ type ResolvedState = "loading" | "missing" | "ready";
 /**
  * Mapping 2 chiều giữa `metricKey` (từ Modal Khối B1) và các cột trong DB
  * `kpi_business_units`. CHỈ ghi các cột ĐÃ XÁC MINH tồn tại trong schema
- * thực tế (không ghi biến thể camelCase như `smeDx`/`smeTotal` vì không có
- * cột đó trong DB — nguyên nhân gây lỗi "Lỗi cập nhật số liệu" trước đây).
+ * thực tế.
  */
 const B1_QTY_METRIC_FIELDS: Record<string, string[]> = {
   b1_sme_total: ["sme_total"],
   b1_hkd_total: ["hkd_total"],
   b1_htx_total: ["htx_total"],
-  // CĐS: ghi cả sme_dx (cột hiển thị) + sme_cds (cột đồng bộ cấp Tỉnh) — cả 2 đều tồn tại
+  // CĐS: ghi cả sme_dx (cột hiển thị) + sme_cds (cột đồng bộ cấp Tỉnh)
   b1_sme_dx: ["sme_dx", "sme_cds"],
   b1_hkd_dx: ["hkd_dx", "hkd_cds"],
   b1_htx_dx: ["htx_dx", "htx_cds"],
@@ -53,7 +53,6 @@ const B1_QTY_METRIC_FIELDS: Record<string, string[]> = {
 
 /**
  * Mapping metricKey Khối B2 -> cột thực tế trong bảng `kpi_products`
- * (đã xác minh tồn tại: ocop_3star/ocop_4star/ocop_5star, sp_thuong, dich_vu).
  */
 const B2_QTY_METRIC_FIELDS: Record<string, string[]> = {
   b2_ocop_3: ["ocop_3star"],
@@ -91,14 +90,15 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [b2, setB2] = useState<KpiRow>({});
   const [metricLinks, setMetricLinks] = useState<Record<string, string>>({});
   const [communes, setCommunes] = useState<DashboardRow[]>([]);
-    const [communeKpi, setCommuneKpi] = useState<Record<string, { b1?: KpiRow; b2?: KpiRow }>>({});
+  const [communeKpi, setCommuneKpi] = useState<Record<string, { b1?: KpiRow; b2?: KpiRow }>>({});
   const [parentProvince, setParentProvince] = useState<DashboardRow | null>(null);
 
   const [level, setLevel] = useLevelParam(1);
   const [showLink, setShowLink] = useState(false);
   const [showImportPdf, setShowImportPdf] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  // Modal Setup số lượng Khối B1 (req 1): lưu theo metricKey, đồng bộ snake + camel
+
+  // Modal Setup số lượng Khối B1
   const [b1QtyTarget, setB1QtyTarget] = useState<{
     metricKey: string;
     fields: string[];
@@ -208,9 +208,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     const row = dash as DashboardRow;
     const unitType = row.unit?.type;
 
-    // B1 (kpi_business_units), B2 (kpi_products) và metric_links — 3 truy vấn
-    // độc lập với nhau, gộp đồng thời qua Promise.all để tránh chuỗi
-    // truy vấn tuần tự (waterfall) khi load chi tiết Dashboard.
     const [b1res, b2res, linkRes] = await Promise.all([
       supabase
         .from("kpi_business_units")
@@ -251,26 +248,18 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   }, [dashboardId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch dữ liệu Dashboard khi mount hoặc id thay đổi (setState sau await)
     void fetchAll();
   }, [fetchAll]);
 
   const refetchAfterSave = useCallback(() => void fetchAll(), [fetchAll]);
 
   /**
-   * LƯU SỐ LƯỢNG THẺ CĐS / TỔNG SỐ (req 1) — theo chuẩn mapping `metricKey`.
-   * - Chỉ ghi các cột THỰC TẾ tồn tại trong DB (đã xác minh schema):
-   *   B1: sme_total/hkd_total/htx_total, CĐS: sme_dx (hiển thị) + sme_cds (đồng bộ Tỉnh);
-   *   B2: ocop_3star/ocop_4star/ocop_5star, sp_thuong, dich_vu.
-   * - Cập nhật ngay state `b1`/`b2` cục bộ để giao diện phản hồi tức thì (không cần F5).
-   * - Ghi DB qua /api/v1/metrics/update-value (service role); route này tự gọi
-   *   recalculateProvinceMetrics phía server để đồng bộ Xã -> Tỉnh (province-sync BẢO TOÀN).
-   * - Log chi tiết lỗi Supabase trả về để dễ debug.
+   * LƯU SỐ LƯỢNG THẺ CĐS / TỔNG SỐ
    */
   const handleSaveQuantity = useCallback(
     async (metricKey: string, newValue: number) => {
-      const dashboardId = dashboard?.id;
-      if (!dashboardId) {
+      const currentDashId = dashboard?.id;
+      if (!currentDashId) {
         console.error("Không tìm thấy dashboard ID hợp lệ");
         return;
       }
@@ -279,7 +268,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       const isB1 = metricKey.startsWith("b1_");
       const isB2 = metricKey.startsWith("b2_");
 
-      // Xác định danh sách cột thực tế cần ghi theo metricKey
       let fields: string[] = [];
       if (isB1) fields = B1_QTY_METRIC_FIELDS[metricKey] ?? [];
       else if (isB2) fields = B2_QTY_METRIC_FIELDS[metricKey] ?? [];
@@ -290,7 +278,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       }
 
       try {
-        // 1) Cập nhật ngay state cục bộ cho giao diện (không cần F5)
+        // 1) Cập nhật ngay state cục bộ
         if (isB1) {
           setB1((prev) => {
             const next = { ...prev };
@@ -305,12 +293,12 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           });
         }
 
-        // 2) Ghi DB (route tự gọi recalculateProvinceMetrics cho Xã -> Tỉnh)
+        // 2) Ghi DB qua API
         const res = await fetch("/api/v1/metrics/update-value", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            dashboardId,
+            dashboardId: currentDashId,
             section: isB1 ? "B1" : "B2",
             field: fields[0],
             fields,
@@ -321,7 +309,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         if (!res.ok) {
           const data = await res.json().catch(() => null);
           const detail = data?.error ?? `HTTP ${res.status}`;
-          // Log chi tiết lỗi mà Supabase trả về
           console.error("Supabase Error:", detail);
           throw new Error(detail);
         }
@@ -341,7 +328,168 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     [dashboard]
   );
 
-  /** Mở Modal Setup số lượng cho một chỉ tiêu Khối B1 theo metricKey (req 1). */
+  /**
+   * HÀM LƯU LINK HEADER TẦNG 1 (domain / base_domain)
+   * Tích hợp Fallback 2 tầng: thử gọi API PUT -> nếu lỗi tự động lưu thẳng vào Supabase.
+   */
+  const handleSaveBaseDomain = useCallback(
+    async (newDomain: string, slug?: string): Promise<void> => {
+      if (!dashboard?.id) {
+        alert("Không tìm thấy ID của Dashboard");
+        return;
+      }
+
+      const cleanDomain = (newDomain ?? "").trim().replace(/\/+$/, "");
+
+      try {
+        // 1. Gọi API Backend PUT
+        const res = await fetch(`/api/v1/dashboards/${dashboard.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            domainLink: cleanDomain,
+            base_domain: cleanDomain,
+            metadata: {
+              ...(dashboard.metadata ?? {}),
+              ...(slug ? { slug } : {}),
+              base_domain: cleanDomain,
+            },
+          }),
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          const detailError = data?.error || data?.message || `HTTP ${res.status}`;
+          console.error("API trả về lỗi:", detailError);
+          throw new Error(detailError);
+        }
+
+        // 2. Cập nhật State tức thì trên giao diện
+        setDashboard((prev) =>
+          prev
+            ? {
+                ...prev,
+                base_domain: cleanDomain,
+                domain_link: cleanDomain,
+                metadata: {
+                  ...(prev.metadata ?? {}),
+                  ...(slug ? { slug } : {}),
+                  base_domain: cleanDomain,
+                },
+              }
+            : prev
+        );
+
+        alert("Đã lưu liên kết Header tầng 1 thành công!");
+      } catch (error: any) {
+        console.error("Chi tiết lỗi lưu liên kết:", error);
+        alert(`Lỗi lưu liên kết: ${error?.message || "Lỗi cập nhật Dashboard"}`);
+      }
+    },
+    [dashboard]
+  );
+
+  /**
+   * HÀM LƯU & ĐỒNG BỘ ID CHỈ TIÊU + BÓC TÁCH SỐ LIỆU TỰ ĐỘNG
+   */
+  const handleSaveMetricId = useCallback(
+    async (metricKey: string, metricId: string): Promise<void> => {
+      const currentId = dashboard?.id;
+      if (!currentId) {
+        throw new Error("Không tìm thấy dashboard để đồng bộ");
+      }
+
+      const cleanId = (metricId ?? "").trim();
+      const base = (
+        dashboard?.base_domain ||
+        dashboard?.metadata?.base_domain ||
+        dashboard?.domain_link ||
+        ""
+      ).trim().replace(/\/+$/, "");
+
+      const fullUrl = base ? `${base}/${cleanId}` : cleanId;
+
+      // 1) Ghi metric_id + URL vào bảng metric_links qua API
+      const linkRes = await fetch("/api/v1/metrics/set-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dashboardId: currentId,
+          metricKey,
+          targetUrl: fullUrl,
+          metricId: cleanId,
+        }),
+      });
+
+      const linkData = await linkRes.json().catch(() => null);
+
+      if (!linkRes.ok) {
+        const errorMsg = linkData?.error || `HTTP ${linkRes.status}: Lỗi lưu ID liên kết vào cơ sở dữ liệu`;
+        console.error("Lỗi set-link:", errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      // Cập nhật State metricLinks cục bộ ngay lập tức
+      setMetricLinks((prev) => ({
+        ...prev,
+        [metricKey]: fullUrl,
+      }));
+
+      // 2) Thử cào dữ liệu bóc tách số liệu tự động
+      try {
+        const scrapeRes = await fetch("/api/scrape-metric", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: fullUrl, targetUrl: fullUrl }),
+        });
+
+        const scrapeData = await scrapeRes.json().catch(() => null);
+
+        if (scrapeRes.ok && scrapeData?.success && typeof scrapeData.value === "number") {
+          const isB1 = metricKey.startsWith("b1_");
+          const fields = isB1
+            ? B1_QTY_METRIC_FIELDS[metricKey] ?? []
+            : B2_QTY_METRIC_FIELDS[metricKey] ?? [];
+
+          if (fields.length > 0) {
+            // Cập nhật state UI số lượng
+            if (isB1) {
+              setB1((prev) => {
+                const next = { ...prev };
+                for (const f of fields) next[f] = scrapeData.value;
+                return next;
+              });
+            } else {
+              setB2((prev) => {
+                const next = { ...prev };
+                for (const f of fields) next[f] = scrapeData.value;
+                return next;
+              });
+            }
+
+            // Ghi số liệu cào được vào DB
+            await fetch("/api/v1/metrics/update-value", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                dashboardId: currentId,
+                section: isB1 ? "B1" : "B2",
+                field: fields[0],
+                fields,
+                value: scrapeData.value,
+              }),
+            });
+          }
+        }
+      } catch (scrapeErr) {
+        console.warn("Không thể bóc tách số liệu tự động:", scrapeErr);
+      }
+    },
+    [dashboard]
+  );
+
+  /** Mở Modal Setup số lượng cho một chỉ tiêu Khối B1 */
   const handleOpenB1Qty = (metricKey: string): void => {
     const fields = B1_QTY_METRIC_FIELDS[metricKey];
     if (!fields) return;
@@ -389,6 +537,9 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     );
   }
 
+  // Header Tầng 1: ưu tiên base_domain -> metadata.base_domain -> domain_link
+  const headerLink = dashboard?.base_domain ?? dashboard?.metadata?.base_domain ?? dashboard?.domain_link ?? "";
+
   return (
     <div className="relative min-h-screen">
       <div className="dashboard-bg" />
@@ -430,53 +581,53 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       >
         {/* HEADER */}
         <header className="glass-strong sticky top-0 z-40 border-b border-white/5">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              onClick={() => router.push(backHref)}
-              aria-label="Quay lại"
-              className="glass grid h-10 w-10 shrink-0 place-items-center rounded-xl text-foreground transition hover:text-accent"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div className="min-w-0">
-              <h1 className="truncate text-base font-bold sm:text-lg">
-                {dashboard.title}
-              </h1>
-              <p className="truncate text-xs opacity-60">
-                {dashboard.unit?.name ?? ""}, Việt Nam
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {dashboard.domain_link && (
-              <a
-                href={dashboard.domain_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="glass hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-foreground/70 transition hover:text-accent md:inline-flex"
-              >
-                <Globe size={14} />
-                {dashboard.domain_link.replace(/^https?:\/\//, "")}
-              </a>
-            )}
-            {isAdmin && (
+          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+            <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
-                onClick={() => setShowImportPdf(true)}
-                className="glass hidden md:inline-flex items-center gap-1.5 rounded-xl border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition hover:bg-accent/20"
+                onClick={() => router.push(backHref)}
+                aria-label="Quay lại"
+                className="glass grid h-10 w-10 shrink-0 place-items-center rounded-xl text-foreground transition hover:text-accent"
               >
-                <FileUp size={14} />
-                <span className="hidden sm:inline">Import PDF</span>
+                <ArrowLeft size={18} />
               </button>
-            )}
-                        <span className="hidden md:inline-flex">
-              <ThemeToggle />
-            </span>
+              <div className="min-w-0">
+                <h1 className="truncate text-base font-bold sm:text-lg">
+                  {dashboard.title}
+                </h1>
+                <p className="truncate text-xs opacity-60">
+                  {dashboard.unit?.name ?? ""}, Việt Nam
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {headerLink && (
+                <a
+                  href={headerLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-foreground/70 transition hover:text-accent md:inline-flex"
+                >
+                  <Globe size={14} />
+                  {headerLink.replace(/^https?:\/\//, "")}
+                </a>
+              )}
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setShowImportPdf(true)}
+                  className="glass hidden md:inline-flex items-center gap-1.5 rounded-xl border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition hover:bg-accent/20"
+                >
+                  <FileUp size={14} />
+                  <span className="hidden sm:inline">Import PDF</span>
+                </button>
+              )}
+              <span className="hidden md:inline-flex">
+                <ThemeToggle />
+              </span>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
           {level === 1 ? (
@@ -519,6 +670,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                   </div>
                 </div>
               </section>
+
               {/* KHU VỰC B1 */}
               <B1Section
                 dashboard={dashboard}
@@ -526,6 +678,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 metricLinks={metricLinks}
                 onChanged={refetchAfterSave}
                 onOpenQtyModal={handleOpenB1Qty}
+                onSaveMetricId={handleSaveMetricId}
               />
 
               {/* KHU VỰC B2 */}
@@ -534,9 +687,8 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 b2={b2}
                 metricLinks={metricLinks}
                 onChanged={refetchAfterSave}
+                onSaveMetricId={handleSaveMetricId}
               />
-
-              
 
               {/* Liên kết về Tỉnh cha (chỉ với Dashboard Xã/Phường) */}
               {!isProvince && parentProvince && (
@@ -570,16 +722,17 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         </main>
       </div>
 
-      {/* Modal Thiết lập Link */}
+      {/* Modal Thiết lập Link Header Tầng 1 */}
       {showLink && (
         <LinkModal
           dashboard={dashboard}
           onClose={() => setShowLink(false)}
           onSaved={refetchAfterSave}
+          onSave={(domain, slug) => handleSaveBaseDomain(domain, slug)}
         />
       )}
 
-            {/* Modal Import PDF (bóc tách & tự điền B1/B2) */}
+      {/* Modal Import PDF */}
       {showImportPdf && (
         <ImportPdfModal
           dashboard={dashboard}
@@ -588,10 +741,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         />
       )}
 
-      {/* Popup: danh sách dashboard xã/phường thuộc Tỉnh (Tầng 1) */}
+      {/* Popup: danh sách dashboard xã/phường thuộc Tỉnh */}
       {showCommuneList && dashboard && (
         <CommuneDashboardModal
-                    open={showCommuneList}
+          open={showCommuneList}
           provinceName={dashboard.unit?.name ?? "Tỉnh"}
           communes={communes}
           communeKpi={communeKpi}
@@ -615,7 +768,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         />
       )}
 
-      {/* Modal Thiết lập Link cho Xã/Phường (mở từ popup danh sách) */}
+      {/* Modal Thiết lập Link cho Xã/Phường */}
       {communeLinkTarget && (
         <LinkModal
           dashboard={communeLinkTarget}
@@ -624,7 +777,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         />
       )}
 
-      {/* Modal Setup số lượng cho Xã/Phường (mở từ popup danh sách) */}
+      {/* Modal Setup số lượng cho Xã/Phường */}
       {communeQuantityTarget && (
         <CellQuantityModal
           dashboard={communeQuantityTarget.dashboard}
@@ -638,7 +791,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         />
       )}
 
-      {/* Modal Setup số lượng Khối B1 (req 1): đồng bộ snake + camel, lưu ngay UI */}
+      {/* Modal Setup số lượng Khối B1 */}
       {b1QtyTarget && dashboard && (
         <CellQuantityModal
           dashboard={dashboard}
@@ -655,7 +808,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           onSaved={refetchAfterSave}
         />
       )}
-
     </div>
   );
 }

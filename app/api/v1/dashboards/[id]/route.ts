@@ -1,107 +1,58 @@
-import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase';
-import type { DashboardMetadata, DashboardSettings } from '@/lib/types';
-import { errorMessage } from '@/lib/server-utils';
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase"; // hoặc getSupabaseAdmin()
 
-// 1. API SỬA THÔNG TIN DASHBOARD (PUT)
 export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const supabaseAdmin = getSupabaseAdmin();
-    const { id } = await params;
-    const body = await request.json();
+    const resolvedParams = await Promise.resolve(params);
+    const id = resolvedParams.id;
+    const body = await req.json();
 
-    const {
-      title,
-      domainLink,
-      syncSchedule,
-      b1CustomId,
-      b2CustomId,
-      metadata,
-      settings,
-    }: {
-      title?: string;
-      domainLink?: string | null;
-      syncSchedule?: string;
-      b1CustomId?: string | null;
-      b2CustomId?: string | null;
-      metadata?: DashboardMetadata;
-      settings?: DashboardSettings;
-    } = body;
+    const domainLink = body.domainLink || body.base_domain || body.domain_link || "";
 
-    // Gộp metadata mới vào metadata hiện có để tránh ghi đè mất dữ liệu
-    const { data: existing } = await supabaseAdmin
-      .from('dashboards')
-      .select('metadata, settings')
-      .eq('id', id)
+    // 1. Lấy metadata hiện tại để không bị ghi đè mất dữ liệu khác
+    const { data: currentDash } = await supabase
+      .from("dashboards")
+      .select("metadata")
+      .eq("id", id)
       .maybeSingle();
 
-    const nextMetadata = {
-      ...((existing?.metadata as DashboardMetadata | null) ?? {}),
-      ...(metadata ?? {}),
-    };
-    const nextSettings = {
-      ...((existing?.settings as DashboardSettings | null) ?? {}),
-      ...(settings ?? {}),
+    const mergedMetadata = {
+      ...(currentDash?.metadata || {}),
+      ...(body.metadata || {}),
+      base_domain: domainLink,
     };
 
-    const { data, error } = await supabaseAdmin
-      .from('dashboards')
-      .update({
-        ...(title !== undefined ? { title } : {}),
-        ...(domainLink !== undefined ? { domain_link: domainLink || null } : {}),
-        ...(syncSchedule !== undefined ? { sync_schedule: syncSchedule || '0 0 * * *' } : {}),
-        ...(b1CustomId !== undefined ? { b1_custom_id: b1CustomId || null } : {}),
-        ...(b2CustomId !== undefined ? { b2_custom_id: b2CustomId || null } : {}),
-        ...(metadata !== undefined ? { metadata: nextMetadata } : {}),
-        ...(settings !== undefined ? { settings: nextSettings } : {}),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
+    // 2. Cập nhật vào DB
+    const updatePayload: Record<string, any> = {
+      domain_link: domainLink,
+      base_domain: domainLink,
+      metadata: mergedMetadata,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from("dashboards")
+      .update(updatePayload)
+      .eq("id", id)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("❌ Lỗi Supabase Backend:", error);
+      return NextResponse.json(
+        { error: error.message || "Không thể cập nhật cơ sở dữ liệu" },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Cập nhật Dashboard thành công!',
-      data,
-    });
-    } catch (error: unknown) {
+    return NextResponse.json({ success: true, data });
+  } catch (err: any) {
+    console.error("❌ Lỗi API Route:", err);
     return NextResponse.json(
-      { error: errorMessage(error, 'Lỗi cập nhật Dashboard') },
-      { status: 500 }
-    );
-  }
-}
-
-// 2. API XÓA DASHBOARD (DELETE)
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const supabaseAdmin = getSupabaseAdmin();
-    const { id } = await params;
-
-    // Xóa Dashboard (Các bảng liên quan sẽ tự động xóa nhờ CASCADE trong SQL)
-    const { error } = await supabaseAdmin
-      .from('dashboards')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-
-    return NextResponse.json({
-      success: true,
-      message: 'Đã xóa Dashboard thành công!',
-    });
-    } catch (error: unknown) {
-    return NextResponse.json(
-      { error: errorMessage(error, 'Lỗi xóa Dashboard') },
+      { error: err?.message || "Lỗi xử lý yêu cầu phía máy chủ" },
       { status: 500 }
     );
   }

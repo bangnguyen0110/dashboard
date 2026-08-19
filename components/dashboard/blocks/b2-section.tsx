@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { Package, Sparkles, Settings, Link as LinkIcon, Edit3 } from "lucide-react";
 import { StatCell } from "./stat-cell";
-import { CellLinkModal } from "./cell-link-modal";
 import { CellQuantityModal } from "./cell-quantity-modal";
 import { BlockIdModal } from "./block-id-modal";
+import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
 
@@ -14,18 +14,32 @@ interface B2SectionProps {
   b2: KpiRow;
   metricLinks: Record<string, string>;
   onChanged: () => void;
+  onOpenLinkModal?: (key: string) => void;
+  onOpenQtyModal?: (key: string) => void;
+  onOpenSetupId?: () => void;
+  onOpenMetricId?: (key: string, label: string) => void;
+  onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
 }
 
 const num = (kpi: KpiRow, key: string): number => Number(kpi[key] ?? 0);
 
-interface LinkState { metricKey: string; label: string; initialUrl: string; }
 interface QuantityState { field: string; label: string; current: number; matchTokens: string[]; }
 
-export function B2Section({ dashboard, b2, metricLinks, onChanged }: B2SectionProps) {
+export function B2Section({
+  dashboard,
+  b2,
+  metricLinks,
+  onChanged,
+  onOpenLinkModal,
+  onOpenQtyModal,
+  onOpenSetupId,
+  onOpenMetricId,
+  onSaveMetricId,
+}: B2SectionProps) {
   const { isAdmin } = useAuth();
   const [showBlockId, setShowBlockId] = useState(false);
-  const [linkState, setLinkState] = useState<LinkState | null>(null);
-  const [quantityState, setQuantityState] = useState<QuantityState | null>(null);
+  const [quantityState, setQuantityState] = useState<{ field: string; label: string; current: number; matchTokens: string[] } | null>(null);
+  const [metricIdState, setMetricIdState] = useState<{ metricKey: string; metricId: string | null } | null>(null);
 
   const ocop3 = num(b2, "ocop_3star");
   const ocop4 = num(b2, "ocop_4star");
@@ -37,6 +51,24 @@ export function B2Section({ dashboard, b2, metricLinks, onChanged }: B2SectionPr
   const otherTotal = spThuong + dichVu;
   const totalAll = ocopTotal + otherTotal;
   const pct = (part: number, whole: number) => whole > 0 ? ((part / whole) * 100).toFixed(1) : "0.0";
+
+  // Mapping metricKey B2 -> field thực tế (để cập nhật số liệu sau khi scrape)
+  const B2_FIELD: Record<string, string> = {
+    b2_ocop_3: "ocop_3star",
+    b2_ocop_4: "ocop_4star",
+    b2_ocop_5: "ocop_5star",
+    b2_sp_thuong: "sp_thuong",
+    b2_dich_vu: "dich_vu",
+    b2_total_ocop: "ocop_3star",
+  };
+
+  const handleOpenMetricId = (key: string, label: string): void => {
+    if (onOpenMetricId) {
+      onOpenMetricId(key, label);
+      return;
+    }
+    setMetricIdState({ metricKey: key, metricId: null });
+  };
 
   // Banner Tổng Cụm 1 (OCOP) / Cụm 2 (SP Thường & Dịch vụ) tự chuyển thành <a> khi có link
   const banner1Link = metricLinks["b2_total_ocop"] || "";
@@ -83,10 +115,10 @@ export function B2Section({ dashboard, b2, metricLinks, onChanged }: B2SectionPr
                   <>
                 <button
                   type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLinkState({ metricKey: "b2_total_ocop", label: "OCOP 3 sao", initialUrl: metricLinks["b2_total_ocop"] || "" }); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleOpenMetricId("b2_total_ocop", "Tổng sản phẩm OCOP"); }}
                   className="rounded-lg border border-amber-500 bg-amber-500/10 p-2 text-amber-400 transition hover:text-amber-300 hover:bg-amber-500/20"
-                  aria-label="Thiết lập link OCOP"
-                  title="Thiết lập Link"
+                  aria-label="Thiết lập ID OCOP"
+                  title="Thiết lập ID"
                 >
                   <LinkIcon size={14} />
                 </button>
@@ -107,15 +139,15 @@ export function B2Section({ dashboard, b2, metricLinks, onChanged }: B2SectionPr
             <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-5">
               <StatCell label="OCOP 3 SAO" value={ocop3} unit="SP" color="#f59e0b"
                 targetUrl={metricLinks["b2_ocop_3"]}
-                onEditLink={() => setLinkState({ metricKey: "b2_ocop_3", label: "OCOP 3 sao", initialUrl: metricLinks["b2_ocop_3"] || "" })}
+                onEditLink={() => handleOpenMetricId("b2_ocop_3", "OCOP 3 sao")}
                 onEditQuantity={() => setQuantityState({ field: "ocop_3star", label: "OCOP 3 sao", current: ocop3, matchTokens: ["ocop 3 sao", "ocop_3star"] })} />
               <StatCell label="OCOP 4 SAO" value={ocop4} unit="SP" color="#f59e0b"
                 targetUrl={metricLinks["b2_ocop_4"]}
-                onEditLink={() => setLinkState({ metricKey: "b2_ocop_4", label: "OCOP 4 sao", initialUrl: metricLinks["b2_ocop_4"] || "" })}
+                onEditLink={() => handleOpenMetricId("b2_ocop_4", "OCOP 4 sao")}
                 onEditQuantity={() => setQuantityState({ field: "ocop_4star", label: "OCOP 4 sao", current: ocop4, matchTokens: ["ocop 4 sao", "ocop_4star"] })} />
               <StatCell label="OCOP 5 SAO" value={ocop5} unit="SP" color="#f59e0b"
                 targetUrl={metricLinks["b2_ocop_5"]}
-                onEditLink={() => setLinkState({ metricKey: "b2_ocop_5", label: "OCOP 5 sao", initialUrl: metricLinks["b2_ocop_5"] || "" })}
+                onEditLink={() => handleOpenMetricId("b2_ocop_5", "OCOP 5 sao")}
                 onEditQuantity={() => setQuantityState({ field: "ocop_5star", label: "OCOP 5 sao", current: ocop5, matchTokens: ["ocop 5 sao", "ocop_5star"] })} />
             </div>
           </div>
@@ -130,10 +162,10 @@ export function B2Section({ dashboard, b2, metricLinks, onChanged }: B2SectionPr
                   <>
                 <button
                   type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLinkState({ metricKey: "b2_total_normal_service", label: "Sản phẩm thường", initialUrl: metricLinks["b2_total_normal_service"] || "" }); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleOpenMetricId("b2_total_normal_service", "Sản phẩm thường & Dịch vụ"); }}
                   className="rounded-lg border border-amber-500 bg-amber-500/10 p-2 text-amber-400 transition hover:text-amber-300 hover:bg-amber-500/20"
-                  aria-label="Thiết lập link SP thường"
-                  title="Thiết lập Link"
+                  aria-label="Thiết lập ID SP thường"
+                  title="Thiết lập ID"
                 >
                   <LinkIcon size={14} />
                 </button>
@@ -154,11 +186,11 @@ export function B2Section({ dashboard, b2, metricLinks, onChanged }: B2SectionPr
             <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mt-5">
               <StatCell label="SẢN PHẨM THƯỜNG" value={spThuong} unit="SP" color="#3b82f6"
                 targetUrl={metricLinks["b2_sp_thuong"]}
-                onEditLink={() => setLinkState({ metricKey: "b2_sp_thuong", label: "Sản phẩm thường", initialUrl: metricLinks["b2_sp_thuong"] || "" })}
+                onEditLink={() => handleOpenMetricId("b2_sp_thuong", "Sản phẩm thường")}
                 onEditQuantity={() => setQuantityState({ field: "sp_thuong", label: "Sản phẩm thường", current: spThuong, matchTokens: ["sản phẩm thường", "sp thường"] })} />
               <StatCell label="TỔNG SỐ DỊCH VỤ" value={dichVu} unit="DV" color="#a855f7"
                 targetUrl={metricLinks["b2_dich_vu"]}
-                onEditLink={() => setLinkState({ metricKey: "b2_dich_vu", label: "Dịch vụ", initialUrl: metricLinks["b2_dich_vu"] || "" })}
+                onEditLink={() => handleOpenMetricId("b2_dich_vu", "Dịch vụ")}
                 onEditQuantity={() => setQuantityState({ field: "dich_vu", label: "Dịch vụ", current: dichVu, matchTokens: ["dịch vụ", "dv"] })} />
             </div>
           </div>
@@ -204,8 +236,69 @@ export function B2Section({ dashboard, b2, metricLinks, onChanged }: B2SectionPr
       </div>
 
       {showBlockId && (<BlockIdModal dashboard={dashboard} section="B2" currentId={dashboard.b2_custom_id} onClose={() => setShowBlockId(false)} onSaved={onChanged} />)}
-      {linkState && (<CellLinkModal dashboard={dashboard} metricKey={linkState.metricKey} label={linkState.label} initialUrl={linkState.initialUrl} onClose={() => setLinkState(null)} onSaved={onChanged} />)}
       {quantityState && (<CellQuantityModal dashboard={dashboard} section="B2" field={quantityState.field} label={quantityState.label} currentValue={quantityState.current} matchTokens={quantityState.matchTokens} onClose={() => setQuantityState(null)} onSaved={onChanged} />)}
+      {metricIdState && (
+        <MetricIdModal
+          dashboard={dashboard}
+          metricKey={metricIdState.metricKey}
+          label={metricIdState.metricKey}
+          baseDomain={dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || ""}
+          initialId={metricIdState.metricId ?? ""}
+          onClose={() => setMetricIdState(null)}
+          onSave={onSaveMetricId ?? (async (metricKey: string, metricId: string) => {
+            const base = (dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || "").trim().replace(/\/+$/, "");
+            const fullUrl = base ? `${base}/${metricId}` : metricId;
+
+            // 1) Ghi metric_id + URL vào bảng metric_links
+            const linkRes = await fetch("/api/v1/metrics/set-link", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                dashboardId: dashboard.id,
+                metricKey,
+                targetUrl: fullUrl,
+                metricId,
+              }),
+            });
+            if (!linkRes.ok) {
+              const d = await linkRes.json();
+              throw new Error(d.error ?? "Lỗi lưu ID liên kết");
+            }
+
+            // 2) Cào dữ liệu qua API scrape-metric
+            const scrapeRes = await fetch("/api/scrape-metric", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ targetUrl: fullUrl }),
+            });
+            const scrapeData = await scrapeRes.json();
+            if (!scrapeRes.ok || !scrapeData.success || typeof scrapeData.value !== "number") {
+              throw new Error(scrapeData?.error ?? "Không bóc tách được số liệu từ URL");
+            }
+
+            // 3) Cập nhật chỉ tiêu theo field mapping (B2)
+            const field = B2_FIELD[metricKey];
+            if (field) {
+              const upRes = await fetch("/api/v1/metrics/update-value", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  dashboardId: dashboard.id,
+                  section: "B2",
+                  field,
+                  fields: [field],
+                  value: scrapeData.value,
+                }),
+              });
+              if (!upRes.ok) {
+                const d = await upRes.json();
+                throw new Error(d.error ?? "Lỗi cập nhật số liệu");
+              }
+            }
+          })}
+          onSaved={onChanged}
+        />
+      )}
     </section>
   );
 }

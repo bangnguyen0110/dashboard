@@ -1,118 +1,97 @@
-import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase';
-import { errorMessage } from '@/lib/server-utils';
-import { recalculateProvinceMetrics } from '@/lib/province-sync';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-/**
- * Sau khi lưu/cập nhật thông số cho một Dashboard, nếu Dashboard đó thuộc
- * Xã/Phường thì tự động cộng dồn số liệu của toàn tỉnh lên Dashboard Tỉnh.
- */
-async function syncCommuneToProvince(dashboardId: string): Promise<void> {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  "";
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+export async function POST(req: NextRequest) {
   try {
-    const supabaseAdmin = getSupabaseAdmin();
-    const { data: dash } = await supabaseAdmin
-      .from('dashboards')
-      .select('unit:administrative_units(type, parent_id)')
-      .eq('id', dashboardId)
-      .maybeSingle();
+    const { dashboardId, section, field, fields, value } = await req.json();
 
-    const unit = dash?.unit as
-      | { type?: string; parent_id?: string | null }
-      | undefined;
-
-    if (unit?.type !== 'COMMUNE' || !unit.parent_id) return;
-    await recalculateProvinceMetrics(unit.parent_id);
-  } catch {
-    // Không làm hỏng thao tác lưu gốc nếu việc đồng bộ tỉnh gặp lỗi.
-  }
-}
-
-export async function POST(request: Request) {
-  try {
-    const supabaseAdmin = getSupabaseAdmin();
-    const body = await request.json();
-    const { dashboardId, section, field, fields, value } = body;
-
-    // Danh sách cột cần ghi. LƯU Ý: chỉ ghi các cột đã xác minh tồn tại trong DB
-    // (kpi_business_units: sme_total, sme_dx, sme_cds...; kpi_products: ocop_3star...).
-    // KHÔNG dùng biến thể camelCase (smeDx, smeTotal...) vì không có cột đó.
-    const affectedFields =
-      Array.isArray(fields) && fields.length > 0
-        ? fields.filter(Boolean)
-        : field
-          ? [field]
-          : [];
-
-    if (!dashboardId || !section || affectedFields.length === 0) {
-      return NextResponse.json(
-        { error: 'Thiếu dữ liệu đầu vào (dashboardId, section, field)' },
-        { status: 400 }
-      );
+    if (!dashboardId || !field) {
+      return NextResponse.json({ success: false, error: "Thiếu dashboardId hoặc field" }, { status: 400 });
     }
 
-    const numericValue = Number(value) || 0;
-    const tableName = section === 'B1' ? 'kpi_business_units' : 'kpi_products';
-    const updatePayload = Object.fromEntries(
-      affectedFields.map((f: string) => [f, numericValue])
-    );
+    const numValue = Number(value) || 0;
+    const sec = (section || "").toUpperCase();
 
-    // Kiểm tra xem đã có bản ghi KPI nào cho Dashboard này chưa
-    const { data: existing } = await supabaseAdmin
-      .from(tableName)
-      .select('id')
-      .eq('dashboard_id', dashboardId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // TẦNG 2, 3, 4, 5
+    if (
+      sec === "L2" || sec === "L3" || sec === "L4" || sec === "L5" ||
+      sec === "LEVEL2" || sec === "LEVEL3" || sec === "LEVEL4" || sec === "LEVEL5"
+    ) {
+      const col = sec.includes("2")
+        ? "level2"
+        : sec.includes("3")
+        ? "level3"
+        : sec.includes("4")
+        ? "level4"
+        : "level5";
 
-    if (existing) {
-      // Cập nhật số liệu vào bản ghi hiện có
-      const { data, error } = await supabaseAdmin
-        .from(tableName)
-        .update({
-          ...updatePayload,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', existing.id)
-        .select()
-        .single();
+      const prefix = sec.includes("2")
+        ? "l2_"
+        : sec.includes("3")
+        ? "l3_"
+        : sec.includes("4")
+        ? "l4_"
+        : "l5_";
 
-      if (error) {
-        console.error("Supabase Error:", error);
-        throw error;
+      const { data: dash } = await supabase.from("dashboards").select(`${col}, metadata`).eq("id", dashboardId).single();
+      const currentData = (dash as any)?.[col] || (dash as any)?.metadata?.[col] || {};
+
+      currentData[field] = numValue;
+      currentData[`${prefix}${field}`] = numValue;
+
+      const { error: updateColErr } = await supabase
+        .from("dashboards")
+        .update({ [col]: currentData })
+        .eq("id", dashboardId);
+
+      if (updateColErr) {
+        const meta = (dash as any)?.metadata || {};
+        meta[col] = currentData;
+        await supabase.from("dashboards").update({ metadata: meta }).eq("id", dashboardId);
       }
-      // Đồng bộ tự động số liệu Xã/Phường lên Dashboard Tỉnh
-      await syncCommuneToProvince(dashboardId);
-      return NextResponse.json({ success: true, message: 'Cập nhật số liệu thành công!', data });
-    } else {
-      // Thêm bản ghi KPI mới nếu chưa có
-      const { data, error } = await supabaseAdmin
-        .from(tableName)
-        .insert({
-          dashboard_id: dashboardId,
-          ...updatePayload,
-        })
-        .select()
-        .single();
 
-      if (error) {
-        console.error("Supabase Error:", error);
-        throw error;
-      }
-      // Đồng bộ tự động số liệu Xã/Phường lên Dashboard Tỉnh
-      await syncCommuneToProvince(dashboardId);
-      return NextResponse.json({ success: true, message: 'Khởi tạo số liệu thành công!', data });
+      return NextResponse.json({ success: true, value: numValue });
     }
-    } catch (error: unknown) {
-    console.error('Lỗi update-value:', error);
-    // Đính kèm thông điệp gốc từ Supabase/Postgres để client dễ debug
-    const rawMessage =
-      typeof error === 'object' && error !== null && 'message' in error
-        ? String((error as { message: unknown }).message)
-        : null;
-    return NextResponse.json(
-      { error: rawMessage || errorMessage(error, 'Lỗi cập nhật số liệu') },
-      { status: 500 }
-    );
+
+    // KHỐI B3 -> B9
+    if (["B3", "B4", "B5", "B6", "B7", "B8", "B9"].includes(sec)) {
+      const col = sec.toLowerCase();
+      const { data: dash } = await supabase.from("dashboards").select(col).eq("id", dashboardId).single();
+      const currentData = (dash as any)?.[col] || {};
+      currentData[field] = numValue;
+
+      const { error } = await supabase.from("dashboards").update({ [col]: currentData }).eq("id", dashboardId);
+      if (error) throw error;
+      return NextResponse.json({ success: true, value: numValue });
+    }
+
+    // KHỐI B1
+    if (sec === "B1") {
+      const updateFields = fields && fields.length > 0 ? fields : [field];
+      const updateObj: Record<string, number> = {};
+      updateFields.forEach((f: string) => (updateObj[f] = numValue));
+
+      const { error } = await supabase.from("kpi_business_units").update(updateObj).eq("dashboard_id", dashboardId);
+      if (error) throw error;
+      return NextResponse.json({ success: true, value: numValue });
+    }
+
+    // KHỐI B2
+    if (sec === "B2") {
+      const { error } = await supabase.from("kpi_products").update({ [field]: numValue }).eq("dashboard_id", dashboardId);
+      if (error) throw error;
+      return NextResponse.json({ success: true, value: numValue });
+    }
+
+    return NextResponse.json({ success: true, value: numValue });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message || "Lỗi cập nhật số liệu" }, { status: 500 });
   }
 }

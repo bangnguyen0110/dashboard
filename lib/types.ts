@@ -76,3 +76,12 @@ export interface DashboardRow {
 }
 
 export type KpiRow = Record<string, unknown>;
+
+export interface DashboardMetadata {
+  level?: number;
+  slug?: string;
+  base_domain?: string | null;
+  metrics?: Record<string, MetricKV>;
+  tailieu_cds_url?: string; // 👈 Thêm dòng này
+  [key: string]: any;       // 👈 Hoặc thêm index signature để nhận mọi custom key sau này
+}

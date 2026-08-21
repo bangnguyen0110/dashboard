@@ -17,7 +17,7 @@ import { LinkModal } from "./link-modal";
 import { ImportPdfModal } from "./import-pdf-modal";
 import { CommuneDashboardModal } from "./commune-dashboard-modal";
 import { CellQuantityModal } from "./blocks/cell-quantity-modal";
-import B1Section from "./blocks/b1-section";
+import { B1Section } from "./blocks/b1-section";
 import { B2Section } from "./blocks/b2-section";
 import { B3Section } from "./blocks/b3-section";
 import { B4Section } from "./blocks/b4-section";
@@ -26,6 +26,10 @@ import { B6Section } from "./blocks/b6-section";
 import { B7Section } from "./blocks/b7-section";
 import { B8Section } from "./blocks/b8-section";
 import { B9Section } from "./blocks/b9-section";
+import { Level2View } from "./level-2-view";
+import { Level3View } from "./level-3-view";
+import { Level4View } from "./level-4-view";
+import { Level5View } from "./level-5-view";
 import { useAuth } from "@/context/AuthContext";
 
 interface DashboardDetailProps {
@@ -78,6 +82,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [dashboard, setDashboard] = useState<DashboardRow | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
+  // Dữ liệu Tầng 1
   const [b1, setB1] = useState<KpiRow>({});
   const [b2, setB2] = useState<KpiRow>({});
   const [b3, setB3] = useState<KpiRow>({});
@@ -88,12 +93,20 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [b8, setB8] = useState<KpiRow>({});
   const [b9, setB9] = useState<KpiRow>({});
 
+  // Dữ liệu Tầng 2, 3, 4
+  const [level2Data, setLevel2Data] = useState<KpiRow>({});
+  const [level3Data, setLevel3Data] = useState<KpiRow>({});
+  const [level4Data, setLevel4Data] = useState<KpiRow>({});
+  const [level5Data, setLevel5Data] = useState<KpiRow>({});
+
   const [metricLinks, setMetricLinks] = useState<Record<string, string>>({});
   const [communes, setCommunes] = useState<DashboardRow[]>([]);
   const [communeKpi, setCommuneKpi] = useState<Record<string, { b1?: KpiRow; b2?: KpiRow }>>({});
   const [parentProvince, setParentProvince] = useState<DashboardRow | null>(null);
 
   const [level, setLevel] = useLevelParam(1);
+  const currentLevel = Number(level) || 1; // Ép kiểu số an toàn tuyệt đối
+
   const [showLink, setShowLink] = useState(false);
   const [showImportPdf, setShowImportPdf] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -226,6 +239,11 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     setB8((row as any).b8 ?? {});
     setB9((row as any).b9 ?? {});
 
+    setLevel2Data((row as any).level2 ?? (row as any).l2 ?? {});
+    setLevel3Data((row as any).level3 ?? (row as any).l3 ?? {});
+    setLevel4Data((row as any).level4 ?? (row as any).l4 ?? {});
+    setLevel5Data((row as any).level5 ?? (row as any).l5 ?? {});
+
     const linkMap: Record<string, string> = {};
     (linkRes.data ?? []).forEach((link) => {
       linkMap[link.metric_key] = link.target_url ?? "";
@@ -247,7 +265,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   const refetchAfterSave = useCallback(() => void fetchAll(), [fetchAll]);
 
-  /** Live sync tự động */
+  /** LIVE SYNC QUÉT SỐ LIỆU TỰ ĐỘNG TỪ WEB LIÊN KẾT */
   const handleLiveSync = useCallback(
     async (silent = false) => {
       if (!dashboard?.id) return;
@@ -289,7 +307,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     }
   }, [state, dashboard?.id, handleLiveSync]);
 
-  /** Lưu số lượng thủ công */
+  /** LƯU SỐ LƯỢNG THỦ CÔNG (B1 -> B9, L2, L3, L4) */
   const handleSaveQuantity = useCallback(
     async (metricKey: string, newValue: number) => {
       const currentDashId = dashboard?.id;
@@ -300,6 +318,29 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       const isB2 = metricKey.startsWith("b2_");
       const prefix = metricKey.split("_")[0];
 
+      // Lưu các tầng L2, L3, L4
+      if (prefix === "l2" || prefix === "l3" || prefix === "l4" || prefix === "l5") {
+        const levelField = prefix === "l2" ? "level2" : prefix === "l3" ? "level3" : prefix === "l4" ? "level4" : "level5";
+        const fieldName = metricKey.replace(`${prefix}_`, "");
+
+  if (prefix === "l2") setLevel2Data((prev) => ({ ...prev, [fieldName]: val }));
+  if (prefix === "l3") setLevel3Data((prev) => ({ ...prev, [fieldName]: val }));
+  if (prefix === "l4") setLevel4Data((prev) => ({ ...prev, [fieldName]: val }));
+  if (prefix === "l5") setLevel5Data((prev) => ({ ...prev, [fieldName]: val }));
+
+  const currentSectionData = { ...((dashboard as any)[levelField] || {}) };
+  currentSectionData[fieldName] = val;
+
+  const { error } = await supabase
+    .from("dashboards")
+    .update({ [levelField]: currentSectionData })
+    .eq("id", currentDashId);
+
+  if (error) throw error;
+  return;
+      }
+
+      // Lưu các khối B3 -> B9
       if (["b3", "b4", "b5", "b6", "b7", "b8", "b9"].includes(prefix)) {
         const fieldName = metricKey.replace(`${prefix}_`, "");
         const setters: Record<string, any> = {
@@ -322,6 +363,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         return;
       }
 
+      // Lưu B1, B2
       let fields: string[] = [];
       if (isB1) fields = B1_QTY_METRIC_FIELDS[metricKey] ?? [];
       else if (isB2) fields = B2_QTY_METRIC_FIELDS[metricKey] ?? [];
@@ -366,7 +408,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     [dashboard]
   );
 
-  /** Lưu Base Domain Header */
+  /** LƯU DOMAIN HEADER */
   const handleSaveBaseDomain = useCallback(
     async (newDomain: string, slug?: string): Promise<void> => {
       if (!dashboard?.id) return;
@@ -405,7 +447,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
             : prev
         );
 
-        alert("Đã lưu liên kết Header tầng 1 thành công!");
+        alert("Đã lưu liên kết Header thành công!");
       } catch (error: any) {
         alert(`Lỗi lưu liên kết: ${error?.message || "Lỗi cập nhật Dashboard"}`);
       }
@@ -413,99 +455,52 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     [dashboard]
   );
 
-  /** Lưu Metric ID */
-  const handleSaveMetricId = useCallback(
-    async (metricKey: string, metricId: string): Promise<void> => {
-      const currentId = dashboard?.id;
-      if (!currentId) throw new Error("Không tìm thấy dashboard");
+  /** LƯU ID & BÓC TÁCH SỐ LIỆU TỰ ĐỘNG */
+  /** LƯU ID & BÓC TÁCH SỐ LIỆU TỰ ĐỘNG */
+const handleSaveMetricId = useCallback(
+  async (metricKey: string, metricId: string): Promise<void> => {
+    const currentId = dashboard?.id;
+    if (!currentId) throw new Error("Không tìm thấy dashboard");
 
-      const cleanId = (metricId ?? "").trim();
-      const base = (
-        dashboard?.base_domain ||
-        dashboard?.metadata?.base_domain ||
-        dashboard?.domain_link ||
-        ""
-      ).trim().replace(/\/+$/, "");
+    const cleanId = (metricId ?? "").trim();
+    const base = (
+      dashboard?.base_domain ||
+      dashboard?.metadata?.base_domain ||
+      dashboard?.domain_link ||
+      ""
+    ).trim().replace(/\/+$/, "");
 
-      const fullUrl = base ? `${base}/${cleanId}` : cleanId;
+    const fullUrl = base ? `${base}/${cleanId}` : cleanId;
 
-      const linkRes = await fetch("/api/v1/metrics/set-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          dashboardId: currentId,
-          metricKey,
-          targetUrl: fullUrl,
-          metricId: cleanId,
-        }),
-      });
-      const linkData = await linkRes.json().catch(() => null);
-      if (!linkRes.ok) throw new Error(linkData?.error || "Lỗi lưu ID");
+    // Gọi API Set-Link (Server sẽ tự động lưu link + bóc tách số liệu + ghi vào Database)
+    const linkRes = await fetch("/api/v1/metrics/set-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        dashboardId: currentId,
+        metricKey,
+        targetUrl: fullUrl,
+        metricId: cleanId,
+      }),
+    });
 
-      setMetricLinks((prev) => ({ ...prev, [metricKey]: fullUrl }));
+    const linkData = await linkRes.json().catch(() => null);
+    if (!linkRes.ok) throw new Error(linkData?.error || "Lỗi lưu ID");
 
-      try {
-        const scrapeRes = await fetch("/api/scrape-metric", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: fullUrl, targetUrl: fullUrl }),
-        });
-        const scrapeData = await scrapeRes.json().catch(() => null);
+    // Cập nhật State Link trên Client
+    setMetricLinks((prev) => ({ ...prev, [metricKey]: fullUrl }));
 
-        if (scrapeRes.ok && scrapeData?.success && typeof scrapeData.value === "number") {
-          const prefix = metricKey.split("_")[0];
+    // Tải lại toàn bộ dữ liệu mới nhất từ Database
+    await refetchAfterSave();
 
-          if (["b3", "b4", "b5", "b6", "b7", "b8", "b9"].includes(prefix)) {
-            const fieldName = metricKey.replace(`${prefix}_`, "");
-            const setters: Record<string, any> = {
-              b3: setB3, b4: setB4, b5: setB5, b6: setB6, b7: setB7, b8: setB8, b9: setB9,
-            };
-            if (setters[prefix]) {
-              setters[prefix]((prev: any) => ({ ...prev, [fieldName]: scrapeData.value }));
-            }
-            const currentSectionData = { ...((dashboard as any)[prefix] || {}) };
-            currentSectionData[fieldName] = scrapeData.value;
-            await supabase.from("dashboards").update({ [prefix]: currentSectionData }).eq("id", currentId);
-            return;
-          }
-
-          const isB1 = metricKey.startsWith("b1_");
-          const fields = isB1 ? B1_QTY_METRIC_FIELDS[metricKey] ?? [] : B2_QTY_METRIC_FIELDS[metricKey] ?? [];
-
-          if (fields.length > 0) {
-            if (isB1) {
-              setB1((prev) => {
-                const next = { ...prev };
-                for (const f of fields) next[f] = scrapeData.value;
-                return next;
-              });
-            } else {
-              setB2((prev) => {
-                const next = { ...prev };
-                for (const f of fields) next[f] = scrapeData.value;
-                return next;
-              });
-            }
-
-            await fetch("/api/v1/metrics/update-value", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                dashboardId: currentId,
-                section: isB1 ? "B1" : "B2",
-                field: fields[0],
-                fields,
-                value: scrapeData.value,
-              }),
-            });
-          }
-        }
-      } catch (scrapeErr) {
-        console.warn("Không thể bóc tách số liệu:", scrapeErr);
-      }
-    },
-    [dashboard]
-  );
+    if (linkData?.value !== undefined && linkData?.value !== null) {
+      alert(`✅ Đã đồng bộ số liệu thành công: ${linkData.value}`);
+    } else {
+      alert("✅ Đã lưu link thành công!");
+    }
+  },
+  [dashboard, refetchAfterSave]
+);
 
   const handleOpenB1Qty = (metricKey: string): void => {
     const fields = B1_QTY_METRIC_FIELDS[metricKey];
@@ -520,7 +515,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   };
 
   const isProvince = dashboard?.unit?.type === "PROVINCE";
-  const activeLevel = LEVELS.find((item) => item.level === level) ?? LEVELS[0];
+  const activeLevel = LEVELS.find((item) => item.level === currentLevel) ?? LEVELS[0];
 
   if (state === "loading") {
     return (
@@ -560,7 +555,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
       {/* SIDEBAR CỐ ĐỊNH */}
       <LevelMenu
-        value={level}
+        value={currentLevel}
         onChange={setLevel}
         variant="sidebar"
         collapsed={collapsed}
@@ -639,10 +634,11 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         </header>
 
         <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
-          {level === 1 ? (
+          {/* ================= TẦNG 1 ================= */}
+          {currentLevel === 1 ? (
             <div className="space-y-6">
               {/* Banner điều hành */}
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+              <section className="botron glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -673,7 +669,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
               </section>
 
-              {/* LƯỚI TẦNG 1: B1 & B2 RỘNG 100%, B3-B8 2 SECTION/HÀNG, B9 RỘNG 100% */}
+              {/* LƯỚI TẦNG 1 (B1 - B9) */}
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
                 {/* 1. KHỐI B1: RỘNG 100% */}
                 <div className="w-full xl:col-span-2">
@@ -790,7 +786,145 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </section>
               )}
             </div>
-          ) : (
+          ) : currentLevel === 2 ? (
+            /* ================= TẦNG 2 ================= */
+            <div className="space-y-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+                <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
+                <div className="relative flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
+                    <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+                    <p className="mt-1 text-xs opacity-60">Bộ tiêu chí Hệ sinh thái địa phương (Nhóm A - E)</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setShowLink(true)}
+                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                      >
+                        <Link2 size={14} /> Thiết lập Link
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              <Level2View
+                dashboard={dashboard}
+                data={level2Data}
+                metricLinks={metricLinks}
+                onChanged={refetchAfterSave}
+                onSaveMetricId={handleSaveMetricId}
+                onSaveQuantity={handleSaveQuantity}
+              />
+            </div>
+          ) : currentLevel === 3 ? (
+            /* ================= TẦNG 3 ================= */
+            <div className="space-y-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+                <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
+                <div className="relative flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
+                    <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+                    <p className="mt-1 text-xs opacity-60">Dự án kêu gọi đầu tư & Thông tin quy hoạch địa phương</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setShowLink(true)}
+                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                      >
+                        <Link2 size={14} /> Thiết lập Link
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              <Level3View
+                dashboard={dashboard}
+                data={level3Data}
+                metricLinks={metricLinks}
+                onChanged={refetchAfterSave}
+                onSaveMetricId={handleSaveMetricId}
+                onSaveQuantity={handleSaveQuantity}
+              />
+            </div>
+          ) : currentLevel === 4 ? (
+            /* ================= TẦNG 4 ================= */
+            <div className="space-y-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+                <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
+                <div className="relative flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
+                    <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+                    <p className="mt-1 text-xs opacity-60">Chính sách hỗ trợ & Tình hình giải đáp kiến nghị</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setShowLink(true)}
+                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                      >
+                        <Link2 size={14} /> Thiết lập Link
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              <Level4View
+                dashboard={dashboard}
+                data={level4Data}
+                metricLinks={metricLinks}
+                onChanged={refetchAfterSave}
+                onSaveMetricId={handleSaveMetricId}
+                onSaveQuantity={handleSaveQuantity}
+              />
+            </div>
+          
+        ) : currentLevel === 5 ? (
+  /* ================= TẦNG 5 ================= */
+  <div className="space-y-6">
+    <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+      <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
+      <div className="relative flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
+          <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+          <p className="mt-1 text-xs opacity-60">Điểm trưng bày / Hội quán & Hiệu quả thương mại O2O</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setShowLink(true)}
+              className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+            >
+              <Link2 size={14} /> Thiết lập Link
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <Level5View
+      dashboard={dashboard}
+      data={level5Data}
+      metricLinks={metricLinks}
+      onChanged={refetchAfterSave}
+      onSaveMetricId={handleSaveMetricId}
+      onSaveQuantity={handleSaveQuantity}
+    />
+  </div>
+) :  (
+            /* ================= CÁC TẦNG KHÁC ================= */
             <section className="glass flex flex-col items-center justify-center gap-3 rounded-3xl p-10 text-center">
               <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/15 text-accent">
                 <activeLevel.icon size={28} />
@@ -803,11 +937,11 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 Đang phát triển
               </span>
             </section>
-          )}
+          ) }
         </main>
       </div>
 
-      {/* MODALS */}
+      {/* MODALS QUẢN TRỊ */}
       {showLink && (
         <LinkModal
           dashboard={dashboard}
@@ -891,3 +1025,5 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     </div>
   );
 }
+
+export default DashboardDetail;

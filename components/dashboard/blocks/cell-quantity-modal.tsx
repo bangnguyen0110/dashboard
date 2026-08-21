@@ -15,7 +15,7 @@ import type { ExtractedMetric } from "@/lib/pdf-parser";
 
 interface CellQuantityModalProps {
   dashboard: DashboardRow;
-  section: "B1" | "B2" | "B3" | "B4" | "B5" | "B6" | "B7" | "B8" | "B9";
+  section: "B1" | "B2" | "B3" | "B4" | "B5" | "B6" | "B7" | "B8" | "B9" | "L2" | "L3" | "L4" | "L5";
   field: string;
   label: string;
   currentValue: number;

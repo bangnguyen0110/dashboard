@@ -44,11 +44,10 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchDashboards();
   }, [fetchDashboards]);
 
-  /** Danh sách Dashboard hiển thị: Chưa tìm kiếm -> Chỉ Tỉnh; Có tìm kiếm -> Tra cứu nhanh Tỉnh & Xã/Phường */
+  /** Danh sách Dashboard hiển thị */
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) {
@@ -144,33 +143,40 @@ export default function HomePage() {
 
       {/* HEADER */}
       <header className="glass-strong sticky top-0 z-40 border-b border-white/5">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-blue-600 text-white shadow-lg shadow-accent/30">
               <BarChart3 size={20} />
             </div>
             <div className="min-w-0">
-              <h1 className="truncate text-base font-bold sm:text-lg">
+              <h1 className="truncate text-sm font-bold sm:text-lg">
                 BẢNG ĐIỀU KHIỂN KINH TẾ SỐ
               </h1>
-              <p className="truncate text-xs opacity-60">
+              <p className="truncate text-[11px] opacity-60 sm:text-xs">
                 Hệ thống đồng bộ thông số dữ liệu Việt Nam
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* NÚT TẠO DASHBOARD TỈNH: Mobile chỉ hiện icon, Desktop hiện chữ */}
             {isAdmin && (
               <button
                 type="button"
                 onClick={() => setShowCreate(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent to-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-accent/30 transition hover:brightness-110"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-blue-600 p-2.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white shadow-lg shadow-accent/30 transition hover:brightness-110 active:scale-95"
+                title="Tạo dashboard tỉnh"
               >
-                <Plus size={16} />
-                Tạo dashboard tỉnh
+                <Plus size={18} />
+                <span className="hidden sm:inline">Tạo dashboard tỉnh</span>
               </button>
             )}
-            <AuthControls />
+
+            {/* THÔNG TIN ADMIN: Ẩn trên mobile, hiện trên màn hình sm trở lên */}
+            <div className="hidden sm:flex items-center">
+              <AuthControls />
+            </div>
+
             <ThemeToggle />
           </div>
         </div>
@@ -193,15 +199,15 @@ export default function HomePage() {
         )}
 
         {/* Hero giới thiệu */}
-        <section className="glass relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6 sm:p-8">
+        <section className="glass relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-8">
           <div className="pointer-events-none absolute -top-16 right-10 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
           <p className="text-xs font-medium uppercase tracking-widest text-accent">
             Nền tảng kinh tế số
           </p>
-          <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+          <h2 className="mt-2 text-xl font-bold sm:text-3xl">
             Dashboard Kinh tế số địa phương
           </h2>
-          <p className="mt-2 max-w-2xl text-sm opacity-70">
+          <p className="mt-2 max-w-2xl text-xs opacity-70 sm:text-sm">
             Danh sách Dashboard Tỉnh / Thành và Xã / Phường trực thuộc sau sáp
             nhập. Bấm vào thẻ để xem chi tiết cùng 5 tầng nội dung kinh tế số.
           </p>
@@ -216,7 +222,7 @@ export default function HomePage() {
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Tra cứu nhanh theo Xã / Phường…"
             className="glass w-full rounded-xl py-2.5 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-accent"
-        />
+          />
         </div>
 
         {/* Danh sách Dashboard Tỉnh */}
@@ -237,7 +243,7 @@ export default function HomePage() {
                 onSetupMetrics={setMetricsTarget}
                 onEdit={openEdit}
                 onDelete={handleDelete}
-        />
+              />
             ))}
           </div>
         ) : (
@@ -296,7 +302,7 @@ export default function HomePage() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setEditing(null)}
             aria-hidden
-        />
+          />
           <div className="glass-strong relative w-full max-w-md rounded-2xl p-6">
             <h3 className="mb-4 text-lg font-semibold">
               CHỈNH SỬA DASHBOARD TỈNH
@@ -313,7 +319,7 @@ export default function HomePage() {
                   value={editTitle}
                   onChange={(event) => setEditTitle(event.target.value)}
                   className="glass w-full rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent"
-        />
+                />
               </div>
 
               <div>
@@ -326,7 +332,7 @@ export default function HomePage() {
                   value={editDomain}
                   onChange={(event) => setEditDomain(event.target.value)}
                   className="glass w-full rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent"
-        />
+                />
               </div>
 
               <div className="flex justify-end gap-2">

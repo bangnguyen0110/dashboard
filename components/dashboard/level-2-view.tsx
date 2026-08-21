@@ -210,16 +210,17 @@ export function Level2View({
       </div>
 
       {/* ================= TAB 1: TỔNG QUAN NHÓM A - E ================= */}
+      {/* ================= TAB 1: TỔNG QUAN NHÓM A - E (MOBILE: WIDTH 100%) ================= */}
       {activeTab === "all" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
           {/* Nhóm A: Hạ tầng */}
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
                   <Server size={16} />
                 </span>
-                <h4 className="text-sm font-extrabold uppercase tracking-wide text-cyan-400">
+                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-cyan-400">
                   A. HẠ TẦNG & SẴN SÀNG
                 </h4>
               </div>
@@ -227,19 +228,19 @@ export function Level2View({
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">DN CĐS:</span>
                   <strong className="text-cyan-400 font-mono text-sm">
-                    {Number(data["l2_a_dn_cds"] ?? 211).toLocaleString("vi-VN")}
+                    {Number(data["l2_a_dn_cds"] ?? data["a_so_hoa_info"] ?? 211).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">Lên Cloud:</span>
                   <strong className="text-cyan-400 font-mono text-sm">
-                    {Number(data["l2_a_cloud"] ?? 180).toLocaleString("vi-VN")}
+                    {Number(data["l2_a_cloud"] ?? data["a_cloud"] ?? 180).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5">
                   <span className="text-slate-300 font-medium">NetID:</span>
                   <strong className="text-cyan-400 font-mono text-sm">
-                    {Number(data["l2_a_netid"] ?? 320).toLocaleString("vi-VN")}
+                    {Number(data["l2_a_netid"] ?? data["a_netid"] ?? 320).toLocaleString("vi-VN")}
                   </strong>
                 </div>
               </div>
@@ -247,20 +248,20 @@ export function Level2View({
             <button
               type="button"
               onClick={() => setActiveTab("A")}
-              className="mt-4 w-full rounded-xl bg-cyan-500/10 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20"
+              className="mt-4 w-full rounded-xl bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20"
             >
               Xem chi tiết Nhóm A ➜
             </button>
           </div>
 
           {/* Nhóm B: Hiện diện số */}
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/30">
                   <Globe size={16} />
                 </span>
-                <h4 className="text-sm font-extrabold uppercase tracking-wide text-blue-400">
+                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-blue-400">
                   B. HIỆN DIỆN SỐ & TM
                 </h4>
               </div>
@@ -268,13 +269,13 @@ export function Level2View({
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">Web/E-com:</span>
                   <strong className="text-blue-400 font-mono text-sm">
-                    {Number(data["l2_b_web_ecom"] ?? 145).toLocaleString("vi-VN")}
+                    {Number(data["l2_b_web_ecom"] ?? data["b_web_ecom"] ?? 145).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">Đơn hàng:</span>
                   <strong className="text-blue-400 font-mono text-sm">
-                    {Number(data["l2_b_don_hang"] ?? 1250).toLocaleString("vi-VN")}
+                    {Number(data["l2_b_don_hang"] ?? data["b_don_hang"] ?? 1250).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5">
@@ -286,20 +287,20 @@ export function Level2View({
             <button
               type="button"
               onClick={() => setActiveTab("B")}
-              className="mt-4 w-full rounded-xl bg-blue-500/10 py-2 text-xs font-bold text-blue-300 transition hover:bg-blue-500/20"
+              className="mt-4 w-full rounded-xl bg-blue-500/10 py-2.5 text-xs font-bold text-blue-300 transition hover:bg-blue-500/20"
             >
               Xem chi tiết Nhóm B ➜
             </button>
           </div>
 
           {/* Nhóm C: Vận hành */}
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/30">
                   <Cpu size={16} />
                 </span>
-                <h4 className="text-sm font-extrabold uppercase tracking-wide text-purple-400">
+                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-purple-400">
                   C. VẬN HÀNH & NGUỒN LỰC
                 </h4>
               </div>
@@ -307,19 +308,19 @@ export function Level2View({
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">Hệ thống QLDN:</span>
                   <strong className="text-purple-400 font-mono text-sm">
-                    {Number(data["l2_c_erp"] ?? 86).toLocaleString("vi-VN")}
+                    {Number(data["l2_c_erp"] ?? data["c_erp"] ?? 86).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">Tổng nhân sự:</span>
                   <strong className="text-purple-400 font-mono text-sm">
-                    {Number(data["l2_c_nhan_su"] ?? 4850).toLocaleString("vi-VN")}
+                    {Number(data["l2_c_nhan_su"] ?? data["c_nhan_su"] ?? 4850).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5">
                   <span className="text-slate-300 font-medium">Khóa đào tạo:</span>
                   <strong className="text-purple-400 font-mono text-sm">
-                    {Number(data["l2_c_dao_tao"] ?? 24).toLocaleString("vi-VN")}
+                    {Number(data["l2_c_dao_tao"] ?? data["c_dao_tao"] ?? 24).toLocaleString("vi-VN")}
                   </strong>
                 </div>
               </div>
@@ -327,20 +328,20 @@ export function Level2View({
             <button
               type="button"
               onClick={() => setActiveTab("C")}
-              className="mt-4 w-full rounded-xl bg-purple-500/10 py-2 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20"
+              className="mt-4 w-full rounded-xl bg-purple-500/10 py-2.5 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20"
             >
               Xem chi tiết Nhóm C ➜
             </button>
           </div>
 
           {/* Nhóm D: Thị trường */}
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                   <TrendingUp size={16} />
                 </span>
-                <h4 className="text-sm font-extrabold uppercase tracking-wide text-emerald-400">
+                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-emerald-400">
                   D. TƯƠNG TÁC & THỊ TRƯỜNG
                 </h4>
               </div>
@@ -348,13 +349,13 @@ export function Level2View({
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">Trang xem:</span>
                   <strong className="text-emerald-400 font-mono text-sm">
-                    {Number(data["l2_d_trang_xem"] ?? 45200).toLocaleString("vi-VN")}
+                    {Number(data["l2_d_trang_xem"] ?? data["d_trang_xem"] ?? 45200).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
                   <span className="text-slate-300 font-medium">Google SEO:</span>
                   <strong className="text-emerald-400 font-mono text-sm">
-                    {Number(data["l2_d_seo"] ?? 10282).toLocaleString("vi-VN")}
+                    {Number(data["l2_d_seo"] ?? data["d_seo"] ?? 10282).toLocaleString("vi-VN")}
                   </strong>
                 </div>
                 <div className="flex justify-between items-center py-1.5">
@@ -368,40 +369,41 @@ export function Level2View({
             <button
               type="button"
               onClick={() => setActiveTab("D")}
-              className="mt-4 w-full rounded-xl bg-emerald-500/10 py-2 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20"
+              className="mt-4 w-full rounded-xl bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20"
             >
               Xem chi tiết Nhóm D ➜
             </button>
           </div>
 
           {/* Nhóm E: Thông tin */}
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between md:col-span-2 lg:col-span-2">
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between md:col-span-2 lg:col-span-2">
             <div>
               <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30">
                   <FileText size={16} />
                 </span>
-                <h4 className="text-sm font-extrabold uppercase tracking-wide text-amber-400">
+                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-amber-400">
                   E. QUẢN LÝ THÔNG TIN
                 </h4>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="bg-slate-900/60 p-2.5 rounded-xl border border-white/5 flex justify-between items-center">
+              {/* Lưới con: Mobile w-full 1 cột, Tablet/Desktop 3 cột */}
+              <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs w-full">
+                <div className="w-full bg-slate-900/60 p-3 rounded-xl border border-white/5 flex justify-between items-center">
                   <span className="text-slate-300 font-medium">Thiện nguyện:</span>
                   <strong className="text-amber-400 font-mono text-sm">
-                    {Number(data["l2_e_thien_nguyen"] ?? 6)}
+                    {Number(data["l2_e_thien_nguyen"] ?? data["e_thien_nguyen"] ?? 6)}
                   </strong>
                 </div>
-                <div className="bg-slate-900/60 p-2.5 rounded-xl border border-white/5 flex justify-between items-center">
+                <div className="w-full bg-slate-900/60 p-3 rounded-xl border border-white/5 flex justify-between items-center">
                   <span className="text-slate-300 font-medium">Kêu gọi ĐT:</span>
                   <strong className="text-amber-400 font-mono text-sm">
-                    {Number(data["l2_e_dau_tu"] ?? 8)}
+                    {Number(data["l2_e_dau_tu"] ?? data["e_dau_tu"] ?? 8)}
                   </strong>
                 </div>
-                <div className="bg-slate-900/60 p-2.5 rounded-xl border border-white/5 flex justify-between items-center">
+                <div className="w-full bg-slate-900/60 p-3 rounded-xl border border-white/5 flex justify-between items-center">
                   <span className="text-slate-300 font-medium">Dự án:</span>
                   <strong className="text-amber-400 font-mono text-sm">
-                    {Number(data["l2_e_du_an"] ?? 6)}
+                    {Number(data["l2_e_du_an"] ?? data["e_du_an"] ?? 6)}
                   </strong>
                 </div>
               </div>
@@ -409,7 +411,7 @@ export function Level2View({
             <button
               type="button"
               onClick={() => setActiveTab("E")}
-              className="mt-4 w-full rounded-xl bg-amber-500/10 py-2 text-xs font-bold text-amber-300 transition hover:bg-amber-500/20"
+              className="mt-4 w-full rounded-xl bg-amber-500/10 py-2.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/20"
             >
               Xem chi tiết Nhóm E ➜
             </button>

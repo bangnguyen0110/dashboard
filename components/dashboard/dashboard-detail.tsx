@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Building2,
-  FileUp,
   Globe,
   Link2,
-  RefreshCw,
+  Menu,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { DashboardRow, KpiRow } from "@/lib/types";
@@ -81,6 +80,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [state, setState] = useState<ResolvedState>("loading");
   const [dashboard, setDashboard] = useState<DashboardRow | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Dữ liệu Tầng 1
   const [b1, setB1] = useState<KpiRow>({});
@@ -93,7 +93,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [b8, setB8] = useState<KpiRow>({});
   const [b9, setB9] = useState<KpiRow>({});
 
-  // Dữ liệu Tầng 2, 3, 4
+  // Dữ liệu Tầng 2, 3, 4, 5
   const [level2Data, setLevel2Data] = useState<KpiRow>({});
   const [level3Data, setLevel3Data] = useState<KpiRow>({});
   const [level4Data, setLevel4Data] = useState<KpiRow>({});
@@ -105,11 +105,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [parentProvince, setParentProvince] = useState<DashboardRow | null>(null);
 
   const [level, setLevel] = useLevelParam(1);
-  const currentLevel = Number(level) || 1; // Ép kiểu số an toàn tuyệt đối
+  const currentLevel = Number(level) || 1;
 
   const [showLink, setShowLink] = useState(false);
   const [showImportPdf, setShowImportPdf] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
 
   const [b1QtyTarget, setB1QtyTarget] = useState<{
     metricKey: string;
@@ -239,10 +238,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     setB8((row as any).b8 ?? {});
     setB9((row as any).b9 ?? {});
 
-    setLevel2Data((row as any).level2 ?? (row as any).l2 ?? {});
-    setLevel3Data((row as any).level3 ?? (row as any).l3 ?? {});
-    setLevel4Data((row as any).level4 ?? (row as any).l4 ?? {});
-    setLevel5Data((row as any).level5 ?? (row as any).l5 ?? {});
+    setLevel2Data((row as any).level2 ?? (row as any).metadata?.level2 ?? (row as any).l2 ?? {});
+    setLevel3Data((row as any).level3 ?? (row as any).metadata?.level3 ?? (row as any).l3 ?? {});
+    setLevel4Data((row as any).level4 ?? (row as any).metadata?.level4 ?? (row as any).l4 ?? {});
+    setLevel5Data((row as any).level5 ?? (row as any).metadata?.level5 ?? (row as any).l5 ?? {});
 
     const linkMap: Record<string, string> = {};
     (linkRes.data ?? []).forEach((link) => {
@@ -307,7 +306,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     }
   }, [state, dashboard?.id, handleLiveSync]);
 
-  /** LƯU SỐ LƯỢNG THỦ CÔNG (B1 -> B9, L2, L3, L4) */
+  /** LƯU SỐ LƯỢNG THỦ CÔNG */
   const handleSaveQuantity = useCallback(
     async (metricKey: string, newValue: number) => {
       const currentDashId = dashboard?.id;
@@ -318,29 +317,35 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       const isB2 = metricKey.startsWith("b2_");
       const prefix = metricKey.split("_")[0];
 
-      // Lưu các tầng L2, L3, L4
       if (prefix === "l2" || prefix === "l3" || prefix === "l4" || prefix === "l5") {
-        const levelField = prefix === "l2" ? "level2" : prefix === "l3" ? "level3" : prefix === "l4" ? "level4" : "level5";
+        const levelField =
+          prefix === "l2" ? "level2" : prefix === "l3" ? "level3" : prefix === "l4" ? "level4" : "level5";
         const fieldName = metricKey.replace(`${prefix}_`, "");
 
-  if (prefix === "l2") setLevel2Data((prev) => ({ ...prev, [fieldName]: val }));
-  if (prefix === "l3") setLevel3Data((prev) => ({ ...prev, [fieldName]: val }));
-  if (prefix === "l4") setLevel4Data((prev) => ({ ...prev, [fieldName]: val }));
-  if (prefix === "l5") setLevel5Data((prev) => ({ ...prev, [fieldName]: val }));
+        if (prefix === "l2") setLevel2Data((prev) => ({ ...prev, [fieldName]: val, [metricKey]: val }));
+        if (prefix === "l3") setLevel3Data((prev) => ({ ...prev, [fieldName]: val, [metricKey]: val }));
+        if (prefix === "l4") setLevel4Data((prev) => ({ ...prev, [fieldName]: val, [metricKey]: val }));
+        if (prefix === "l5") setLevel5Data((prev) => ({ ...prev, [fieldName]: val, [metricKey]: val }));
 
-  const currentSectionData = { ...((dashboard as any)[levelField] || {}) };
-  currentSectionData[fieldName] = val;
+        const currentSectionData = {
+          ...((dashboard as any)[levelField] || (dashboard as any)?.metadata?.[levelField] || {}),
+        };
+        currentSectionData[fieldName] = val;
+        currentSectionData[metricKey] = val;
 
-  const { error } = await supabase
-    .from("dashboards")
-    .update({ [levelField]: currentSectionData })
-    .eq("id", currentDashId);
+        const { error: colErr } = await supabase
+          .from("dashboards")
+          .update({ [levelField]: currentSectionData })
+          .eq("id", currentDashId);
 
-  if (error) throw error;
-  return;
+        if (colErr) {
+          const meta = { ...(dashboard?.metadata || {}) };
+          meta[levelField] = currentSectionData;
+          await supabase.from("dashboards").update({ metadata: meta }).eq("id", currentDashId);
+        }
+        return;
       }
 
-      // Lưu các khối B3 -> B9
       if (["b3", "b4", "b5", "b6", "b7", "b8", "b9"].includes(prefix)) {
         const fieldName = metricKey.replace(`${prefix}_`, "");
         const setters: Record<string, any> = {
@@ -363,7 +368,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         return;
       }
 
-      // Lưu B1, B2
       let fields: string[] = [];
       if (isB1) fields = B1_QTY_METRIC_FIELDS[metricKey] ?? [];
       else if (isB2) fields = B2_QTY_METRIC_FIELDS[metricKey] ?? [];
@@ -408,7 +412,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     [dashboard]
   );
 
-  /** LƯU DOMAIN HEADER */
   const handleSaveBaseDomain = useCallback(
     async (newDomain: string, slug?: string): Promise<void> => {
       if (!dashboard?.id) return;
@@ -455,52 +458,46 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     [dashboard]
   );
 
-  /** LƯU ID & BÓC TÁCH SỐ LIỆU TỰ ĐỘNG */
-  /** LƯU ID & BÓC TÁCH SỐ LIỆU TỰ ĐỘNG */
-const handleSaveMetricId = useCallback(
-  async (metricKey: string, metricId: string): Promise<void> => {
-    const currentId = dashboard?.id;
-    if (!currentId) throw new Error("Không tìm thấy dashboard");
+  const handleSaveMetricId = useCallback(
+    async (metricKey: string, metricId: string): Promise<void> => {
+      const currentId = dashboard?.id;
+      if (!currentId) throw new Error("Không tìm thấy dashboard");
 
-    const cleanId = (metricId ?? "").trim();
-    const base = (
-      dashboard?.base_domain ||
-      dashboard?.metadata?.base_domain ||
-      dashboard?.domain_link ||
-      ""
-    ).trim().replace(/\/+$/, "");
+      const cleanId = (metricId ?? "").trim();
+      const base = (
+        dashboard?.base_domain ||
+        dashboard?.metadata?.base_domain ||
+        dashboard?.domain_link ||
+        ""
+      ).trim().replace(/\/+$/, "");
 
-    const fullUrl = base ? `${base}/${cleanId}` : cleanId;
+      const fullUrl = base ? `${base}/${cleanId}` : cleanId;
 
-    // Gọi API Set-Link (Server sẽ tự động lưu link + bóc tách số liệu + ghi vào Database)
-    const linkRes = await fetch("/api/v1/metrics/set-link", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        dashboardId: currentId,
-        metricKey,
-        targetUrl: fullUrl,
-        metricId: cleanId,
-      }),
-    });
+      const linkRes = await fetch("/api/v1/metrics/set-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dashboardId: currentId,
+          metricKey,
+          targetUrl: fullUrl,
+          metricId: cleanId,
+        }),
+      });
 
-    const linkData = await linkRes.json().catch(() => null);
-    if (!linkRes.ok) throw new Error(linkData?.error || "Lỗi lưu ID");
+      const linkData = await linkRes.json().catch(() => null);
+      if (!linkRes.ok) throw new Error(linkData?.error || "Lỗi lưu ID");
 
-    // Cập nhật State Link trên Client
-    setMetricLinks((prev) => ({ ...prev, [metricKey]: fullUrl }));
+      setMetricLinks((prev) => ({ ...prev, [metricKey]: fullUrl }));
+      await refetchAfterSave();
 
-    // Tải lại toàn bộ dữ liệu mới nhất từ Database
-    await refetchAfterSave();
-
-    if (linkData?.value !== undefined && linkData?.value !== null) {
-      alert(`✅ Đã đồng bộ số liệu thành công: ${linkData.value}`);
-    } else {
-      alert("✅ Đã lưu link thành công!");
-    }
-  },
-  [dashboard, refetchAfterSave]
-);
+      if (linkData?.value !== undefined && linkData?.value !== null) {
+        alert(`Đã đồng bộ số liệu thành công: ${linkData.value}`);
+      } else {
+        alert("Đã lưu link thành công!");
+      }
+    },
+    [dashboard, refetchAfterSave]
+  );
 
   const handleOpenB1Qty = (metricKey: string): void => {
     const fields = B1_QTY_METRIC_FIELDS[metricKey];
@@ -553,31 +550,33 @@ const handleSaveMetricId = useCallback(
     <div className="relative min-h-screen">
       <div className="dashboard-bg" />
 
-      {/* SIDEBAR CỐ ĐỊNH */}
+      {/* ICON 3 GẠCH CỐ ĐỊNH Ở GÓC TRÊN PHẢI MÀN HÌNH MOBILE */}
+      <button
+        type="button"
+        onClick={() => setMobileMenuOpen(true)}
+        className="fixed top-3.5 right-4 z-50 grid h-10 w-10 place-items-center rounded-xl border border-cyan-500/40 bg-[#071326]/90 text-cyan-400 shadow-xl backdrop-blur-md transition active:scale-95 md:hidden"
+        title="Mở menu điều hành"
+      >
+        <Menu size={22} />
+      </button>
+
+      {/* SIDEBAR DRAWER (Trượt từ bên trái ra khi click 3 gạch trên Mobile, Cố định trên Desktop) */}
       <LevelMenu
         value={currentLevel}
         onChange={setLevel}
         variant="sidebar"
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((prev) => !prev)}
-        mobileFooter={
-          isAdmin ? (
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => setShowImportPdf(true)}
-                className="glass inline-flex items-center justify-center gap-1.5 rounded-[15px] border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition hover:bg-accent/20"
-              >
-                <FileUp size={14} />
-                <span>Import PDF</span>
-              </button>
-            </div>
-          ) : undefined
-        }
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+        dashboard={dashboard}
+        onChanged={refetchAfterSave}
+        onSyncLive={() => handleLiveSync(false)}
+        isSyncing={isSyncing}
+        onOpenImportPdf={() => setShowImportPdf(true)}
       />
 
-      <div className={`min-h-screen transition-[padding] duration-300 ${collapsed ? "md:pl-20" : "md:pl-64"}`}>
-        {/* HEADER */}
+      {/* KHUNG NỘI DUNG CHÍNH (Đẩy lề 295px trên Desktop) */}
+      <div className="min-h-screen transition-all duration-300 md:pl-[295px]">
+        {/* HEADER TOP BAR */}
         <header className="glass-strong sticky top-0 z-40 border-b border-white/5">
           <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
@@ -589,45 +588,23 @@ const handleSaveMetricId = useCallback(
               >
                 <ArrowLeft size={18} />
               </button>
-              <div className="min-w-0">
-                <h1 className="truncate text-base font-bold sm:text-lg">{dashboard.title}</h1>
-                <p className="truncate text-xs opacity-60">{dashboard.unit?.name ?? ""}, Việt Nam</p>
+              <div className="min-w-0 pr-12 md:pr-0">
+                <h1 className="truncate text-sm sm:text-lg font-bold">{dashboard.title}</h1>
+                <p className="truncate text-[11px] sm:text-xs opacity-60">{dashboard.unit?.name ?? ""}, Việt Nam</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="hidden md:flex items-center gap-2">
               {headerLink && (
                 <a
                   href={headerLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-foreground/70 transition hover:text-accent md:inline-flex"
+                  className="glass inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-foreground/70 transition hover:text-accent"
                 >
                   <Globe size={14} />
                   {headerLink.replace(/^https?:\/\//, "")}
                 </a>
-              )}
-
-              {/* NÚT LÀM MỚI SỐ LIỆU LIVE */}
-              <button
-                type="button"
-                onClick={() => handleLiveSync(false)}
-                disabled={isSyncing}
-                className="glass inline-flex items-center gap-1.5 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
-                title="Lấy số liệu mới nhất từ các website liên kết"
-              >
-                <RefreshCw size={14} className={isSyncing ? "animate-spin text-cyan-400" : ""} />
-                <span className="hidden sm:inline">{isSyncing ? "Đang cập nhật..." : "Làm mới số liệu"}</span>
-              </button>
-
-              {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => setShowImportPdf(true)}
-                  className="glass hidden md:inline-flex items-center gap-1.5 rounded-xl border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition hover:bg-accent/20"
-                >
-                  <FileUp size={14} />
-                  <span className="hidden sm:inline">Import PDF</span>
-                </button>
               )}
             </div>
           </div>
@@ -637,13 +614,12 @@ const handleSaveMetricId = useCallback(
           {/* ================= TẦNG 1 ================= */}
           {currentLevel === 1 ? (
             <div className="space-y-6">
-              {/* Banner điều hành */}
-              <section className="botron glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+              <section className="botron glass overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
-                    <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">{activeLevel.title}</h2>
                     <p className="mt-1 text-xs opacity-60">{isProvince ? "Dashboard Tỉnh" : "Dashboard Xã/Phường"}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -662,7 +638,7 @@ const handleSaveMetricId = useCallback(
                         onClick={() => setShowCommuneList(true)}
                         className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
                       >
-                        <Building2 size={14} /> Danh sách dashboard xã phường ({communes.length})
+                        <Building2 size={14} /> Danh sách xã/phường ({communes.length})
                       </button>
                     )}
                   </div>
@@ -671,7 +647,6 @@ const handleSaveMetricId = useCallback(
 
               {/* LƯỚI TẦNG 1 (B1 - B9) */}
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
-                {/* 1. KHỐI B1: RỘNG 100% */}
                 <div className="w-full xl:col-span-2">
                   <B1Section
                     dashboard={dashboard}
@@ -683,7 +658,6 @@ const handleSaveMetricId = useCallback(
                   />
                 </div>
 
-                {/* 2. KHỐI B2: RỘNG 100% */}
                 <div className="w-full xl:col-span-2">
                   <B2Section
                     dashboard={dashboard}
@@ -694,7 +668,6 @@ const handleSaveMetricId = useCallback(
                   />
                 </div>
 
-                {/* 3. KHỐI B3 & B4 */}
                 <div className="w-full flex flex-col">
                   <B3Section
                     dashboard={dashboard}
@@ -716,7 +689,6 @@ const handleSaveMetricId = useCallback(
                   />
                 </div>
 
-                {/* 4. KHỐI B5 & B6 */}
                 <div className="w-full flex flex-col">
                   <B5Section
                     dashboard={dashboard}
@@ -738,7 +710,6 @@ const handleSaveMetricId = useCallback(
                   />
                 </div>
 
-                {/* 5. KHỐI B7 & B8 */}
                 <div className="w-full flex flex-col">
                   <B7Section
                     dashboard={dashboard}
@@ -760,7 +731,6 @@ const handleSaveMetricId = useCallback(
                   />
                 </div>
 
-                {/* 6. KHỐI B9: RỘNG 100% */}
                 <div className="w-full xl:col-span-2">
                   <B9Section
                     dashboard={dashboard}
@@ -789,12 +759,12 @@ const handleSaveMetricId = useCallback(
           ) : currentLevel === 2 ? (
             /* ================= TẦNG 2 ================= */
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
-                    <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">{activeLevel.title}</h2>
                     <p className="mt-1 text-xs opacity-60">Bộ tiêu chí Hệ sinh thái địa phương (Nhóm A - E)</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -823,12 +793,12 @@ const handleSaveMetricId = useCallback(
           ) : currentLevel === 3 ? (
             /* ================= TẦNG 3 ================= */
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
-                    <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">{activeLevel.title}</h2>
                     <p className="mt-1 text-xs opacity-60">Dự án kêu gọi đầu tư & Thông tin quy hoạch địa phương</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -857,12 +827,12 @@ const handleSaveMetricId = useCallback(
           ) : currentLevel === 4 ? (
             /* ================= TẦNG 4 ================= */
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
-                    <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
+                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">{activeLevel.title}</h2>
                     <p className="mt-1 text-xs opacity-60">Chính sách hỗ trợ & Tình hình giải đáp kiến nghị</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -888,56 +858,51 @@ const handleSaveMetricId = useCallback(
                 onSaveQuantity={handleSaveQuantity}
               />
             </div>
-          
-        ) : currentLevel === 5 ? (
-  /* ================= TẦNG 5 ================= */
-  <div className="space-y-6">
-    <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6">
-      <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
-      <div className="relative flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
-          <h2 className="mt-1 text-xl font-bold sm:text-2xl">{activeLevel.title}</h2>
-          <p className="mt-1 text-xs opacity-60">Điểm trưng bày / Hội quán & Hiệu quả thương mại O2O</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => setShowLink(true)}
-              className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
-            >
-              <Link2 size={14} /> Thiết lập Link
-            </button>
-          )}
-        </div>
-      </div>
-    </section>
+          ) : currentLevel === 5 ? (
+            /* ================= TẦNG 5 ================= */
+            <div className="space-y-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
+                <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
+                <div className="relative flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
+                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">{activeLevel.title}</h2>
+                    <p className="mt-1 text-xs opacity-60">Điểm trưng bày / Hội quán & Hiệu quả thương mại O2O</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setShowLink(true)}
+                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                      >
+                        <Link2 size={14} /> Thiết lập Link
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </section>
 
-    <Level5View
-      dashboard={dashboard}
-      data={level5Data}
-      metricLinks={metricLinks}
-      onChanged={refetchAfterSave}
-      onSaveMetricId={handleSaveMetricId}
-      onSaveQuantity={handleSaveQuantity}
-    />
-  </div>
-) :  (
-            /* ================= CÁC TẦNG KHÁC ================= */
+              <Level5View
+                dashboard={dashboard}
+                data={level5Data}
+                metricLinks={metricLinks}
+                onChanged={refetchAfterSave}
+                onSaveMetricId={handleSaveMetricId}
+                onSaveQuantity={handleSaveQuantity}
+              />
+            </div>
+          ) : (
             <section className="glass flex flex-col items-center justify-center gap-3 rounded-3xl p-10 text-center">
               <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/15 text-accent">
                 <activeLevel.icon size={28} />
               </span>
               <h3 className="text-xl font-bold">{activeLevel.title}</h3>
               <p className="max-w-md text-sm opacity-60">
-                Nội dung tầng này đang được xây dựng. Giao diện & dữ liệu sẽ được bổ sung trong các phiên bản tiếp theo.
+                Nội dung tầng này đang được xây dựng.
               </p>
-              <span className="glass mt-2 rounded-full px-4 py-1.5 text-xs font-medium text-accent">
-                Đang phát triển
-              </span>
             </section>
-          ) }
+          )}
         </main>
       </div>
 

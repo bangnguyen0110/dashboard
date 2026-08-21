@@ -8,8 +8,8 @@ import {
   Briefcase,
   Network,
   FileText,
-  ChevronLeft,
-  ChevronRight,
+  RefreshCw,
+  FileUp,
   Link as LinkIcon,
   X,
   Check,
@@ -77,22 +77,26 @@ interface LevelMenuProps {
   value: number;
   onChange: (level: number) => void;
   variant?: "sidebar" | "tabs";
-  collapsed?: boolean;
-  onToggleCollapse?: () => void;
-  mobileFooter?: React.ReactNode;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
   dashboard?: DashboardRow | null;
   onChanged?: () => void;
+  onSyncLive?: () => void;
+  isSyncing?: boolean;
+  onOpenImportPdf?: () => void;
 }
 
 export function LevelMenu({
   value,
   onChange,
   variant = "sidebar",
-  collapsed = false,
-  onToggleCollapse,
-  mobileFooter,
+  mobileOpen = false,
+  onCloseMobile = () => {},
   dashboard,
   onChanged,
+  onSyncLive,
+  isSyncing = false,
+  onOpenImportPdf,
 }: LevelMenuProps) {
   const { isAdmin } = useAuth();
   const [showDocModal, setShowDocModal] = useState(false);
@@ -207,46 +211,56 @@ export function LevelMenu({
     }
   };
 
+  const handleSelectLevel = (level: number) => {
+    onChange(level);
+    onCloseMobile();
+  };
+
   if (variant === "sidebar") {
     return (
       <>
+        {/* Nền mờ Backdrop trên Mobile khi mở Sidebar */}
+        <div
+          onClick={onCloseMobile}
+          className={`fixed inset-0 z-50 bg-black/75 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+            mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+        />
+
+        {/* Khung Sidebar trượt từ bên trái */}
         <aside
-          className={`fixed left-0 top-0 z-50 h-screen border-r border-[#14233c] bg-[#071326] text-slate-200 transition-all duration-300 flex flex-col justify-between select-none ${
-            collapsed ? "w-20" : "w-[260px]"
+          className={`fixed left-0 top-0 z-50 h-screen w-[295px] max-w-[85vw] border-r border-[#14233c] bg-[#071326] text-slate-200 transition-transform duration-300 ease-out flex flex-col justify-between select-none md:translate-x-0 ${
+            mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
           }`}
         >
           <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
             {/* Header Sidebar */}
             <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-white/5">
-              {!collapsed && (
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-black text-sm">
-                    D
-                  </span>
-                  <div className="min-w-0">
-                    <h2 className="truncate text-xs font-black uppercase tracking-wider text-cyan-400">
-                      ĐIỀU HÀNH SỐ
-                    </h2>
-                    <p className="truncate text-[10px] text-slate-400">Hệ sinh thái địa phương</p>
-                  </div>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-black text-sm">
+                  D
+                </span>
+                <div className="min-w-0">
+                  <h2 className="truncate text-xs font-black uppercase tracking-wider text-cyan-400">
+                    ĐIỀU HÀNH SỐ
+                  </h2>
+                  <p className="truncate text-[10px] text-slate-400">Hệ sinh thái địa phương</p>
                 </div>
-              )}
+              </div>
 
-              {onToggleCollapse && (
-                <button
-                  type="button"
-                  onClick={onToggleCollapse}
-                  className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 transition hover:bg-slate-700 hover:text-white mx-auto"
-                  title={collapsed ? "Mở rộng menu" : "Thu gọn menu"}
-                >
-                  {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
-                </button>
-              )}
+              {/* Nút đóng Sidebar trên Mobile */}
+              <button
+                type="button"
+                onClick={onCloseMobile}
+                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 transition hover:bg-slate-700 hover:text-white md:hidden"
+                title="Đóng menu"
+              >
+                <X size={16} />
+              </button>
             </div>
 
             {/* Danh sách Menu (Tầng 1 -> 5 & Tài liệu CĐS) */}
             <div className="p-3 space-y-1.5 flex-1">
-              {/* Tầng 1 đến Tầng 5 */}
               {LEVELS.map((item) => {
                 const Icon = item.icon;
                 const active = value === item.level;
@@ -255,19 +269,13 @@ export function LevelMenu({
                   <button
                     key={item.level}
                     type="button"
-                    onClick={() => onChange(item.level)}
-                    className={`relative w-full text-left transition-colors duration-150 rounded-xl group ${
+                    onClick={() => handleSelectLevel(item.level)}
+                    className={`relative w-full text-left transition-colors duration-150 rounded-xl group px-3.5 py-3 flex items-start gap-3.5 ${
                       active
                         ? "bg-[#0d274c] text-white border-l-[3.5px] border-[#00d2ff]"
                         : "bg-transparent hover:bg-[#0c1f38] text-slate-300 hover:text-white border-l-[3.5px] border-transparent"
-                    } ${
-                      collapsed
-                        ? "p-3 flex justify-center"
-                        : "px-3.5 py-3 flex items-start gap-3.5"
                     }`}
-                    title={collapsed ? `${item.title} - ${item.desc}` : undefined}
                   >
-                    {/* Icon */}
                     <Icon
                       size={20}
                       className={`shrink-0 mt-0.5 transition-colors ${
@@ -276,28 +284,24 @@ export function LevelMenu({
                           : "text-slate-400 group-hover:text-[#00d2ff]"
                       }`}
                     />
-
-                    {/* Text Container */}
-                    {!collapsed && (
-                      <div className="min-w-0 flex-1">
-                        <h4
-                          className={`text-[13.5px] font-bold leading-snug tracking-tight ${
-                            active ? "text-white" : "text-slate-200 group-hover:text-white"
-                          }`}
-                        >
-                          {item.title}
-                        </h4>
-                        <p
-                          className={`text-[11px] mt-0.5 leading-normal truncate ${
-                            active
-                              ? "text-[#7ea3cc] font-medium"
-                              : "text-slate-400 group-hover:text-slate-300 font-normal"
-                          }`}
-                        >
-                          {item.desc}
-                        </p>
-                      </div>
-                    )}
+                    <div className="min-w-0 flex-1">
+                      <h4
+                        className={`text-[13.5px] font-bold leading-snug tracking-tight ${
+                          active ? "text-white" : "text-slate-200 group-hover:text-white"
+                        }`}
+                      >
+                        {item.title}
+                      </h4>
+                      <p
+                        className={`text-[11px] mt-0.5 leading-normal truncate ${
+                          active
+                            ? "text-[#7ea3cc] font-medium"
+                            : "text-slate-400 group-hover:text-slate-300 font-normal"
+                        }`}
+                      >
+                        {item.desc}
+                      </p>
+                    </div>
                   </button>
                 );
               })}
@@ -307,31 +311,25 @@ export function LevelMenu({
                 <button
                   type="button"
                   onClick={handleClickDocMenu}
-                  className={`w-full text-left transition-colors duration-150 rounded-xl bg-transparent hover:bg-[#0c1f38] text-slate-300 hover:text-white border-l-[3.5px] border-transparent ${
-                    collapsed ? "p-3 flex justify-center" : "px-3.5 py-3 flex items-start gap-3.5"
-                  }`}
-                  title={
-                    collapsed
-                      ? `Tài liệu Chuyển đổi số cho doanh nghiệp ${savedUrl ? `(${savedUrl})` : ""}`
-                      : undefined
-                  }
+                  className="w-full text-left transition-colors duration-150 rounded-xl bg-transparent hover:bg-[#0c1f38] text-slate-300 hover:text-white border-l-[3.5px] border-transparent px-3.5 py-3 flex items-start gap-3.5"
                 >
                   <FileText
                     size={20}
                     className="shrink-0 mt-0.5 text-slate-400 group-hover:text-[#00d2ff]"
                   />
-                  {!collapsed && (
-                    <div className="min-w-0 flex-1 pr-6">
-                      <h4 className="text-[13.5px] font-bold leading-snug text-slate-200 group-hover:text-white">
-                        Tài liệu Chuyển đổi số cho doanh nghiệp
-                      </h4>
-                      
-                    </div>
-                  )}
+                  <div className="min-w-0 flex-1 pr-6">
+                    <h4 className="text-[13.5px] font-bold leading-snug text-slate-200 group-hover:text-white">
+                      Tài liệu Chuyển đổi số cho doanh nghiệp
+                    </h4>
+                    {savedUrl && (
+                      <p className="text-[11px] mt-0.5 text-[#00d2ff]/80 truncate font-normal">
+                        {savedUrl.replace(/^https?:\/\//, "")}
+                      </p>
+                    )}
+                  </div>
                 </button>
 
-                {/* Nút [ 🔗 ] cho Admin */}
-                {isAdmin && !collapsed && (
+                {isAdmin && (
                   <button
                     type="button"
                     onClick={handleOpenSetupLink}
@@ -344,14 +342,36 @@ export function LevelMenu({
               </div>
             </div>
 
-            {/* Footer Sidebar */}
-            {mobileFooter && (
-              <div className="p-3 border-t border-white/5 shrink-0">{mobileFooter}</div>
-            )}
+            {/* Footer Sidebar: Gom nút Làm mới số liệu & Import PDF vào đây */}
+            <div className="p-3 border-t border-white/5 shrink-0 space-y-2">
+              {onSyncLive && (
+                <button
+                  type="button"
+                  onClick={onSyncLive}
+                  disabled={isSyncing}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
+                  title="Lấy số liệu mới nhất từ các website liên kết"
+                >
+                  <RefreshCw size={14} className={isSyncing ? "animate-spin text-cyan-400" : ""} />
+                  <span>{isSyncing ? "Đang đồng bộ..." : "Làm mới dữ liệu"}</span>
+                </button>
+              )}
+
+              {isAdmin && onOpenImportPdf && (
+                <button
+                  type="button"
+                  onClick={onOpenImportPdf}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-medium text-blue-300 transition hover:bg-blue-500/20"
+                >
+                  <FileUp size={14} />
+                  <span>Import PDF</span>
+                </button>
+              )}
+            </div>
           </div>
         </aside>
 
-        {/* Modal nhập link tài liệu */}
+        {/* Modal nhập Custom Link */}
         {showDocModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#0c1830] p-6">

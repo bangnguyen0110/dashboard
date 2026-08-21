@@ -60,6 +60,13 @@ export interface DashboardRow {
   sync_schedule?: string | null;
   b1_custom_id?: string | null;
   b2_custom_id?: string | null;
+  b3_custom_id?: string | null;
+  b4_custom_id?: string | null;
+  b5_custom_id?: string | null;
+  b6_custom_id?: string | null;
+  b7_custom_id?: string | null;
+  b8_custom_id?: string | null;
+  b9_custom_id?: string | null;
   api_key?: string | null;
   metadata?: DashboardMetadata | null;
   settings?: DashboardSettings | null;

@@ -1,129 +1,181 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Dialog } from "../dialog";
+import React, { useState, useEffect } from "react";
+import { X, Hash, Globe, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
 import type { DashboardRow } from "@/lib/types";
 
-/**
- * Modal "THIẾT LẬP ID CHỈ SỐ" cho từng ô chỉ tiêu (B1 / B2).
- *
- * - Nhập "Mã ID liên kết" (metric_id) → hiển thị Preview đường dẫn hoàn chỉnh
- *   `[Domain Header Tầng 1]/[ID vừa nhập]`.
- * - Nút "Lưu & Đồng bộ số liệu": gọi `onSave` (do parent cung cấp) để ghi
- *   metric_id, xây URL, cào dữ liệu (scrape-metric) rồi cập nhật chỉ tiêu.
- *
- * Component render có điều kiện (mount khi mở) nên state khởi tạo mới mỗi lần.
- */
+export interface MetricIdModalProps {
+  isOpen?: boolean;
+  open?: boolean;
+  dashboard?: DashboardRow;
+  metricKey: string;
+  metricLabel?: string;
+  label?: string;
+  currentId?: string;
+  initialId?: string;
+  baseDomain?: string;
+  onClose: () => void;
+  onSave?: (metricKey: string, id: string, fullUrl?: string, autoScrapedValue?: number) => Promise<void>;
+  onSaved?: () => void;
+}
+
 export function MetricIdModal({
+  isOpen = true,
+  open = true,
   dashboard,
   metricKey,
+  metricLabel,
   label,
+  currentId,
+  initialId,
   baseDomain = "",
-  initialId = "",
-  onSave,
   onClose,
+  onSave,
   onSaved,
-}: {
-  dashboard: DashboardRow;
-  metricKey: string;
-  label: string;
-  baseDomain?: string;
-  initialId?: string;
-  onSave: (metricKey: string, metricId: string) => Promise<void>;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const [metricId, setMetricId] = useState(initialId ?? "");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+}: MetricIdModalProps) {
+  // Đồng bộ các biến alias
+  const displayLabel = metricLabel || label || metricKey || "chỉ số";
+  const defaultId = initialId || currentId || "";
+  const resolvedDomain = (
+    baseDomain ||
+    dashboard?.base_domain ||
+    dashboard?.metadata?.base_domain ||
+    dashboard?.domain_link ||
+    ""
+  ).trim().replace(/\/+$/, "");
 
-  // Preview đường dẫn hoàn chỉnh: [Domain]/[ID]
-  const previewUrl = useMemo(() => {
-    const domain = (baseDomain || "").trim().replace(/\/+$/, "");
-    const id = metricId.trim();
-    if (!id) return "";
-    return domain ? `${domain}/${id}` : id;
-  }, [baseDomain, metricId]);
+  const [idInput, setIdInput] = useState(defaultId);
+  const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const handleSave = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const id = metricId.trim();
-    if (!id) {
-      setError("Vui lòng nhập Mã ID liên kết.");
+  useEffect(() => {
+    setIdInput(defaultId);
+    setStatusMsg(null);
+  }, [defaultId, metricKey]);
+
+  // Kiểm tra trạng thái đóng/mở
+  const isModalVisible = isOpen && open;
+  if (!isModalVisible) return null;
+
+  const cleanId = idInput.trim().replace(/^\/+/, "");
+  const fullPreviewUrl = cleanId
+    ? resolvedDomain
+      ? `${resolvedDomain}/${cleanId}`
+      : cleanId
+    : resolvedDomain;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cleanId) {
+      setStatusMsg({ type: "error", text: "Vui lòng nhập ID hợp lệ" });
       return;
     }
 
-    setSaving(true);
-    setError(null);
+    setLoading(true);
+    setStatusMsg(null);
+
     try {
-      // Parent (dashboard-detail / b1 / b2) xử lý toàn bộ:
-      // ghi metric_id, xây URL, gọi scrape-metric, cập nhật chỉ tiêu.
-      await onSave(metricKey, id);
-      onClose();
-      onSaved();
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : String(err)
-      );
+      if (onSave) {
+        await onSave(metricKey, cleanId, fullPreviewUrl);
+      }
+      if (onSaved) {
+        onSaved();
+      }
+
+      setStatusMsg({
+        type: "success",
+        text: "Đã lưu ID & đồng bộ số liệu thành công!",
+      });
+
+      setTimeout(() => {
+        onClose();
+      }, 700);
+    } catch (err: any) {
+      setStatusMsg({
+        type: "error",
+        text: err?.message || "Lỗi khi lưu và đồng bộ dữ liệu",
+      });
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Dialog open title={`Thiết lập ID Chỉ số · ${label}`} onClose={onClose}>
-      <form onSubmit={handleSave} className="space-y-4">
-        <div>
-          <label htmlFor="metric-id" className="mb-1 block text-sm opacity-70">
-            Mã ID liên kết
-          </label>
-          <input
-            id="metric-id"
-            type="text"
-            value={metricId}
-            onChange={(event) => setMetricId(event.target.value)}
-            placeholder="Nhập ID, ví dụ: B4HbFf11820eB5C"
-            className="glass w-full rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent"
-          />
-        </div>
-
-        {baseDomain ? (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+      <div className="relative w-full max-w-lg bg-[#0a1124] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-2xl shadow-2xl overflow-hidden text-white my-auto">
+        {/* Header */}
+        <div className="bg-[#0c1e38] px-6 py-4 border-b border-[#1d293d] flex justify-between items-center">
           <div>
-            <label className="mb-1 block text-xs opacity-50">
-              Preview đường dẫn hoàn chỉnh
-            </label>
-            <div className="glass w-full rounded-xl px-4 py-2.5 text-sm break-all opacity-80">
-              {previewUrl || "Nhập ID để xem preview…"}
-            </div>
+            <h3 className="text-sm sm:text-base font-bold text-cyan-400 uppercase tracking-wider">
+              THIẾT LẬP ID & ĐỒNG BỘ DỮ LIỆU
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Áp dụng cho: <strong className="text-slate-200">{displayLabel}</strong>
+            </p>
           </div>
-        ) : null}
-
-        {dashboard?.unit?.name && (
-          <p className="text-[11px] opacity-50">
-            Áp dụng cho: {dashboard.unit.name} · {label}
-          </p>
-        )}
-
-        {error ? <p className="text-xs text-red-400">{error}</p> : null}
-
-        <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            disabled={saving}
-            className="glass rounded-xl px-4 py-2 text-sm opacity-80 transition hover:opacity-100 disabled:opacity-40"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
           >
-            Huỷ
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-xl bg-gradient-to-r from-accent to-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:brightness-110 disabled:opacity-60"
-          >
-            {saving ? "Đang lưu & đồng bộ…" : "Lưu & Đồng bộ số liệu"}
+            <X size={18} />
           </button>
         </div>
-      </form>
-    </Dialog>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {statusMsg && (
+            <div
+              className={`p-3 rounded-xl text-xs flex items-center gap-2 border ${
+                statusMsg.type === "success"
+                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                  : "bg-rose-500/10 border-rose-500/30 text-rose-400"
+              }`}
+            >
+              {statusMsg.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+              <span>{statusMsg.text}</span>
+            </div>
+          )}
+
+          {/* Ô nhập ID */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-300">Mã ID thẻ (text)</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Hash size={16} />
+              </div>
+              <input
+                type="text"
+                required
+                value={idInput}
+                onChange={(e) => setIdInput(e.target.value)}
+                placeholder="Ví dụ: B4HbFf11820eB5C"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#061121] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-xl text-sm focus:outline-hidden focus:border-cyan-400 text-slate-100 placeholder-slate-500 font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Đường dẫn tự động ghép */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-400">Đường dẫn tự động tạo</label>
+            <div className="p-3 bg-[#061121] rounded-xl border border-[#1d293d] flex items-center gap-2 text-xs text-cyan-300 font-mono break-all">
+              <Globe size={14} className="shrink-0 text-slate-400" />
+              <span>{fullPreviewUrl || "Chưa có domain"}</span>
+            </div>
+            
+          </div>
+
+          {/* Nút lưu */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-3 py-3 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/30 disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+            <span>{loading ? "Đang đồng bộ..." : "Lưu & Đồng bộ số liệu"}</span>
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

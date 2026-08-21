@@ -1,44 +1,60 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import * as React from "react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Sun, Moon } from "lucide-react";
 
 export function ThemeToggle() {
-  const [mounted, setMounted] = useState(false);
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
-  // Đảm bảo code chỉ chạy ở Client side sau khi Hydration xong
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(id);
+  React.useEffect(() => {
+    setMounted(true);
   }, []);
 
-  // Khi đang render ở Server (SSR), hiển thị khung nút tĩnh/placeholder
+  const toggleTheme = () => {
+    const currentTheme = resolvedTheme || theme || "dark";
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    
+    setTheme(nextTheme);
+
+    // Ép class trực tiếp trên thẻ <html> để chuyển đổi tức thì 100%
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (nextTheme === "dark") {
+        root.classList.add("dark");
+        root.classList.remove("light");
+      } else {
+        root.classList.remove("dark");
+        root.classList.add("light");
+      }
+      localStorage.setItem("theme", nextTheme);
+    }
+  };
+
   if (!mounted) {
     return (
-      <button
-        type="button"
-        aria-label="Đổi giao diện sáng/tối"
-        title="Chuyển sang giao diện tối"
-        className="glass inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-      >
-        <span className="h-4 w-4 rounded-full bg-accent/40" />
-      </button>
+      <div className="h-9 w-9 rounded-xl border border-slate-700/50 bg-slate-800/40 p-2" />
     );
   }
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = (resolvedTheme || theme) === "dark";
 
   return (
     <button
       type="button"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label="Đổi giao diện sáng/tối"
-      title={isDark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
-      className="glass inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors"
+      onClick={toggleTheme}
+      className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-300 bg-white/90 text-slate-700 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/80 dark:text-cyan-400 dark:hover:bg-slate-700"
+      title={isDark ? "Chuyển sang giao diện Sáng" : "Chuyển sang giao diện Tối"}
+      aria-label="Toggle Theme"
     >
-      {isDark ? <Sun size={18} /> : <Moon size={18} />}
+      {isDark ? (
+        <Sun className="h-4 w-4 text-amber-400 transition-transform duration-300 rotate-0 scale-100" />
+      ) : (
+        <Moon className="h-4 w-4 text-indigo-600 transition-transform duration-300 rotate-0 scale-100" />
+      )}
     </button>
   );
 }
+
+export default ThemeToggle;

@@ -1,20 +1,19 @@
 "use client";
 
-import React from "react";
-import { Building2, Zap, Settings, Link as LinkIcon, Edit3, ExternalLink } from "lucide-react";
+import React, { useState } from "react";
+import { Building2, Settings, Link as LinkIcon, Edit3, BarChart3, TrendingUp } from "lucide-react";
+import { StatCell } from "./stat-cell";
 import { CellQuantityModal } from "./cell-quantity-modal";
 import { BlockIdModal } from "./block-id-modal";
 import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
-import type { DashboardRow } from "@/lib/types";
+import type { DashboardRow, KpiRow } from "@/lib/types";
 
-export interface B1SectionProps {
-  locationName?: string;
-  data?: Record<string, unknown>;
-  b1?: Record<string, unknown>;
-  metricLinks?: Record<string, string>;
-  dashboard?: DashboardRow;
-  onChanged?: () => void;
+interface B1SectionProps {
+  dashboard: DashboardRow;
+  b1: KpiRow;
+  metricLinks: Record<string, string>;
+  onChanged: () => void;
   onOpenLinkModal?: (key: string) => void;
   onOpenQtyModal?: (key: string) => void;
   onOpenSetupId?: () => void;
@@ -22,382 +21,491 @@ export interface B1SectionProps {
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
 }
 
-interface QuantityState { field: string; label: string; current: number; matchTokens: string[]; }
-
-const LINK_LABELS: Record<string, string> = {
-  b1_total_units: "Tổng số Doanh nghiệp SME",
-  b1_sme_total: "Tổng số Doanh nghiệp SME",
-  b1_hkd_total: "Tổng số Hộ kinh doanh",
-  b1_htx_total: "Tổng số Hợp tác xã",
-  b1_total_dx_units: "Doanh nghiệp SME CĐS",
-  b1_sme_dx: "Doanh nghiệp SME CĐS",
-  b1_hkd_dx: "Hộ kinh doanh CĐS",
-  b1_htx_dx: "Hợp tác xã CĐS",
-};
-
-const QTY_MAP: Record<string, { field: string; label: string; matchTokens: string[] }> = {
-  b1_total_units: { field: "sme_total", label: "Tổng số Doanh nghiệp SME", matchTokens: ["doanh nghiệp SME", "sme"] },
-  b1_sme_total: { field: "sme_total", label: "Tổng số Doanh nghiệp SME", matchTokens: ["doanh nghiệp SME", "sme"] },
-  b1_hkd_total: { field: "hkd_total", label: "Tổng số Hộ kinh doanh", matchTokens: ["hộ kinh doanh", "hkd"] },
-  b1_htx_total: { field: "htx_total", label: "Tổng số Hợp tác xã", matchTokens: ["hợp tác xã", "htx"] },
-  b1_total_dx_units: { field: "sme_cds", label: "Doanh nghiệp SME CĐS", matchTokens: ["doanh nghiệp SME CĐS", "sme cds"] },
-  b1_sme_dx: { field: "sme_cds", label: "Doanh nghiệp SME CĐS", matchTokens: ["doanh nghiệp SME CĐS", "sme cds"] },
-  b1_hkd_dx: { field: "hkd_cds", label: "Hộ kinh doanh CĐS", matchTokens: ["hộ kinh doanh CĐS", "hkd cds"] },
-  b1_htx_dx: { field: "htx_cds", label: "Hợp tác xã CĐS", matchTokens: ["hợp tác xã CĐS", "htx cds"] },
-};
+const num = (kpi: KpiRow, key: string): number => Number(kpi[key] ?? 0);
 
 export function B1Section({
-  locationName = "ĐỊA PHƯƠNG",
-  data,
-  b1,
-  metricLinks = {},
   dashboard,
+  b1,
+  metricLinks,
   onChanged,
-  onOpenLinkModal,
   onOpenQtyModal,
-  onOpenSetupId,
   onOpenMetricId,
   onSaveMetricId,
 }: B1SectionProps) {
-  const source = data || b1 || {};
   const { isAdmin } = useAuth();
+  const [showBlockId, setShowBlockId] = useState(false);
+  const [quantityState, setQuantityState] = useState<{
+    field: string;
+    fields?: string[];
+    label: string;
+    current: number;
+    matchTokens: string[];
+  } | null>(null);
+  const [metricIdState, setMetricIdState] = useState<{
+    metricKey: string;
+    label: string;
+    metricId: string;
+  } | null>(null);
 
-  const [showBlockId, setShowBlockId] = React.useState(false);
-  const [quantityState, setQuantityState] = React.useState<{ field: string; label: string; current: number; matchTokens: string[] } | null>(null);
-  const [metricIdState, setMetricIdState] = React.useState<{ metricKey: string; metricId: string | null } | null>(null);
-
-  const currentValueOf = (key: string): number => {
-    const field = QTY_MAP[key]?.field ?? "";
-    return Number(source?.[field] ?? 0);
-  };
-
-  const handleOpenLink = (key: string): void => {
-    if (onOpenMetricId) {
-      onOpenMetricId(key, LINK_LABELS[key] ?? key);
-      return;
-    }
-    // Mở MetricIdModal để thiết lập ID + đồng bộ số liệu qua web scraping
-    setMetricIdState({
-      metricKey: key,
-      metricId: null,
-    });
-  };
-
-  const handleOpenQty = (key: string): void => {
-    if (onOpenQtyModal) {
-      onOpenQtyModal(key);
-      return;
-    }
-    const info = QTY_MAP[key];
-    if (!info) return;
-    setQuantityState({
-      field: info.field,
-      label: info.label,
-      current: currentValueOf(key),
-      matchTokens: info.matchTokens,
-    });
-  };
-
-  const handleSetupId = (): void => {
-    if (onOpenSetupId) {
-      onOpenSetupId();
-      return;
-    }
-    setShowBlockId(true);
-  };
-
-  const smeTotal = Number(source?.smeTotal || source?.sme_total || 0);
-  const hkdTotal = Number(source?.hkdTotal || source?.hkd_total || 0);
-  const htxTotal = Number(source?.htxTotal || source?.htx_total || 0);
+  const smeTotal = num(b1, "sme_total");
+  const hkdTotal = num(b1, "hkd_total");
+  const htxTotal = num(b1, "htx_total");
   const totalUnits = smeTotal + hkdTotal + htxTotal;
 
-  const smeDx = Number(source?.smeDx || source?.sme_dx || 0);
-  const hkdDx = Number(source?.hkdDx || source?.hkd_dx || 0);
-  const htxDx = Number(source?.htxDx || source?.htx_dx || 0);
-  const totalDxUnits = smeDx + hkdDx + htxDx;
+  const smeDx = num(b1, "sme_dx") || num(b1, "sme_cds");
+  const hkdDx = num(b1, "hkd_dx") || num(b1, "hkd_cds");
+  const htxDx = num(b1, "htx_dx") || num(b1, "htx_cds");
+  const totalDx = smeDx + hkdDx + htxDx;
 
-  const totalDxRatio = totalUnits > 0 ? ((totalDxUnits / totalUnits) * 100).toFixed(2) : "0.00";
-  const smeRatio = smeTotal > 0 ? ((smeDx / smeTotal) * 100).toFixed(2) : "0";
-  const hkdRatio = hkdTotal > 0 ? ((hkdDx / hkdTotal) * 100).toFixed(1) : "0";
-  const htxRatio = htxTotal > 0 ? ((htxDx / htxTotal) * 100).toFixed(1) : "0.0";
+  const dxPercent = totalUnits > 0 ? ((totalDx / totalUnits) * 100).toFixed(1) : "0.0";
+
+  const handleOpenMetricId = (key: string, label: string): void => {
+    if (onOpenMetricId) {
+      onOpenMetricId(key, label);
+      return;
+    }
+    const currentUrl = metricLinks[key] || "";
+    const parts = currentUrl.split("/").filter(Boolean);
+    const existingId = parts.length > 0 ? parts[parts.length - 1] : "";
+    setMetricIdState({ metricKey: key, label, metricId: existingId });
+  };
+
+  const baseDomain = (
+    dashboard?.base_domain ||
+    dashboard?.metadata?.base_domain ||
+    dashboard?.domain_link ||
+    ""
+  ).trim().replace(/\/+$/, "");
+
+  const banner1Link = metricLinks["b1_total_units"] || "";
+  const banner2Link = metricLinks["b1_total_dx"] || "";
+  const BannerTag1: "a" | "div" = banner1Link ? "a" : "div";
+  const BannerTag2: "a" | "div" = banner2Link ? "a" : "div";
+  const bannerProps1 = banner1Link ? { href: banner1Link, target: "_blank", rel: "noopener noreferrer" } : {};
+  const bannerProps2 = banner2Link ? { href: banner2Link, target: "_blank", rel: "noopener noreferrer" } : {};
+
+  // DỮ LIỆU VẼ BIỂU ĐỒ CỘT ĐỐI CHIẾU 3 NHÓM
+  const maxVal = Math.max(smeTotal, hkdTotal, htxTotal, 1);
+  const barGroups = [
+    {
+      label: "DN SME",
+      total: smeTotal,
+      dx: smeDx,
+      rate: smeTotal > 0 ? ((smeDx / smeTotal) * 100).toFixed(1) : "0.0",
+      totalColor: "from-blue-600 to-blue-400",
+      dxColor: "from-cyan-500 to-teal-400",
+    },
+    {
+      label: "HỘ KINH DOANH",
+      total: hkdTotal,
+      dx: hkdDx,
+      rate: hkdTotal > 0 ? ((hkdDx / hkdTotal) * 100).toFixed(1) : "0.0",
+      totalColor: "from-indigo-600 to-indigo-400",
+      dxColor: "from-emerald-500 to-green-400",
+    },
+    {
+      label: "HỢP TÁC XÃ",
+      total: htxTotal,
+      dx: htxDx,
+      rate: htxTotal > 0 ? ((htxDx / htxTotal) * 100).toFixed(1) : "0.0",
+      totalColor: "from-purple-600 to-purple-400",
+      dxColor: "from-pink-500 to-rose-400",
+    },
+  ];
 
   return (
-    <div className="w-full bg-[#0a1124]/90 backdrop-blur-xl p-4 sm:p-6 md:p-7 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 shadow-2xl space-y-6 mb-8 text-white">
+    <section className="mb-6 w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
       {/* Header Khối B1 */}
-      <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800/80 pb-4">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-            <Building2 className="w-6 h-6"/>
-          </div>
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-[0_0_20px_-4px_rgba(6,182,212,0.5)]">
+            <Building2 size={20} />
+          </span>
           <div>
-            <h2 className="text-base sm:text-xl font-bold uppercase tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-              B1: THÔNG TIN ĐƠN VỊ KINH DOANH - {dashboard?.unit?.name ?? locationName}
-            </h2>
-            <p className="text-xs text-slate-400 mt-0.5">Chỉ số chuyển đổi số doanh nghiệp, hộ kinh doanh & HTX</p>
+            <h3 className="text-base font-extrabold uppercase tracking-wide text-cyan-400 sm:text-lg">
+              B1: Đơn vị kinh doanh trên địa bàn - {dashboard.unit?.name ?? "Địa phương"}
+            </h3>
+            <p className="text-xs text-slate-400">
+              Doanh nghiệp SME · Hộ kinh doanh · Hợp tác xã
+            </p>
           </div>
         </div>
-
         {isAdmin && (
           <button
             type="button"
-            onClick={handleSetupId}
-            className="px-3 py-1.5 text-xs font-semibold bg-slate-800/90 hover:bg-slate-700 text-cyan-400 border border-slate-700 rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
+            onClick={() => setShowBlockId(true)}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/70 px-3.5 py-2 text-xs font-medium text-cyan-300 transition hover:text-cyan-200"
           >
-            <Settings size={14}/>
-            <span>Thiết lập ID</span>
+            <Settings size={14} /> Thiết lập ID
           </button>
         )}
       </div>
 
-      {/* CỤM 1: TỔNG SỐ DOANH NGHIỆP / HKD / HTX */}
-      <div className="space-y-3.5 w-full">
-        <BannerCard label="TỔNG SỐ DOANH NGHIỆP/ HKD/ HTX:" link={metricLinks?.["b1_total_units"]} metricKey="b1_total_units" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} value={totalUnits}/>
+      {/* GRID 5 CỘT: CỤM TRÁI 60% (3/5) - BIỂU ĐỒ CỘT PHẢI 40% (2/5) */}
+      <div className="grid w-full grid-cols-1 lg:grid-cols-5 gap-5">
+        {/* CỤM TRÁI (60%): 2 KHỐI SỐ LIỆU */}
+        <div className="w-full space-y-5 lg:col-span-3">
+          {/* Cụm 1: Tổng số */}
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 shadow-xl sm:p-5">
+            <BannerTag1 {...bannerProps1} className="block">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-4 py-3">
+                <span className="text-sm font-bold uppercase tracking-wide text-slate-300 sm:text-base">
+                  TỔNG SỐ DOANH NGHIỆP / HKD / HTX:
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-blue-400 tabular-nums sm:text-3xl">
+                    {totalUnits.toLocaleString("vi-VN")}
+                  </span>
+                  {isAdmin && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleOpenMetricId("b1_total_units", "Tổng số ĐV kinh doanh");
+                        }}
+                        className="rounded-lg border border-blue-500 bg-blue-500/10 p-2 text-blue-400 transition hover:bg-blue-500/20"
+                        title="Thiết lập ID"
+                      >
+                        <LinkIcon size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (onOpenQtyModal) onOpenQtyModal("b1_sme_total");
+                          else
+                            setQuantityState({
+                              field: "sme_total",
+                              label: "Tổng số Doanh nghiệp SME",
+                              current: smeTotal,
+                              matchTokens: ["sme", "doanh nghiệp"],
+                            });
+                        }}
+                        className="rounded-lg border border-cyan-500 bg-cyan-500/10 p-2 text-cyan-400 transition hover:bg-cyan-500/20"
+                        title="Setup Số lượng"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </BannerTag1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 w-full">
-          <StatCard link={metricLinks?.["b1_sme_total"]} metricKey="b1_sme_total" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} title="TỔNG SỐ DOANH NGHIỆP VỪA VÀ NHỎ" value={smeTotal}/>
-          <StatCard link={metricLinks["b1_hkd_total"]} metricKey="b1_hkd_total" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} title="TỔNG SỐ HỘ KINH DOANH" value={hkdTotal}/>
-          <StatCard link={metricLinks["b1_htx_total"]} metricKey="b1_htx_total" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} title="TỔNG SỐ HỢP TÁC XÃ" value={htxTotal}/>
-        </div>
-      </div>
-
-      {/* CỤM 2: TỔNG SỐ CHUYỂN ĐỔI SỐ */}
-      <div className="space-y-3.5 w-full">
-        <BannerCard label="TỔNG SỐ DOANH NGHIỆP/ HKD/ HTX SỐ CHUYỂN ĐỔI SỐ:" link={metricLinks?.["b1_total_dx_units"]} metricKey="b1_total_dx_units" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} value={totalDxUnits}/>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 w-full">
-          <StatCard subText={`Chiếm ${smeRatio}% (${smeDx}/${smeTotal})`} isDx link={metricLinks?.["b1_sme_dx"]} metricKey="b1_sme_dx" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} title="TỔNG SỐ DOANH NGHIỆP CHUYỂN ĐỔI SỐ" value={smeDx}/>
-          <StatCard subText={`Chiếm ${hkdRatio}% (${hkdDx}/${hkdTotal})`} isDx link={metricLinks?.["b1_hkd_dx"]} metricKey="b1_hkd_dx" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} title="TỔNG SỐ HỘ KINH DOANH CHUYỂN ĐỔI SỐ" value={hkdDx}/>
-          <StatCard subText={`Chiếm ${htxRatio}% (${htxDx}/${htxTotal})`} isDx link={metricLinks?.["b1_htx_dx"]} metricKey="b1_htx_dx" onOpenLink={handleOpenLink} onOpenQty={handleOpenQty} title="TỔNG SỐ HỢP TÁC XÃ CHUYỂN ĐỔI SỐ" value={htxDx}/>
-        </div>
-      </div>
-
-      {/* VỊ TRÍ DƯỚI CÙNG: THẺ TỈ LỆ */}
-      <div className="w-full bg-gradient-to-r from-slate-900/95 via-[#0d1f38]/90 to-slate-900/95 p-4 sm:p-5 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 shadow-lg space-y-3">
-        <div className="flex flex-wrap justify-between items-center gap-2">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-cyan-400"/>
-            <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider">
-              TỈ LỆ CĐS TỔNG TẤT CẢ ĐƠN VỊ KINH DOANH
-            </span>
+            <div className="grid w-full grid-cols-1 sm:grid-cols-3 gap-3">
+              <StatCell
+                label="DOANH NGHIỆP SME"
+                value={smeTotal}
+                unit="DN"
+                color="#3b82f6"
+                targetUrl={metricLinks["b1_sme_total"]}
+                onEditLink={() => handleOpenMetricId("b1_sme_total", "Tổng DN SME")}
+                onEditQuantity={() => {
+                  if (onOpenQtyModal) onOpenQtyModal("b1_sme_total");
+                  else
+                    setQuantityState({
+                      field: "sme_total",
+                      label: "Tổng DN SME",
+                      current: smeTotal,
+                      matchTokens: ["sme", "doanh nghiệp"],
+                    });
+                }}
+              />
+              <StatCell
+                label="HỘ KINH DOANH"
+                value={hkdTotal}
+                unit="HỘ"
+                color="#10b981"
+                targetUrl={metricLinks["b1_hkd_total"]}
+                onEditLink={() => handleOpenMetricId("b1_hkd_total", "Tổng Hộ KD")}
+                onEditQuantity={() => {
+                  if (onOpenQtyModal) onOpenQtyModal("b1_hkd_total");
+                  else
+                    setQuantityState({
+                      field: "hkd_total",
+                      label: "Tổng Hộ KD",
+                      current: hkdTotal,
+                      matchTokens: ["hkd", "hộ kinh doanh"],
+                    });
+                }}
+              />
+              <StatCell
+                label="HỢP TÁC XÃ"
+                value={htxTotal}
+                unit="HTX"
+                color="#a855f7"
+                targetUrl={metricLinks["b1_htx_total"]}
+                onEditLink={() => handleOpenMetricId("b1_htx_total", "Tổng Hợp tác xã")}
+                onEditQuantity={() => {
+                  if (onOpenQtyModal) onOpenQtyModal("b1_htx_total");
+                  else
+                    setQuantityState({
+                      field: "htx_total",
+                      label: "Tổng Hợp tác xã",
+                      current: htxTotal,
+                      matchTokens: ["htx", "hợp tác xã"],
+                    });
+                }}
+              />
+            </div>
           </div>
-          <div className="flex items-baseline gap-1.5 font-mono">
-            <span className="text-xl sm:text-2xl font-black text-cyan-400">{totalDxRatio}%</span>
-            <span className="text-xs text-slate-400">({totalDxUnits}/{totalUnits} đơn vị)</span>
+
+          {/* Cụm 2: Đã CĐS */}
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 shadow-xl sm:p-5">
+            <BannerTag2 {...bannerProps2} className="block">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 px-4 py-3">
+                <span className="text-sm font-bold uppercase tracking-wide text-slate-300 sm:text-base">
+                  TỔNG SỐ DOANH NGHIỆP / HKD / HTX CĐS:
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-emerald-400 tabular-nums sm:text-3xl">
+                    {totalDx.toLocaleString("vi-VN")}
+                  </span>
+                  {isAdmin && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleOpenMetricId("b1_total_dx", "Tổng số ĐV CĐS");
+                        }}
+                        className="rounded-lg border border-emerald-500 bg-emerald-500/10 p-2 text-emerald-400 transition hover:bg-emerald-500/20"
+                        title="Thiết lập ID"
+                      >
+                        <LinkIcon size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (onOpenQtyModal) onOpenQtyModal("b1_sme_dx");
+                          else
+                            setQuantityState({
+                              field: "sme_dx",
+                              fields: ["sme_dx", "sme_cds"],
+                              label: "Doanh nghiệp SME CĐS",
+                              current: smeDx,
+                              matchTokens: ["sme cds", "sme cđs"],
+                            });
+                        }}
+                        className="rounded-lg border border-cyan-500 bg-cyan-500/10 p-2 text-cyan-400 transition hover:bg-cyan-500/20"
+                        title="Setup Số lượng"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </BannerTag2>
+
+            <div className="grid w-full grid-cols-1 sm:grid-cols-3 gap-3">
+              <StatCell
+                label="DOANH NGHIỆP SME CĐS"
+                value={smeDx}
+                unit="DN"
+                color="#3b82f6"
+                targetUrl={metricLinks["b1_sme_dx"]}
+                onEditLink={() => handleOpenMetricId("b1_sme_dx", "DN SME CĐS")}
+                onEditQuantity={() => {
+                  if (onOpenQtyModal) onOpenQtyModal("b1_sme_dx");
+                  else
+                    setQuantityState({
+                      field: "sme_dx",
+                      fields: ["sme_dx", "sme_cds"],
+                      label: "DN SME CĐS",
+                      current: smeDx,
+                      matchTokens: ["sme cds", "sme cđs"],
+                    });
+                }}
+              />
+              <StatCell
+                label="HỘ KINH DOANH CĐS"
+                value={hkdDx}
+                unit="HỘ"
+                color="#10b981"
+                targetUrl={metricLinks["b1_hkd_dx"]}
+                onEditLink={() => handleOpenMetricId("b1_hkd_dx", "Hộ KD CĐS")}
+                onEditQuantity={() => {
+                  if (onOpenQtyModal) onOpenQtyModal("b1_hkd_dx");
+                  else
+                    setQuantityState({
+                      field: "hkd_dx",
+                      fields: ["hkd_dx", "hkd_cds"],
+                      label: "Hộ KD CĐS",
+                      current: hkdDx,
+                      matchTokens: ["hkd cds", "hkd cđs"],
+                    });
+                }}
+              />
+              <StatCell
+                label="HỢP TÁC XÃ CĐS"
+                value={htxDx}
+                unit="HTX"
+                color="#a855f7"
+                targetUrl={metricLinks["b1_htx_dx"]}
+                onEditLink={() => handleOpenMetricId("b1_htx_dx", "Hợp tác xã CĐS")}
+                onEditQuantity={() => {
+                  if (onOpenQtyModal) onOpenQtyModal("b1_htx_dx");
+                  else
+                    setQuantityState({
+                      field: "htx_dx",
+                      fields: ["htx_dx", "htx_cds"],
+                      label: "Hợp tác xã CĐS",
+                      current: htxDx,
+                      matchTokens: ["htx cds", "htx cđs"],
+                    });
+                }}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="w-full bg-slate-800/90 h-3 rounded-full overflow-hidden p-0.5 border-x-2 border-b-2 border-[#1d293d] border-t-0">
-          <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-full transition-all duration-700 shadow-sm shadow-cyan-500/50"
-            style={{ width: `${Math.min(Number(totalDxRatio), 100)}%` }}
-          />
+        {/* CỤM PHẢI (40%): BIỂU ĐỒ CỘT TỶ LỆ CHUYỂN ĐỔI SỐ (GROUPED BAR CHART) */}
+        <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl lg:col-span-2 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center gap-2">
+                <BarChart3 size={16} className="text-cyan-400" />
+                <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyan-300">
+                  BIỂU ĐỒ TỶ LỆ CHUYỂN ĐỔI SỐ
+                </h4>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                <TrendingUp size={12} />
+                <span>Toàn tỉnh: {dxPercent}%</span>
+              </div>
+            </div>
+
+            {/* Chú thích cột */}
+            <div className="mt-3 flex items-center justify-center gap-4 text-xs font-semibold">
+              <span className="flex items-center gap-1.5 text-blue-400">
+                <span className="h-2.5 w-2.5 rounded-xs bg-blue-500" /> Tổng đơn vị
+              </span>
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500" /> Đã CĐS
+              </span>
+            </div>
+
+            {/* VÙNG BIỂU ĐỒ CỘT DỌC ĐỐI CHIẾU (3 NHÓM CỘT ĐÔI) */}
+            <div className="mt-4 pt-2">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 items-end h-[160px] px-1">
+                {barGroups.map((g) => {
+                  const totalH = Math.min(100, Math.max(15, (g.total / maxVal) * 100));
+                  const dxH = Math.min(100, Math.max(10, (g.dx / maxVal) * 100));
+
+                  return (
+                    <div key={g.label} className="flex flex-col items-center h-full justify-end group">
+                      {/* Badge % CĐS trên đỉnh */}
+                      <span className="mb-2 text-[10px] sm:text-[11px] font-extrabold text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/30">
+                        {g.rate}%
+                      </span>
+
+                      {/* Cột đôi: [Tổng số] & [Đã CĐS] */}
+                      <div className="w-full flex items-end justify-center gap-1.5 h-[115px] bg-slate-900/60 rounded-t-xl p-1 border-b border-slate-700/50">
+                        {/* Cột Tổng số */}
+                        <div
+                          className="w-1/2 max-w-[24px] rounded-t-md bg-gradient-to-t from-blue-700 to-blue-400 shadow-md transition-all duration-700 relative group-hover:brightness-125 flex flex-col justify-start items-center"
+                          style={{ height: `${totalH}%` }}
+                          title={`Tổng: ${g.total.toLocaleString("vi-VN")}`}
+                        >
+                          <span className="text-[9px] font-mono text-white font-bold mt-0.5 hidden sm:block">
+                            {g.total > 999 ? `${(g.total / 1000).toFixed(1)}k` : g.total}
+                          </span>
+                        </div>
+
+                        {/* Cột Đã CĐS */}
+                        <div
+                          className="w-1/2 max-w-[24px] rounded-t-md bg-gradient-to-t from-emerald-600 to-teal-400 shadow-md transition-all duration-700 relative group-hover:brightness-125 flex flex-col justify-start items-center"
+                          style={{ height: `${dxH}%` }}
+                          title={`Đã CĐS: ${g.dx.toLocaleString("vi-VN")}`}
+                        >
+                          <span className="text-[9px] font-mono text-white font-bold mt-0.5 hidden sm:block">
+                            {g.dx > 999 ? `${(g.dx / 1000).toFixed(1)}k` : g.dx}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Nhãn chân cột */}
+                      <div className="mt-2 text-center w-full">
+                        <div className="text-[11px] font-bold text-slate-300 truncate">
+                          {g.label}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          {g.dx}/{g.total}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Thanh tỷ lệ tổng thể ở dưới cùng */}
+          <div className="mt-3 space-y-1.5 pt-3 border-t border-white/5">
+            <div className="flex justify-between text-xs text-slate-300">
+              <span>Tiến độ CĐS: <strong className="text-emerald-400">{totalDx}</strong> / {totalUnits} ĐV</span>
+              <span className="font-bold text-emerald-400">{dxPercent}%</span>
+            </div>
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-900 border border-white/5">
+              <div
+                className="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-700"
+                style={{ width: `${Math.min(100, Number(dxPercent))}%` }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {showBlockId && dashboard && (
-        <BlockIdModal dashboard={dashboard} section="B1" currentId={dashboard.b1_custom_id} onClose={() => setShowBlockId(false)} onSaved={() => onChanged?.()} />
+      {showBlockId && (
+        <BlockIdModal
+          dashboard={dashboard}
+          section="B1"
+          currentId={(dashboard as any).b1_custom_id ?? (dashboard as any)?.metadata?.b1_custom_id ?? ""}
+          onClose={() => setShowBlockId(false)}
+          onSaved={onChanged}
+        />
       )}
-      {quantityState && dashboard && (
-        <CellQuantityModal dashboard={dashboard} section="B1" field={quantityState.field} label={quantityState.label} currentValue={quantityState.current} matchTokens={quantityState.matchTokens} onClose={() => setQuantityState(null)} onSaved={() => onChanged?.()} />
+
+      {quantityState && (
+        <CellQuantityModal
+          dashboard={dashboard}
+          section="B1"
+          field={quantityState.field}
+          fields={quantityState.fields}
+          label={quantityState.label}
+          currentValue={quantityState.current}
+          matchTokens={quantityState.matchTokens}
+          onClose={() => setQuantityState(null)}
+          onSaved={onChanged}
+        />
       )}
-      {metricIdState && dashboard && (
+
+      {metricIdState && (
         <MetricIdModal
           dashboard={dashboard}
           metricKey={metricIdState.metricKey}
-          label={LINK_LABELS[metricIdState.metricKey] ?? metricIdState.metricKey}
-          baseDomain={dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || ""}
-          initialId={metricIdState.metricId ?? ""}
+          metricLabel={metricIdState.label}
+          label={metricIdState.label}
+          baseDomain={baseDomain}
+          currentId={metricIdState.metricId}
+          initialId={metricIdState.metricId}
           onClose={() => setMetricIdState(null)}
-          onSave={onSaveMetricId ?? (async (metricKey: string, metricId: string) => {
-            const base = (dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || "").trim().replace(/\/+$/, "");
-            const fullUrl = base ? `${base}/${metricId}` : metricId;
-
-            // 1) Ghi metric_id + URL vào bảng metric_links
-            const linkRes = await fetch("/api/v1/metrics/set-link", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                dashboardId: dashboard.id,
-                metricKey,
-                targetUrl: fullUrl,
-                metricId,
-              }),
-            });
-            if (!linkRes.ok) {
-              const d = await linkRes.json();
-              throw new Error(d.error ?? "Lỗi lưu ID liên kết");
-            }
-
-            // 2) Cào dữ liệu qua API scrape-metric
-            const scrapeRes = await fetch("/api/scrape-metric", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ targetUrl: fullUrl }),
-            });
-            const scrapeData = await scrapeRes.json();
-            if (!scrapeRes.ok || !scrapeData.success || typeof scrapeData.value !== "number") {
-              throw new Error(scrapeData?.error ?? "Không bóc tách được số liệu từ URL");
-            }
-
-            // 3) Cập nhật chỉ tiêu theo field mapping (B1)
-            const field = QTY_MAP[metricKey]?.field;
-            if (field) {
-              const upRes = await fetch("/api/v1/metrics/update-value", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  dashboardId: dashboard.id,
-                  section: "B1",
-                  field,
-                  fields: [field],
-                  value: scrapeData.value,
-                }),
-              });
-              if (!upRes.ok) {
-                const d = await upRes.json();
-                throw new Error(d.error ?? "Lỗi cập nhật số liệu");
-              }
-            }
-          })}
-          onSaved={() => onChanged?.()}
+          onSave={async (key: string, id: string) => {
+            if (onSaveMetricId) await onSaveMetricId(key, id);
+            onChanged();
+          }}
+          onSaved={onChanged}
         />
       )}
-    </div>
+    </section>
   );
 }
 
 export default B1Section;
-
-interface BannerCardProps {
-  label: string;
-  value: number;
-  metricKey: string;
-  link?: string;
-  onOpenLink?: (key: string) => void;
-  onOpenQty?: (key: string) => void;
-}
-
-function BannerCard({ label, value, metricKey, link, onOpenLink, onOpenQty }: BannerCardProps) {
-  const { isAdmin } = useAuth();
-  const content = (
-    <div
-      className={`relative group w-full bg-[#0c1e38] px-4 sm:px-6 py-4 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 flex justify-between items-center shadow-md ${
-        link ? "cursor-pointer" : ""
-      }`}
-    >
-      <span className="text-xs sm:text-base font-bold uppercase tracking-wide text-slate-100 flex items-center gap-1.5">
-        {label}
-        {link && <ExternalLink className="text-cyan-400 shrink-0" size={13}/>}
-      </span>
-      <div className="flex items-center gap-2 sm:gap-3">
-        <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
-          {value.toLocaleString()}
-        </span>
-        {isAdmin && (
-          <div className="flex gap-1 z-10">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (onOpenLink) onOpenLink(metricKey);
-              }}
-              className="p-1.5 rounded-lg bg-slate-800/90 hover:bg-cyan-600 text-slate-300 hover:text-white border border-[#1d293d]"
-              title="Thiết lập ID"
-            >
-              <LinkIcon size={13}/>
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (onOpenQty) onOpenQty(metricKey);
-              }}
-              className="p-1.5 rounded-lg bg-slate-800/90 hover:bg-emerald-600 text-slate-300 hover:text-white border border-[#1d293d]"
-              title="Setup Số lượng"
-            >
-              <Edit3 size={13}/>
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  if (link) {
-    return (
-      <a href={link} target="_blank" rel="noopener noreferrer" className="block w-full">
-        {content}
-      </a>
-    );
-  }
-  return content;
-}
-
-interface StatCardProps {
-  title: string;
-  value: number;
-  subText?: string;
-  metricKey: string;
-  link?: string;
-  isDx?: boolean;
-  onOpenLink?: (key: string) => void;
-  onOpenQty?: (key: string) => void;
-}
-
-function StatCard({ title, value, subText, metricKey, link, onOpenLink, onOpenQty }: StatCardProps) {
-  const { isAdmin } = useAuth();
-  const content = (
-    <div
-      className={`relative group p-4 sm:p-5 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-gradient-to-b from-slate-900/90 to-[#0c1830]/90 transition-all duration-200 flex flex-col items-center justify-center text-center w-full ${
-        link ? "cursor-pointer" : ""
-      }`}
-    >
-      {isAdmin && (
-        <div className="absolute top-2.5 right-2.5 flex gap-1 z-10">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (onOpenLink) onOpenLink(metricKey);
-            }}
-            className="p-1 rounded-md bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white transition-colors"
-            title="Thiết lập ID"
-          >
-            <LinkIcon size={12}/>
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (onOpenQty) onOpenQty(metricKey);
-            }}
-            className="p-1 rounded-md bg-slate-800 hover:bg-emerald-600 text-slate-300 hover:text-white transition-colors"
-            title="Setup Số lượng"
-          >
-            <Edit3 size={12}/>
-          </button>
-        </div>
-      )}
-
-      <p className="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2 line-clamp-1 flex items-center gap-1">
-        {title}
-        {link && <ExternalLink className="text-cyan-400 shrink-0" size={10}/>}
-      </p>
-      <p className="text-2xl sm:text-3xl font-black font-mono text-emerald-400">{value.toLocaleString()}</p>
-      {subText && <p className="text-[11px] font-medium text-slate-400 mt-2">{subText}</p>}
-    </div>
-  );
-
-  if (link) {
-    return (
-      <a href={link} target="_blank" rel="noopener noreferrer" className="block w-full">
-        {content}
-      </a>
-    );
-  }
-  return content;
-}

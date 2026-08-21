@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Package, Sparkles, Settings, Link as LinkIcon, Edit3 } from "lucide-react";
+import { Package, PieChart, Settings, Link as LinkIcon, Edit3 } from "lucide-react";
 import { StatCell } from "./stat-cell";
 import { CellQuantityModal } from "./cell-quantity-modal";
 import { BlockIdModal } from "./block-id-modal";
@@ -14,29 +14,19 @@ interface B2SectionProps {
   b2: KpiRow;
   metricLinks: Record<string, string>;
   onChanged: () => void;
-  onOpenLinkModal?: (key: string) => void;
   onOpenQtyModal?: (key: string) => void;
-  onOpenSetupId?: () => void;
   onOpenMetricId?: (key: string, label: string) => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
 }
 
 const num = (kpi: KpiRow, key: string): number => Number(kpi[key] ?? 0);
 
-interface MetricIdState {
-  metricKey: string;
-  label: string;
-  metricId: string;
-}
-
 export function B2Section({
   dashboard,
   b2,
   metricLinks,
   onChanged,
-  onOpenLinkModal,
   onOpenQtyModal,
-  onOpenSetupId,
   onOpenMetricId,
   onSaveMetricId,
 }: B2SectionProps) {
@@ -48,7 +38,11 @@ export function B2Section({
     current: number;
     matchTokens: string[];
   } | null>(null);
-  const [metricIdState, setMetricIdState] = useState<MetricIdState | null>(null);
+  const [metricIdState, setMetricIdState] = useState<{
+    metricKey: string;
+    label: string;
+    metricId: string;
+  } | null>(null);
 
   const ocop3 = num(b2, "ocop_3star");
   const ocop4 = num(b2, "ocop_4star");
@@ -59,29 +53,15 @@ export function B2Section({
   const ocopTotal = ocop3 + ocop4 + ocop5;
   const otherTotal = spThuong + dichVu;
   const totalAll = ocopTotal + otherTotal;
-  const pct = (part: number, whole: number) =>
-    whole > 0 ? ((part / whole) * 100).toFixed(1) : "0.0";
-
-  // Mapping metricKey B2 -> field thực tế trong DB
-  const B2_FIELD: Record<string, string> = {
-    b2_ocop_3: "ocop_3star",
-    b2_ocop_4: "ocop_4star",
-    b2_ocop_5: "ocop_5star",
-    b2_sp_thuong: "sp_thuong",
-    b2_dich_vu: "dich_vu",
-    b2_total_ocop: "ocop_3star",
-  };
 
   const handleOpenMetricId = (key: string, label: string): void => {
     if (onOpenMetricId) {
       onOpenMetricId(key, label);
       return;
     }
-    // Trích xuất ID hiện tại từ URL nếu đã có
     const currentUrl = metricLinks[key] || "";
     const parts = currentUrl.split("/").filter(Boolean);
     const existingId = parts.length > 0 ? parts[parts.length - 1] : "";
-
     setMetricIdState({ metricKey: key, label, metricId: existingId });
   };
 
@@ -92,20 +72,28 @@ export function B2Section({
     ""
   ).trim().replace(/\/+$/, "");
 
-  // Banner Tổng Cụm 1 (OCOP) / Cụm 2 (SP Thường & Dịch vụ) tự chuyển thành <a> khi có link
   const banner1Link = metricLinks["b2_total_ocop"] || "";
   const banner2Link = metricLinks["b2_total_normal_service"] || "";
   const BannerTag1: "a" | "div" = banner1Link ? "a" : "div";
   const BannerTag2: "a" | "div" = banner2Link ? "a" : "div";
-  const bannerProps1 = banner1Link
-    ? { href: banner1Link, target: "_blank", rel: "noopener noreferrer" }
-    : {};
-  const bannerProps2 = banner2Link
-    ? { href: banner2Link, target: "_blank", rel: "noopener noreferrer" }
-    : {};
+  const bannerProps1 = banner1Link ? { href: banner1Link, target: "_blank", rel: "noopener noreferrer" } : {};
+  const bannerProps2 = banner2Link ? { href: banner2Link, target: "_blank", rel: "noopener noreferrer" } : {};
+
+  // DỮ LIỆU TÍNH TOÁN BIỂU ĐỒ TRÒN (DONUT / PIE CHART)
+  const segments = [
+    { name: "OCOP 3★", value: ocop3, color: "#f59e0b" },
+    { name: "OCOP 4★", value: ocop4, color: "#fb923c" },
+    { name: "OCOP 5★", value: ocop5, color: "#eab308" },
+    { name: "SP Thường", value: spThuong, color: "#3b82f6" },
+    { name: "Dịch Vụ", value: dichVu, color: "#a855f7" },
+  ];
+
+  const radius = 62;
+  const circumference = 2 * Math.PI * radius; // ≈ 389.55
+  let accumulatedPercent = 0;
 
   return (
-    <section className="mb-6 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
+    <section className="mb-6 w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
       {/* Header Khối B2 */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -132,11 +120,12 @@ export function B2Section({
         )}
       </div>
 
-      <div className="space-y-6">
-        {/* GRID 5 cột: Cụm OCOP 60% (3/5) - Cụm SP thường & Dịch vụ 40% (2/5) */}
-        <div className="grid w-full grid-cols-1 lg:grid-cols-5 gap-5">
-          {/* CỤM 1: SẢN PHẨM OCOP */}
-          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 shadow-xl sm:p-5 lg:col-span-3">
+      {/* GRID 5 CỘT: CỤM TRÁI 60% (3/5) - BIỂU ĐỒ TRÒN PHẢI 40% (2/5) */}
+      <div className="grid w-full grid-cols-1 lg:grid-cols-5 gap-5">
+        {/* CỤM TRÁI (60%): 2 KHỐI SỐ LIỆU */}
+        <div className="w-full space-y-5 lg:col-span-3">
+          {/* Cụm 1: OCOP */}
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 shadow-xl sm:p-5">
             <BannerTag1 {...bannerProps1} className="block">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-3">
                 <span className="text-sm font-bold uppercase tracking-wide text-slate-300 sm:text-base">
@@ -155,8 +144,7 @@ export function B2Section({
                           e.stopPropagation();
                           handleOpenMetricId("b2_total_ocop", "Tổng sản phẩm OCOP");
                         }}
-                        className="rounded-lg border border-amber-500 bg-amber-500/10 p-2 text-amber-400 transition hover:text-amber-300 hover:bg-amber-500/20"
-                        aria-label="Thiết lập ID OCOP"
+                        className="rounded-lg border border-amber-500 bg-amber-500/10 p-2 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -166,15 +154,16 @@ export function B2Section({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          setQuantityState({
-                            field: "ocop_3star",
-                            label: "OCOP 3 sao",
-                            current: ocop3,
-                            matchTokens: ["ocop 3 sao", "ocop_3star"],
-                          });
+                          if (onOpenQtyModal) onOpenQtyModal("b2_ocop_3");
+                          else
+                            setQuantityState({
+                              field: "ocop_3star",
+                              label: "OCOP 3 sao",
+                              current: ocop3,
+                              matchTokens: ["ocop 3 sao", "ocop_3star"],
+                            });
                         }}
-                        className="rounded-lg border border-cyan-500 bg-cyan-500/10 p-2 text-cyan-400 transition hover:text-cyan-300 hover:bg-cyan-500/20"
-                        aria-label="Setup số lượng OCOP"
+                        className="rounded-lg border border-cyan-500 bg-cyan-500/10 p-2 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />
@@ -185,7 +174,7 @@ export function B2Section({
               </div>
             </BannerTag1>
 
-            <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-5">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-3 gap-3">
               <StatCell
                 label="OCOP 3 SAO"
                 value={ocop3}
@@ -206,7 +195,7 @@ export function B2Section({
                 label="OCOP 4 SAO"
                 value={ocop4}
                 unit="SP"
-                color="#f59e0b"
+                color="#fb923c"
                 targetUrl={metricLinks["b2_ocop_4"]}
                 onEditLink={() => handleOpenMetricId("b2_ocop_4", "OCOP 4 sao")}
                 onEditQuantity={() =>
@@ -222,7 +211,7 @@ export function B2Section({
                 label="OCOP 5 SAO"
                 value={ocop5}
                 unit="SP"
-                color="#f59e0b"
+                color="#eab308"
                 targetUrl={metricLinks["b2_ocop_5"]}
                 onEditLink={() => handleOpenMetricId("b2_ocop_5", "OCOP 5 sao")}
                 onEditQuantity={() =>
@@ -237,8 +226,8 @@ export function B2Section({
             </div>
           </div>
 
-          {/* CỤM 2: SẢN PHẨM THƯỜNG & DỊCH VỤ */}
-          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 shadow-xl sm:p-5 lg:col-span-2">
+          {/* Cụm 2: SP Thường & Dịch vụ */}
+          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 shadow-xl sm:p-5">
             <BannerTag2 {...bannerProps2} className="block">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-4 py-3">
                 <span className="text-sm font-bold uppercase tracking-wide text-slate-300 sm:text-base">
@@ -260,8 +249,7 @@ export function B2Section({
                             "Sản phẩm thường & Dịch vụ"
                           );
                         }}
-                        className="rounded-lg border border-amber-500 bg-amber-500/10 p-2 text-amber-400 transition hover:text-amber-300 hover:bg-amber-500/20"
-                        aria-label="Thiết lập ID SP thường"
+                        className="rounded-lg border border-amber-500 bg-amber-500/10 p-2 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -278,8 +266,7 @@ export function B2Section({
                             matchTokens: ["sản phẩm thường", "sp thường"],
                           });
                         }}
-                        className="rounded-lg border border-cyan-500 bg-cyan-500/10 p-2 text-cyan-400 transition hover:text-cyan-300 hover:bg-cyan-500/20"
-                        aria-label="Setup số lượng SP thường"
+                        className="rounded-lg border border-cyan-500 bg-cyan-500/10 p-2 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />
@@ -290,7 +277,7 @@ export function B2Section({
               </div>
             </BannerTag2>
 
-            <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 mt-5">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 gap-3">
               <StatCell
                 label="SẢN PHẨM THƯỜNG"
                 value={spThuong}
@@ -326,60 +313,90 @@ export function B2Section({
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Tỷ lệ sản phẩm & dịch vụ */}
-      <div className="mt-6 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-bold uppercase tracking-wide text-cyan-300">
-            Tỉ lệ sản phẩm & dịch vụ
-          </span>
-          <Sparkles size={16} className="text-amber-400" />
-        </div>
-        <div className="relative mt-2 h-4 w-full overflow-hidden rounded-full border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-slate-900">
-          {totalAll > 0 ? (
-            <div className="flex h-full">
-              <div
-                className="h-full bg-amber-500 transition-all duration-700"
-                style={{ width: `${(ocopTotal / totalAll) * 100}%` }}
-              />
-              <div
-                className="h-full bg-blue-500 transition-all duration-700"
-                style={{ width: `${(spThuong / totalAll) * 100}%` }}
-              />
-              <div
-                className="h-full bg-indigo-500 transition-all duration-700"
-                style={{ width: `${(dichVu / totalAll) * 100}%` }}
-              />
+        {/* CỤM PHẢI (40%): BIỂU ĐỒ TRÒN PHÂN BỔ SẢN PHẨM (DONUT / PIE CHART) */}
+        <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl lg:col-span-2 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center gap-2">
+                <PieChart size={16} className="text-amber-400" />
+                <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyan-300">
+                  BIỂU ĐỒ TỶ LỆ CÁC LOẠI SẢN PHẨM
+                </h4>
+              </div>
+              <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                Tổng: {totalAll.toLocaleString("vi-VN")}
+              </span>
             </div>
-          ) : (
-            <div className="h-full w-0 bg-slate-700 transition-all duration-700" />
-          )}
-        </div>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="flex items-center justify-between rounded-xl bg-slate-800/50 px-3 py-2">
-            <span className="flex items-center gap-2 text-xs text-slate-300">
-              <span className="h-3 w-3 rounded-full bg-amber-500" /> OCOP
-            </span>
-            <span className="font-bold text-amber-400 tabular-nums">
-              {totalAll > 0 ? `${pct(ocopTotal, totalAll)}%` : "0.0%"} ({ocopTotal})
-            </span>
+
+            {/* VÙNG VẼ SVG BIỂU ĐỒ TRÒN (DONUT CHART) */}
+            <div className="relative flex justify-center items-center py-3">
+              <div className="relative w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center">
+                <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
+                  {/* Vòng tròn nền */}
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r={radius}
+                    fill="none"
+                    stroke="#1e293b"
+                    strokeWidth="22"
+                  />
+
+                  {/* 5 Khúc phân đoạn của biểu đồ tròn */}
+                  {totalAll > 0 &&
+                    segments.map((seg) => {
+                      const share = seg.value / totalAll;
+                      const strokeDasharray = `${share * circumference} ${circumference}`;
+                      const strokeDashoffset = -accumulatedPercent * circumference;
+                      accumulatedPercent += share;
+
+                      return (
+                        <circle
+                          key={seg.name}
+                          cx="80"
+                          cy="80"
+                          r={radius}
+                          fill="none"
+                          stroke={seg.color}
+                          strokeWidth="22"
+                          strokeDasharray={strokeDasharray}
+                          strokeDashoffset={strokeDashoffset}
+                          className="transition-all duration-700 hover:opacity-80"
+                        />
+                      );
+                    })}
+                </svg>
+
+                {/* Nhãn con số ở giữa biểu đồ tròn */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                  <span className="text-xl sm:text-2xl font-black text-slate-100 tabular-nums">
+                    {totalAll.toLocaleString("vi-VN")}
+                  </span>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                    Sản phẩm & DV
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between rounded-xl bg-slate-800/50 px-3 py-2">
-            <span className="flex items-center gap-2 text-xs text-slate-300">
-              <span className="h-3 w-3 rounded-full bg-blue-500" /> SP Thường
-            </span>
-            <span className="font-bold text-blue-400 tabular-nums">
-              {totalAll > 0 ? `${pct(spThuong, totalAll)}%` : "0.0%"} ({spThuong})
-            </span>
-          </div>
-          <div className="flex items-center justify-between rounded-xl bg-slate-800/50 px-3 py-2">
-            <span className="flex items-center gap-2 text-xs text-slate-300">
-              <span className="h-3 w-3 rounded-full bg-indigo-500" /> Dịch vụ
-            </span>
-            <span className="font-bold text-indigo-400 tabular-nums">
-              {totalAll > 0 ? `${pct(dichVu, totalAll)}%` : "0.0%"} ({dichVu})
-            </span>
+
+          {/* CHÚ THÍCH PHÂN BỔ 5 LOẠI Ở DƯỚI CÙNG */}
+          <div className="pt-2 border-t border-white/5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+              {segments.map((seg) => {
+                const percentage = totalAll > 0 ? ((seg.value / totalAll) * 100).toFixed(1) : "0.0";
+                return (
+                  <div key={seg.name} className="flex items-center gap-1.5 bg-slate-900/60 p-1.5 rounded-lg border border-white/5">
+                    <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
+                    <div className="truncate">
+                      <span className="text-slate-300 font-medium">{seg.name}: </span>
+                      <strong style={{ color: seg.color }}>{percentage}%</strong>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -388,7 +405,7 @@ export function B2Section({
         <BlockIdModal
           dashboard={dashboard}
           section="B2"
-          currentId={dashboard.b2_custom_id}
+          currentId={(dashboard as any).b2_custom_id ?? (dashboard as any)?.metadata?.b2_custom_id ?? ""}
           onClose={() => setShowBlockId(false)}
           onSaved={onChanged}
         />
@@ -418,60 +435,8 @@ export function B2Section({
           initialId={metricIdState.metricId}
           onClose={() => setMetricIdState(null)}
           onSave={async (key: string, id: string) => {
-            if (onSaveMetricId) {
-              await onSaveMetricId(key, id);
-            } else {
-              const cleanId = id.trim();
-              const fullUrl = baseDomain ? `${baseDomain}/${cleanId}` : cleanId;
-
-              // 1) Ghi metric_id + URL vào bảng metric_links
-              const linkRes = await fetch("/api/v1/metrics/set-link", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  dashboardId: dashboard.id,
-                  metricKey: key,
-                  targetUrl: fullUrl,
-                  metricId: cleanId,
-                }),
-              });
-              if (!linkRes.ok) {
-                const d = await linkRes.json().catch(() => null);
-                throw new Error(d?.error ?? "Lỗi lưu ID liên kết");
-              }
-
-              // 2) Cào dữ liệu qua API scrape-metric
-              const scrapeRes = await fetch("/api/scrape-metric", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: fullUrl, targetUrl: fullUrl }),
-              });
-              const scrapeData = await scrapeRes.json().catch(() => null);
-              if (!scrapeRes.ok || !scrapeData?.success || typeof scrapeData.value !== "number") {
-                throw new Error(scrapeData?.error ?? "Không bóc tách được số liệu từ URL");
-              }
-
-              // 3) Cập nhật chỉ tiêu theo field mapping (B2)
-              const field = B2_FIELD[key];
-              if (field) {
-                const upRes = await fetch("/api/v1/metrics/update-value", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    dashboardId: dashboard.id,
-                    section: "B2",
-                    field,
-                    fields: [field],
-                    value: scrapeData.value,
-                  }),
-                });
-                if (!upRes.ok) {
-                  const d = await upRes.json().catch(() => null);
-                  throw new Error(d?.error ?? "Lỗi cập nhật số liệu");
-                }
-              }
-            }
-            if (onChanged) onChanged();
+            if (onSaveMetricId) await onSaveMetricId(key, id);
+            onChanged();
           }}
           onSaved={onChanged}
         />

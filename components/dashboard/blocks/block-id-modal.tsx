@@ -11,7 +11,7 @@ import type { DashboardRow } from "@/lib/types";
 
 interface BlockIdModalProps {
   dashboard: DashboardRow;
-  section: "B1" | "B2" | "B3" | "B4" | "B5" | "B6" | "B7" | "B8" | "B9" | "L3" | "L4" | "L5";
+  section: "B1" | "B2" | "B3" | "B4" | "B5" | "B6" | "B7" | "B8" | "B9" | "L3" | "L4" | "L5" | "L2";
   currentId?: string | null;
   onClose: () => void;
   onSaved: () => void;

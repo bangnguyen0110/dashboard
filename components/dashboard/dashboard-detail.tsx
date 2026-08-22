@@ -16,6 +16,7 @@ import { LinkModal } from "./link-modal";
 import { ImportPdfModal } from "./import-pdf-modal";
 import { CommuneDashboardModal } from "./commune-dashboard-modal";
 import { CellQuantityModal } from "./blocks/cell-quantity-modal";
+import { MetricIdModal } from "./blocks/metric-id-modal";
 import { B1Section } from "./blocks/b1-section";
 import { B2Section } from "./blocks/b2-section";
 import { B3Section } from "./blocks/b3-section";
@@ -109,6 +110,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   const [showLink, setShowLink] = useState(false);
   const [showImportPdf, setShowImportPdf] = useState(false);
+  const [showLevel2IdModal, setShowLevel2IdModal] = useState(false);
 
   const [b1QtyTarget, setB1QtyTarget] = useState<{
     metricKey: string;
@@ -305,6 +307,34 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       return () => clearTimeout(timer);
     }
   }, [state, dashboard?.id, handleLiveSync]);
+
+  /** HÀM BÓC TÁCH RIÊNG CHO TẦNG 2 */
+  const handleSaveLevel2SyncId = useCallback(
+    async (customId: string) => {
+      if (!dashboard?.id) return;
+      try {
+        const res = await fetch("/api/v1/metrics/sync-level2", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dashboardId: dashboard.id,
+            customId,
+          }),
+        });
+
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.success) {
+          await refetchAfterSave();
+          alert(`✅ ${data.message || "Đã bóc tách thành công toàn bộ chỉ số Tầng 2!"}`);
+        } else {
+          alert(`❌ Lỗi: ${data?.error || "Không thể bóc tách số liệu Tầng 2"}`);
+        }
+      } catch (err: any) {
+        alert(`❌ Lỗi kết nối: ${err.message}`);
+      }
+    },
+    [dashboard?.id, refetchAfterSave]
+  );
 
   /** LƯU SỐ LƯỢNG THỦ CÔNG */
   const handleSaveQuantity = useCallback(
@@ -560,7 +590,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         <Menu size={22} />
       </button>
 
-      {/* SIDEBAR DRAWER (Trượt từ bên trái ra khi click 3 gạch trên Mobile, Cố định trên Desktop) */}
+      {/* SIDEBAR DRAWER */}
       <LevelMenu
         value={currentLevel}
         onChange={setLevel}
@@ -574,7 +604,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         onOpenImportPdf={() => setShowImportPdf(true)}
       />
 
-      {/* KHUNG NỘI DUNG CHÍNH (Đẩy lề 295px trên Desktop) */}
+      {/* KHUNG NỘI DUNG CHÍNH */}
       <div className="min-h-screen transition-all duration-300 md:pl-[295px]">
         {/* HEADER TOP BAR */}
         <header className="glass-strong sticky top-0 z-40 border-b border-white/5">
@@ -614,7 +644,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           {/* ================= TẦNG 1 ================= */}
           {currentLevel === 1 ? (
             <div className="space-y-6">
-              <section className="botron glass overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
+              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -769,13 +799,25 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {isAdmin && (
-                      <button
-                        type="button"
-                        onClick={() => setShowLink(true)}
-                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
-                      >
-                        <Link2 size={14} /> Thiết lập Link
-                      </button>
+                      <>
+                        {/* NÚT THIẾT LẬP ID TẦNG 2 */}
+                        <button
+                          type="button"
+                          onClick={() => setShowLevel2IdModal(true)}
+                          className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 px-3.5 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 shadow-lg"
+                          title="Nhập ID để tự động bóc tách toàn bộ chỉ số Nhóm A-E"
+                        >
+                          <Link2 size={14} /> Thiết lập ID Tầng 2
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowLink(true)}
+                          className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                        >
+                          <Link2 size={14} /> Thiết lập Link
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -920,6 +962,24 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         <ImportPdfModal
           dashboard={dashboard}
           onClose={() => setShowImportPdf(false)}
+          onSaved={refetchAfterSave}
+        />
+      )}
+
+      {/* MODAL THIẾT LẬP ID TẦNG 2 */}
+      {showLevel2IdModal && dashboard && (
+        <MetricIdModal
+          dashboard={dashboard}
+          metricKey="level2_sync_all"
+          metricLabel="Tầng 2 (Báo cáo Hệ sinh thái Nhóm A - E)"
+          label="ID / URL Báo Cáo Hệ Sinh Thái KTS"
+          baseDomain={dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || ""}
+          currentId={(dashboard.metadata as any)?.level2_custom_id || ""}
+          initialId={(dashboard.metadata as any)?.level2_custom_id || ""}
+          onClose={() => setShowLevel2IdModal(false)}
+          onSave={async (_key, id) => {
+            await handleSaveLevel2SyncId(id);
+          }}
           onSaved={refetchAfterSave}
         />
       )}

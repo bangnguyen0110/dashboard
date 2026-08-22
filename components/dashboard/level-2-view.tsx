@@ -79,7 +79,7 @@ export function Level2View({
     setMetricIdTarget({ key, label, id });
   };
 
-  /** Render thẻ chi tiết cho các Tab A, B, C, D (Có trong tháng & trong năm) */
+  /** Render thẻ chi tiết cho các Tab A, B, C, D (width: 100%) */
   const renderMetricCard = ({
     title,
     keyMonth,
@@ -103,8 +103,8 @@ export function Level2View({
         {...cardLinkProps(metricLinks[keyYear])}
         className={`w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between transition-all hover:border-white/20${metricLinks[keyYear] ? " cursor-pointer" : ""}`}
       >
-        <div>
-          <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3">
+        <div className="w-full">
+          <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
             <div className="flex items-center gap-2.5 min-w-0">
               <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border ${colorClass}`}>
                 <Icon size={18} />
@@ -114,7 +114,7 @@ export function Level2View({
               </h4>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               {metricLinks[keyYear] && (
                 <a
                   href={metricLinks[keyYear]}
@@ -161,8 +161,8 @@ export function Level2View({
             </div>
           </div>
 
-          <div className="mt-3.5 space-y-2.5 text-xs">
-            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5">
+          <div className="mt-3.5 space-y-2.5 text-xs w-full">
+            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5 w-full">
               <span className="flex items-center gap-1.5 text-slate-400">
                 <Calendar size={13} className="text-emerald-400" />
                 Trong {currentMonthStr}:
@@ -175,7 +175,7 @@ export function Level2View({
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5">
+            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5 w-full">
               <span className="flex items-center gap-1.5 text-slate-300 font-medium">
                 <Calendar size={13} className="text-cyan-400" />
                 Trong {currentYearStr}:
@@ -193,132 +193,26 @@ export function Level2View({
     );
   };
 
-  /** Danh sách thẻ đơn lẻ cho Tab E (Không phân theo tháng & năm) */
-  /** Danh sách các thẻ chỉ số Hệ sinh thái chuẩn (Tab E) */
   const TAB_E_ITEMS = [
-    {
-      key: "l2_e_doanh_nghiep",
-      title: "Doanh nghiệp",
-      unit: "DN",
-      defaultValue: 201,
-      icon: Building2,
-      color: "#60a5fa",
-      matchTokens: ["doanh nghiệp", "dn"],
-    },
-    {
-      key: "l2_e_thong_tin_dn",
-      title: "Thông tin doanh nghiệp",
-      unit: "Hồ sơ",
-      defaultValue: 177,
-      icon: FileText,
-      color: "#22d3ee",
-      matchTokens: ["thông tin doanh nghiệp"],
-    },
-    {
-      key: "l2_e_san_pham_dv",
-      title: "Sản phẩm & Dịch vụ",
-      unit: "SP/DV",
-      defaultValue: 27,
-      icon: Package,
-      color: "#34d399",
-      matchTokens: ["sản phẩm & dịch vụ", "sản phẩm và dịch vụ", "sản phẩm"],
-    },
-    {
-      key: "l2_e_tai_lieu_cds",
-      title: "Tài liệu CĐS cấp phường/xã",
-      unit: "Tài liệu",
-      defaultValue: 0,
-      icon: FileText,
-      color: "#a78bfa",
-      matchTokens: ["tài liệu chuyển đổi số", "tài liệu cds"],
-    },
-    {
-      key: "l2_e_quy_hoach",
-      title: "Thông tin quy hoạch",
-      unit: "Mục",
-      defaultValue: 0,
-      icon: Globe,
-      color: "#38bdf8",
-      matchTokens: ["thông tin quy hoạch", "quy hoạch"],
-    },
-    {
-      key: "l2_e_du_lich_le_hoi",
-      title: "Du lịch - Ẩm thực - Lễ hội",
-      unit: "Mục",
-      defaultValue: 1,
-      icon: Calendar,
-      color: "#f472b6",
-      matchTokens: ["du lịch", "ẩm thực", "lễ hội"],
-    },
-    {
-      key: "l2_e_keu_goi_dau_tu",
-      title: "Dự án kêu gọi đầu tư",
-      unit: "Dự án",
-      defaultValue: 0,
-      icon: TrendingUp,
-      color: "#fbbf24",
-      matchTokens: ["kêu gọi đầu tư", "dự án kêu gọi đầu tư"],
-    },
-    {
-      key: "l2_e_tieu_chi_kts",
-      title: "Tiêu chí nền tảng kinh tế số",
-      unit: "Tiêu chí",
-      defaultValue: 0,
-      icon: Cpu,
-      color: "#2dd4bf",
-      matchTokens: ["tiêu chí nền tảng", "tiêu chí kinh tế số"],
-    },
-    {
-      key: "l2_e_doanh_thu",
-      title: "Doanh thu",
-      unit: "TR",
-      defaultValue: 0,
-      icon: TrendingUp,
-      color: "#4ade80",
-      matchTokens: ["doanh thu"],
-    },
-    {
-      key: "l2_e_thong_ke_bao_cao",
-      title: "Thống kê báo cáo",
-      unit: "Báo cáo",
-      defaultValue: 0,
-      icon: Layers,
-      color: "#818cf8",
-      matchTokens: ["thống kê báo cáo", "báo cáo"],
-    },
-    {
-      key: "l2_e_lien_minh",
-      title: "Liên minh",
-      unit: "Liên minh",
-      defaultValue: 20,
-      icon: HeartHandshake,
-      color: "#fb923c",
-      matchTokens: ["liên minh"],
-    },
-    {
-      key: "l2_e_chinh_sach_ht",
-      title: "Chính sách hỗ trợ doanh nghiệp",
-      unit: "Chính sách",
-      defaultValue: 2,
-      icon: FileText,
-      color: "#a3e635",
-      matchTokens: ["chính sách hỗ trợ", "chính sách"],
-    },
-    {
-      key: "l2_e_giai_dap_kn",
-      title: "Giải đáp kiến nghị doanh nghiệp",
-      unit: "Kiến nghị",
-      defaultValue: 0,
-      icon: Info,
-      color: "#e879f9",
-      matchTokens: ["giải đáp kiến nghị", "kiến nghị"],
-    },
+    { key: "l2_e_doanh_nghiep", title: "Doanh nghiệp", unit: "DN", defaultValue: 201, icon: Building2, color: "#60a5fa" },
+    { key: "l2_e_thong_tin_dn", title: "Thông tin doanh nghiệp", unit: "Hồ sơ", defaultValue: 177, icon: FileText, color: "#22d3ee" },
+    { key: "l2_e_san_pham_dv", title: "Sản phẩm & Dịch vụ", unit: "SP/DV", defaultValue: 27, icon: Package, color: "#34d399" },
+    { key: "l2_e_tai_lieu_cds", title: "Tài liệu CĐS cấp phường/xã", unit: "Tài liệu", defaultValue: 0, icon: FileText, color: "#a78bfa" },
+    { key: "l2_e_quy_hoach", title: "Thông tin quy hoạch", unit: "Mục", defaultValue: 0, icon: Globe, color: "#38bdf8" },
+    { key: "l2_e_du_lich_le_hoi", title: "Du lịch - Ẩm thực - Lễ hội", unit: "Mục", defaultValue: 1, icon: Calendar, color: "#f472b6" },
+    { key: "l2_e_keu_goi_dau_tu", title: "Dự án kêu gọi đầu tư", unit: "Dự án", defaultValue: 0, icon: TrendingUp, color: "#fbbf24" },
+    { key: "l2_e_tieu_chi_kts", title: "Tiêu chí nền tảng kinh tế số", unit: "Tiêu chí", defaultValue: 0, icon: Cpu, color: "#2dd4bf" },
+    { key: "l2_e_doanh_thu", title: "Doanh thu", unit: "TR", defaultValue: 0, icon: TrendingUp, color: "#4ade80" },
+    { key: "l2_e_thong_ke_bao_cao", title: "Thống kê báo cáo", unit: "Báo cáo", defaultValue: 0, icon: Layers, color: "#818cf8" },
+    { key: "l2_e_lien_minh", title: "Liên minh", unit: "Liên minh", defaultValue: 20, icon: HeartHandshake, color: "#fb923c" },
+    { key: "l2_e_chinh_sach_ht", title: "Chính sách hỗ trợ doanh nghiệp", unit: "Chính sách", defaultValue: 2, icon: FileText, color: "#a3e635" },
+    { key: "l2_e_giai_dap_kn", title: "Giải đáp kiến nghị doanh nghiệp", unit: "Kiến nghị", defaultValue: 0, icon: Info, color: "#e879f9" },
   ];
 
   return (
     <div className="space-y-6 w-full">
-      {/* THANH ĐIỀU HƯỚNG TAB CHUẨN FORM */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-white/5 pb-3">
+      {/* THANH ĐIỀU HƯỚNG TAB */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/5 pb-3 w-full">
         {[
           { id: "all", label: "Tổng quan Nhóm A-E", icon: Layers },
           { id: "A", label: "A - (Hạ tầng)", icon: Server },
@@ -347,36 +241,37 @@ export function Level2View({
         })}
       </div>
 
-      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E ================= */}
+      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E (100% width trên mobile bằng grid-cols-1 md:grid-cols-3 w-full) ================= */}
       {activeTab === "all" && (
         <div className="space-y-5 w-full">
-          {/* HÀNG TRÊN: 3 THẺ A, B, C */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-            {/* THẺ A: HẠ TẦNG & SẴN SÀNG */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+          {/* HÀNG TRÊN: A, B, C */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full">
+            
+            {/* THẺ A */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+              <div className="w-full">
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
                     <Server size={18} />
                   </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-cyan-400">
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-cyan-400 truncate">
                     A. HẠ TẦNG & SẴN SÀNG
                   </h4>
                 </div>
-                <div className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                <div className="space-y-3 text-xs w-full">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">DN CĐS:</span>
                     <strong className="text-cyan-400 font-mono text-sm">
                       {Number(data["l2_a_dn_cds_year"] ?? data["l2_a_dn_cds"] ?? 211).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">Lên Cloud:</span>
                     <strong className="text-cyan-400 font-mono text-sm">
                       {Number(data["l2_a_cloud_year"] ?? data["l2_a_cloud"] ?? 180).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1">
+                  <div className="flex justify-between items-center py-1 w-full">
                     <span className="text-slate-300 font-medium">NetID:</span>
                     <strong className="text-cyan-400 font-mono text-sm">
                       {Number(data["l2_a_netid_year"] ?? data["l2_a_netid"] ?? 320).toLocaleString("vi-VN")}
@@ -393,31 +288,31 @@ export function Level2View({
               </button>
             </div>
 
-            {/* THẺ B: HIỆN DIỆN SỐ & TM */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+            {/* THẺ B */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+              <div className="w-full">
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30">
                     <Globe size={18} />
                   </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-blue-400">
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-blue-400 truncate">
                     B. HIỆN DIỆN SỐ & TM
                   </h4>
                 </div>
-                <div className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                <div className="space-y-3 text-xs w-full">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">Web/E-com:</span>
                     <strong className="text-blue-400 font-mono text-sm">
                       {Number(data["l2_b_web_year"] ?? data["l2_b_web_ecom"] ?? 145).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">Đơn hàng:</span>
                     <strong className="text-blue-400 font-mono text-sm">
                       {Number(data["l2_b_don_hang_year"] ?? data["l2_b_don_hang"] ?? 1250).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1">
+                  <div className="flex justify-between items-center py-1 w-full">
                     <span className="text-slate-300 font-medium">Tăng trưởng:</span>
                     <strong className="text-emerald-400 font-mono text-sm">
                       +{Number(data["l2_b_tang_truong_year"] ?? 18.5)}%
@@ -434,31 +329,31 @@ export function Level2View({
               </button>
             </div>
 
-            {/* THẺ C: VẬN HÀNH & NGUỒN LỰC */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+            {/* THẺ C */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+              <div className="w-full">
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
                     <Cpu size={18} />
                   </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-purple-400">
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-purple-400 truncate">
                     C. VẬN HÀNH & NGUỒN LỰC
                   </h4>
                 </div>
-                <div className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                <div className="space-y-3 text-xs w-full">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">Hệ thống QLDN:</span>
                     <strong className="text-purple-400 font-mono text-sm">
                       {Number(data["l2_c_erp_year"] ?? data["l2_c_erp"] ?? 86).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">Tổng nhân sự:</span>
                     <strong className="text-purple-400 font-mono text-sm">
                       {Number(data["l2_c_nhan_su_year"] ?? data["l2_c_nhan_su"] ?? 4850).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1">
+                  <div className="flex justify-between items-center py-1 w-full">
                     <span className="text-slate-300 font-medium">Khóa đào tạo:</span>
                     <strong className="text-purple-400 font-mono text-sm">
                       {Number(data["l2_c_dao_tao_year"] ?? data["l2_c_dao_tao"] ?? 24).toLocaleString("vi-VN")}
@@ -476,33 +371,34 @@ export function Level2View({
             </div>
           </div>
 
-          {/* HÀNG DƯỚI: THẺ D (1 CỘT TRÁI) & THẺ E (2 CỘT PHẢI) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-            {/* THẺ D: TƯƠNG TÁC & THỊ TRƯỜNG */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+          {/* HÀNG DƯỚI: D & E */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full">
+            
+            {/* THẺ D */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+              <div className="w-full">
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                     <TrendingUp size={18} />
                   </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-emerald-400">
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-emerald-400 truncate">
                     D. TƯƠNG TÁC & THỊ TRƯỜNG
                   </h4>
                 </div>
-                <div className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                <div className="space-y-3 text-xs w-full">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">Trang xem:</span>
                     <strong className="text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_trang_xem_year"] ?? data["l2_d_trang_xem"] ?? 45200).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
                     <span className="text-slate-300 font-medium">Google SEO:</span>
                     <strong className="text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_seo_year"] ?? data["l2_d_seo"] ?? 10282).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1">
+                  <div className="flex justify-between items-center py-1 w-full">
                     <span className="text-slate-300 font-medium">Doanh thu:</span>
                     <strong className="text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_doanh_thu_year"] ?? 14800).toLocaleString("vi-VN")} TR
@@ -519,14 +415,14 @@ export function Level2View({
               </button>
             </div>
 
-            {/* THẺ E: QUẢN LÝ THÔNG TIN */}
-            <div className="w-full md:col-span-2 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+            {/* THẺ E */}
+            <div className="w-full md:col-span-2 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+              <div className="w-full">
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
                     <FileText size={18} />
                   </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-amber-400">
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-amber-400 truncate">
                     E. QUẢN LÝ THÔNG TIN
                   </h4>
                 </div>
@@ -564,9 +460,9 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 2. TAB A: HẠ TẦNG & SẴN SÀNG ================= */}
+      {/* ================= 2. TAB A CHI TIẾT ================= */}
       {activeTab === "A" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
           {renderMetricCard({
             title: "Tổng DN số hóa thông tin",
             keyMonth: "l2_a_dn_cds_month",
@@ -602,9 +498,9 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 3. TAB B: HIỆN DIỆN SỐ ================= */}
+      {/* ================= 3. TAB B CHI TIẾT ================= */}
       {activeTab === "B" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
           {renderMetricCard({
             title: "Website & E-commerce",
             keyMonth: "l2_b_web_month",
@@ -617,7 +513,7 @@ export function Level2View({
             title: "Sản phẩm / Dịch vụ CĐS",
             keyMonth: "l2_b_sp_cds_month",
             keyYear: "l2_b_sp_cds_year",
-            unit: "Website",
+            unit: "SP",
             icon: Globe,
             colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
           })}
@@ -625,7 +521,7 @@ export function Level2View({
             title: "Tổng đơn hàng",
             keyMonth: "l2_b_don_hang_month",
             keyYear: "l2_b_don_hang_year",
-            unit: "Website",
+            unit: "Đơn",
             icon: Globe,
             colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
           })}
@@ -633,16 +529,16 @@ export function Level2View({
             title: "Tốc độ tăng trưởng",
             keyMonth: "l2_b_tang_truong_month",
             keyYear: "l2_b_tang_truong_year",
-            unit: "Website",
+            unit: "%",
             icon: Globe,
             colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
           })}
         </div>
       )}
 
-      {/* ================= 4. TAB C: VẬN HÀNH ================= */}
+      {/* ================= 4. TAB C CHI TIẾT ================= */}
       {activeTab === "C" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 w-full">
           {renderMetricCard({
             title: "Hệ thống quản lý ERP",
             keyMonth: "l2_c_erp_month",
@@ -655,7 +551,7 @@ export function Level2View({
             title: "Tổng nhân sự toàn hệ thống",
             keyMonth: "l2_c_nhan_su_month",
             keyYear: "l2_c_nhan_su_year",
-            unit: "Website",
+            unit: "Nhân sự",
             icon: Cpu,
             colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
           })}
@@ -663,22 +559,22 @@ export function Level2View({
             title: "Khóa đào tạo",
             keyMonth: "l2_c_dao_tao_month",
             keyYear: "l2_c_dao_tao_year",
-            unit: "Website",
+            unit: "Khóa",
             icon: Cpu,
             colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
           })}
         </div>
       )}
 
-      {/* ================= 5. TAB D: THỊ TRƯỜNG ================= */}
+      {/* ================= 5. TAB D CHI TIẾT ================= */}
       {activeTab === "D" && (
         <div className="space-y-5 w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 w-full">
             {renderMetricCard({
               title: "Tương tác trang xem",
               keyMonth: "l2_d_trang_xem_month",
               keyYear: "l2_d_trang_xem_year",
-              unit: "",
+              unit: "Lượt",
               icon: TrendingUp,
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
@@ -686,7 +582,7 @@ export function Level2View({
               title: "Tổng số người xem",
               keyMonth: "l2_d_nguoi_xem_month",
               keyYear: "l2_d_nguoi_xem_year",
-              unit: "Website",
+              unit: "Người",
               icon: TrendingUp,
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
@@ -694,18 +590,18 @@ export function Level2View({
               title: "Google SEO hàng tháng",
               keyMonth: "l2_d_seo_month",
               keyYear: "l2_d_seo_year",
-              unit: "Website",
+              unit: "Lượt",
               icon: TrendingUp,
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
             {renderMetricCard({
               title: "Khách hàng",
               keyMonth: "l2_d_khach_hang_month",
               keyYear: "l2_d_khach_hang_year",
-              unit: "Website",
+              unit: "Khách",
               icon: TrendingUp,
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
@@ -713,7 +609,7 @@ export function Level2View({
               title: "Tốc độ tăng trưởng",
               keyMonth: "l2_d_tang_truong_month",
               keyYear: "l2_d_tang_truong_year",
-              unit: "Website",
+              unit: "%",
               icon: TrendingUp,
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
@@ -721,21 +617,18 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 6. TAB E: THÔNG TIN (ĐÃ SỬA THEO MÔ TẢ ĐƠN LẺ) ================= */}
+      {/* ================= 6. TAB E CHI TIẾT ================= */}
       {activeTab === "E" && (
         <div className="space-y-5 w-full">
-          {/* Header Tab E */}
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl">
-            <div className="flex items-center gap-3">
+          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
+            <div className="flex items-center gap-3 w-full">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
                 <Info size={20} />
               </span>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-cyan-500/20 px-2 py-0.5 text-[11px] font-bold text-cyan-300 border border-cyan-500/30">
-                    Tab: E (Thông tin)
-                  </span>
-                </div>
+                <span className="rounded-md bg-cyan-500/20 px-2 py-0.5 text-[11px] font-bold text-cyan-300 border border-cyan-500/30">
+                  Tab: E (Thông tin)
+                </span>
                 <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
                   Chỉ số theo dõi Hệ sinh thái (Nhóm E)
                 </h3>
@@ -743,7 +636,6 @@ export function Level2View({
             </div>
           </div>
 
-          {/* Lưới Thẻ đơn lẻ bóc tách dữ liệu */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
             {TAB_E_ITEMS.map((item) => {
               const val = Number(
@@ -759,12 +651,11 @@ export function Level2View({
                 <div
                   key={item.key}
                   {...cardLinkProps(targetUrl)}
-                  className={`group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
+                  className={`w-full group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
                     hasLink ? "cursor-pointer hover:border-cyan-500/40 hover:-translate-y-0.5 hover:bg-[#0f1f3d]" : ""
                   }`}
                 >
-                  {/* Header thẻ */}
-                  <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3">
+                  <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-emerald-400 text-sm font-bold shrink-0">✅</span>
                       <h4 className="text-xs sm:text-sm font-bold text-slate-200 truncate group-hover:text-cyan-300 transition">
@@ -822,8 +713,7 @@ export function Level2View({
                     </div>
                   </div>
 
-                  {/* Giá trị số duy nhất */}
-                  <div className="mt-3.5 flex items-baseline gap-1.5">
+                  <div className="mt-3.5 flex items-baseline gap-1.5 w-full">
                     <span
                       className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight"
                       style={{ color: item.color }}
@@ -835,8 +725,7 @@ export function Level2View({
                     )}
                   </div>
 
-                  {/* Footer link */}
-                  <div className="mt-3 flex items-center justify-between text-[11px] border-t border-white/5 pt-2">
+                  <div className="mt-3 flex items-center justify-between text-[11px] border-t border-white/5 pt-2 w-full">
                     {hasLink ? (
                       <span className="flex items-center gap-1 text-cyan-400 font-medium">
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
@@ -854,7 +743,7 @@ export function Level2View({
         </div>
       )}
 
-      {/* Modal Block ID */}
+      {/* Modals */}
       {showBlockId && (
         <BlockIdModal
           dashboard={dashboard}
@@ -865,7 +754,6 @@ export function Level2View({
         />
       )}
 
-      {/* Modal Chỉnh sửa số lượng */}
       {qtyTarget && (
         <CellQuantityModal
           dashboard={dashboard}
@@ -882,7 +770,6 @@ export function Level2View({
         />
       )}
 
-      {/* Modal Thiết lập Metric ID */}
       {metricIdTarget && (
         <MetricIdModal
           dashboard={dashboard}

@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // 👈 Thêm router để làm mới dữ liệu
 import { X, Hash, Globe, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
 import type { DashboardRow } from "@/lib/types";
+import { getValidUrl } from "@/lib/card-link";
 
 export interface MetricIdModalProps {
   isOpen?: boolean;
@@ -15,7 +17,7 @@ export interface MetricIdModalProps {
   initialId?: string;
   baseDomain?: string;
   onClose: () => void;
-  onSave?: (metricKey: string, id: string, fullUrl?: string, autoScrapedValue?: number) => Promise<void>;
+  onSave?: (metricKey: string, id: string, fullUrl?: string, autoScrapedValue?: number) => Promise<void | any>;
   onSaved?: () => void;
 }
 
@@ -33,6 +35,8 @@ export function MetricIdModal({
   onSave,
   onSaved,
 }: MetricIdModalProps) {
+  const router = useRouter(); // 👈 Khởi tạo router
+  
   // Đồng bộ các biến alias
   const displayLabel = metricLabel || label || metricKey || "chỉ số";
   const defaultId = initialId || currentId || "";
@@ -64,6 +68,8 @@ export function MetricIdModal({
       : cleanId
     : resolvedDomain;
 
+  const previewHref = fullPreviewUrl ? getValidUrl(fullPreviewUrl) : null;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cleanId) {
@@ -86,6 +92,9 @@ export function MetricIdModal({
         type: "success",
         text: "Đã lưu ID & đồng bộ số liệu thành công!",
       });
+
+      // 👉 Tự động làm mới dữ liệu của Dashboard
+      router.refresh();
 
       setTimeout(() => {
         onClose();
@@ -158,11 +167,23 @@ export function MetricIdModal({
           {/* Đường dẫn tự động ghép */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-400">Đường dẫn tự động tạo</label>
-            <div className="p-3 bg-[#061121] rounded-xl border border-[#1d293d] flex items-center gap-2 text-xs text-cyan-300 font-mono break-all">
-              <Globe size={14} className="shrink-0 text-slate-400" />
-              <span>{fullPreviewUrl || "Chưa có domain"}</span>
-            </div>
-            
+            {previewHref ? (
+              <a
+                href={previewHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Mở trong tab mới: ${previewHref}`}
+                className="p-3 bg-[#061121] rounded-xl border border-[#1d293d] flex items-center gap-2 text-xs text-cyan-300 font-mono break-all cursor-pointer transition-colors hover:border-cyan-400/70 hover:text-cyan-200"
+              >
+                <Globe size={14} className="shrink-0 text-slate-400" />
+                <span className="underline decoration-dotted underline-offset-4">{previewHref}</span>
+              </a>
+            ) : (
+              <div className="p-3 bg-[#061121] rounded-xl border border-[#1d293d] flex items-center gap-2 text-xs text-cyan-300 font-mono break-all">
+                <Globe size={14} className="shrink-0 text-slate-400" />
+                <span>{fullPreviewUrl || "Chưa có domain"}</span>
+              </div>
+            )}
           </div>
 
           {/* Nút lưu */}

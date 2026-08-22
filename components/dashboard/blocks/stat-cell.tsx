@@ -5,8 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 
 /**
  * Ô chỉ tiêu dùng chung trong khối B1 / B2.
- * - Giá trị lớn ở giữa, có 2 icon hành động: "Thiết lập Link" và "Setup Số lượng".
- * - Bấm toàn bộ ô (kể cả nhãn) sẽ mở `targetUrl` nếu đã cài link chuyển hướng.
+ * - Giá trị lớn ở giữa, có 2 icon hành động: "Thiết lập ID" và "Setup Số lượng".
+ * - Bấm toàn bộ ô sẽ mở `targetUrl` trong tab mới nếu có link.
  */
 
 interface StatCellProps {
@@ -14,7 +14,7 @@ interface StatCellProps {
   value: number;
   unit?: string;
   color?: string;
-    /** true = hàng rộng 100% cụm (dùng cho Tổng sản phẩm OCOP). */
+  /** true = hàng rộng 100% cụm (dùng cho Tổng sản phẩm OCOP). */
   fullWidth?: boolean;
   targetUrl?: string;
   onEditLink?: () => void;
@@ -36,14 +36,17 @@ export function StatCell({
   subText,
   subColor = "var(--accent-emerald)",
 }: StatCellProps) {
-  const hasLink = Boolean(targetUrl);
-  // Chỉ Admin mới được chỉnh link / setup số lượng
   const { isAdmin } = useAuth();
 
-  // Lớp giao diện dùng chung cho cả <a> và <div (viền đồng bộ duy nhất #1d293d, bỏ viền trên)
-  const boxClass = `group relative cursor-pointer overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 w-full bg-linear-to-b from-slate-900/90 to-[#0c1830]/90 p-4 transition duration-300 select-none ${
+  const rawUrl = (targetUrl ?? "").trim();
+  const resolvedUrl = rawUrl
+    ? (rawUrl.startsWith("http://") || rawUrl.startsWith("https://") ? rawUrl : `https://${rawUrl}`)
+    : "";
+  const hasLink = Boolean(resolvedUrl);
+
+  const boxClass = `group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 w-full bg-linear-to-b from-slate-900/90 to-[#0c1830]/90 p-4 transition duration-300 select-none ${
     fullWidth ? "col-span-full" : ""
-  } ${hasLink ? "hover:-translate-y-0.5 cursor-pointer" : ""}`;
+  } ${hasLink ? "hover:-translate-y-0.5 cursor-pointer hover:border-cyan-500/40" : ""}`;
 
   const inner = (
     <>
@@ -56,7 +59,7 @@ export function StatCell({
         <p className="text-xs font-medium leading-relaxed opacity-75 sm:text-sm">{label}</p>
 
         {isAdmin && (onEditLink || onEditQuantity) && (
-          <span className="flex shrink-0 items-center gap-1">
+          <span className="flex shrink-0 items-center gap-1 z-10">
             {onEditLink && (
               <button
                 type="button"
@@ -67,7 +70,7 @@ export function StatCell({
                 }}
                 aria-label={`Thiết lập ID cho ${label}`}
                 title="Thiết lập ID"
-                className="rounded-lg border border-slate-700/60 bg-slate-800/40 p-2 text-amber-400/60 transition hover:text-amber-400 group-hover:rotate-90"
+                className="rounded-lg border border-slate-700/60 bg-slate-800/40 p-2 text-amber-400/60 transition hover:text-amber-400 hover:bg-slate-700"
               >
                 <Link2 size={14} />
               </button>
@@ -82,7 +85,7 @@ export function StatCell({
                 }}
                 aria-label={`Setup số lượng cho ${label}`}
                 title="Setup số lượng (nhập tay / PDF)"
-                className="rounded-lg border border-slate-700/60 bg-slate-800/40 p-2 text-cyan-400/60 transition hover:text-cyan-400"
+                className="rounded-lg border border-slate-700/60 bg-slate-800/40 p-2 text-cyan-400/60 transition hover:text-cyan-400 hover:bg-slate-700"
               >
                 <PencilLine size={14} />
               </button>
@@ -114,14 +117,12 @@ export function StatCell({
     </>
   );
 
-  // Đã có link hợp lệ → biến cả thẻ thành <a href> mở tab mới
   if (hasLink) {
     return (
       <a
-        href={targetUrl}
+        href={resolvedUrl}
         target="_blank"
         rel="noopener noreferrer"
-        tabIndex={0}
         className={boxClass}
       >
         {inner}

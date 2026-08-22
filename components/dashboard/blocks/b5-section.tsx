@@ -8,11 +8,13 @@ import { BlockIdModal } from "./block-id-modal";
 import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { getStoredMetricId } from "@/lib/card-link";
 
 interface B5SectionProps {
   dashboard: DashboardRow;
   data?: KpiRow;
   metricLinks: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged: () => void;
   onOpenMetricId?: (key: string, label: string) => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
@@ -64,6 +66,7 @@ export function B5Section({
   dashboard,
   data = {},
   metricLinks,
+  metricIds = {},
   onChanged,
   onOpenMetricId,
   onSaveMetricId,
@@ -99,8 +102,7 @@ export function B5Section({
       onOpenMetricId(key, label);
       return;
     }
-    const url = metricLinks[key] || "";
-    const id = url.split("/").filter(Boolean).pop() || "";
+    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdTarget({ key, label, id });
   };
 

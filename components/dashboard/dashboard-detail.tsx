@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { getValidUrl } from "@/lib/card-link";
 import { LevelMenu, LEVELS, useLevelParam } from "./level-menu";
 import { LinkModal } from "./link-modal";
 import { ImportPdfModal } from "./import-pdf-modal";
@@ -74,6 +75,86 @@ const B1_QTY_TOKENS: Record<string, string[]> = {
   b1_htx_dx: ["hợp tác xã CĐS", "htx cds"],
 };
 
+/**
+ * Ánh xạ metric_key (ví dụ: b1_sme_total, b3_doanh_thu, l2_e_san_pham...)
+ * sang đúng state / row của Thẻ KPI cần cập nhật số liệu:
+ * - b1/b2 : field theo map sẵn có (ví dụ b1_sme_total -> sme_total)
+ * - b3..b9: field = key bỏ tiền tố (b3_doanh_thu -> doanh_thu)
+ * - l2..l5: field = key bỏ tiền tố + key đầy đủ (l2_xx -> [xx, l2_xx])
+ */
+interface MetricFieldMapInfo {
+  section: string;
+  rowFields: string[];
+}
+
+const B3_TO_B9_PREFIXES = ["b3", "b4", "b5", "b6", "b7", "b8", "b9"];
+const LEVEL_PREFIXES = ["l2", "l3", "l4", "l5"];
+
+function getMetricFieldMap(metricKey: string): MetricFieldMapInfo | null {
+  const prefix = metricKey.split("_")[0];
+  if (prefix === "b1") {
+    const fields = B1_QTY_METRIC_FIELDS[metricKey];
+    if (fields) return { section: "b1", rowFields: fields };
+  }
+  if (prefix === "b2") {
+    const fields = B2_QTY_METRIC_FIELDS[metricKey];
+    if (fields) return { section: "b2", rowFields: fields };
+  }
+  if (B3_TO_B9_PREFIXES.includes(prefix)) {
+    return { section: prefix, rowFields: [metricKey.replace(`${prefix}_`, "")] };
+  }
+  if (LEVEL_PREFIXES.includes(prefix)) {
+    return {
+      section: prefix,
+      rowFields: [metricKey.replace(`${prefix}_`, ""), metricKey],
+    };
+  }
+  return null;
+}
+
+/**
+ * Bóc tách giá trị số từ các nguồn lưu trữ khác nhau:
+ * - number / chuỗi số
+ * - object dạng MetricKV { value, ... } (metadata.metrics[metricKey])
+ */
+function extractNumeric(raw: unknown): number | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : null;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (trimmed === "") return null;
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
+  }
+  if (typeof raw === "object") {
+    const maybe = (raw as { value?: unknown })?.value;
+    if (maybe !== undefined && maybe !== null) return extractNumeric(maybe);
+  }
+  return null;
+}
+
+/**
+ * Gộp giá trị đã đồng bộ vào row KPI.
+ * - force = true: ghi đè luôn (dùng ngay sau khi vừa lưu/đồng bộ).
+ * - force = false: chỉ ghi đè khi có số liệu dương hoặc ô chưa có số,
+ *   tránh giá trị mặc định 0 làm ghi đè số liệu thật đang hiển thị.
+ */
+function applyMetricValueToRow(
+  row: KpiRow,
+  info: MetricFieldMapInfo,
+  rawValue: unknown,
+  force = false
+): KpiRow {
+  const parsed = extractNumeric(rawValue);
+  if (parsed === null) return row;
+  const next = { ...row };
+  for (const field of info.rowFields) {
+    const existing = Number(next[field]);
+    if (force || parsed > 0 || !existing) next[field] = parsed;
+  }
+  return next;
+}
+
 export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps) {
   const router = useRouter();
   const { isAdmin } = useAuth();
@@ -101,6 +182,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [level5Data, setLevel5Data] = useState<KpiRow>({});
 
   const [metricLinks, setMetricLinks] = useState<Record<string, string>>({});
+  const [metricIds, setMetricIds] = useState<Record<string, string>>({});
   const [communes, setCommunes] = useState<DashboardRow[]>([]);
   const [communeKpi, setCommuneKpi] = useState<Record<string, { b1?: KpiRow; b2?: KpiRow }>>({});
   const [parentProvince, setParentProvince] = useState<DashboardRow | null>(null);
@@ -152,9 +234,13 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
     const communeIds = communeRows.map((c) => c.id);
     if (communeIds.length > 0) {
-      const [{ data: b1Data }, { data: b2Data }] = await Promise.all([
+      const [{ data: b1Data }, { data: b2Data }, { data: mlData }] = await Promise.all([
         supabase.from("kpi_business_units").select("*").in("dashboard_id", communeIds),
         supabase.from("kpi_products").select("*").in("dashboard_id", communeIds),
+        supabase
+          .from("metric_links")
+          .select("dashboard_id, metric_key, current_value")
+          .in("dashboard_id", communeIds),
       ]);
 
       const b1Map = new Map<string, KpiRow>();
@@ -168,12 +254,36 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         if (!b2Map.has(id)) b2Map.set(id, row);
       }
 
+      // Gộp giá trị đã Đồng bộ ID (metric_links.current_value) vào đúng row B1/B2
+      const valueByCommune = new Map<string, Record<string, number>>();
+      for (const link of (mlData ?? []) as {
+        dashboard_id: string;
+        metric_key: string;
+        current_value: unknown;
+      }[]) {
+        if (link.current_value === null || link.current_value === undefined) continue;
+        if (!getMetricFieldMap(link.metric_key)) continue;
+        const parsed = extractNumeric(link.current_value);
+        if (parsed === null) continue;
+        const map = valueByCommune.get(link.dashboard_id) ?? {};
+        map[link.metric_key] = parsed;
+        valueByCommune.set(link.dashboard_id, map);
+      }
+
       const kpiById: Record<string, { b1?: KpiRow; b2?: KpiRow }> = {};
       for (const id of communeIds) {
-        kpiById[id] = {
-          b1: b1Map.get(id),
-          b2: b2Map.get(id),
-        };
+        let b1 = b1Map.get(id) ?? {};
+        let b2 = b2Map.get(id) ?? {};
+        const values = valueByCommune.get(id);
+        if (values) {
+          for (const [metricKey, value] of Object.entries(values)) {
+            const info = getMetricFieldMap(metricKey);
+            if (!info) continue;
+            if (info.section === "b1") b1 = applyMetricValueToRow(b1, info, value);
+            if (info.section === "b2") b2 = applyMetricValueToRow(b2, info, value);
+          }
+        }
+        kpiById[id] = { b1, b2 };
       }
       setCommuneKpi(kpiById);
     }
@@ -212,6 +322,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     const row = dash as DashboardRow;
     const unitType = row.unit?.type;
 
+    // 1. SELECT an toàn chỉ các cột chắc chắn tồn tại (tránh lỗi 400 Bad Request)
     const [b1res, b2res, linkRes] = await Promise.all([
       supabase
         .from("kpi_business_units")
@@ -227,29 +338,97 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase.from("metric_links").select("metric_key, target_url").eq("dashboard_id", row.id),
+      supabase
+        .from("metric_links")
+        .select("metric_key, target_url")
+        .eq("dashboard_id", row.id),
     ]);
 
-    setB1(b1res.data ?? {});
-    setB2(b2res.data ?? {});
-    setB3((row as any).b3 ?? {});
-    setB4((row as any).b4 ?? {});
-    setB5((row as any).b5 ?? {});
-    setB6((row as any).b6 ?? {});
-    setB7((row as any).b7 ?? {});
-    setB8((row as any).b8 ?? {});
-    setB9((row as any).b9 ?? {});
-
-    setLevel2Data((row as any).level2 ?? (row as any).metadata?.level2 ?? (row as any).l2 ?? {});
-    setLevel3Data((row as any).level3 ?? (row as any).metadata?.level3 ?? (row as any).l3 ?? {});
-    setLevel4Data((row as any).level4 ?? (row as any).metadata?.level4 ?? (row as any).l4 ?? {});
-    setLevel5Data((row as any).level5 ?? (row as any).metadata?.level5 ?? (row as any).l5 ?? {});
-
+    // 2. Bóc tách link và ID từ metric_links
     const linkMap: Record<string, string> = {};
-    (linkRes.data ?? []).forEach((link) => {
-      linkMap[link.metric_key] = link.target_url ?? "";
+    const idMap: Record<string, string> = {};
+    const valueMap: Record<string, unknown> = {};
+
+    (linkRes.data ?? []).forEach((link: any) => {
+      const rawUrl = (link.target_url || "").trim();
+      if (!rawUrl) return;
+
+      const validUrl = rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
+        ? rawUrl
+        : `https://${rawUrl}`;
+
+      linkMap[link.metric_key] = validUrl;
+      // Tự động tách ID từ phần cuối của URL
+      idMap[link.metric_key] = rawUrl.split("/").filter(Boolean).pop() || "";
     });
+
     setMetricLinks(linkMap);
+    setMetricIds(idMap);
+
+    // 3. Đọc dữ liệu dự phòng từ metadata (chỉ khai báo metadataAny đúng 1 lần duy nhất)
+    const metadataAny = (row as any).metadata ?? {};
+    const metaValueMap: Record<string, unknown> = {};
+
+    for (const coll of ["metrics", "level2_metrics"]) {
+      const source = metadataAny?.[coll];
+      if (source && typeof source === "object") {
+        Object.entries(source).forEach(([key, raw]) => {
+          if (raw !== null && raw !== undefined && getMetricFieldMap(key)) {
+            metaValueMap[key] = raw;
+          }
+        });
+      }
+    }
+
+    Object.entries(metadataAny).forEach(([key, raw]) => {
+      if (raw === null || raw === undefined) return;
+      if (key === "metrics" || key === "level2_metrics") return;
+      if (getMetricFieldMap(key)) metaValueMap[key] = raw;
+    });
+
+    Object.entries(metaValueMap).forEach(([key, raw]) => {
+      if (valueMap[key] === undefined) valueMap[key] = raw;
+    });
+
+    // 4. Khởi tạo và gán giá trị cho từng Section
+    const sectionRows: Record<string, KpiRow> = {
+      b1: b1res.data ?? {},
+      b2: b2res.data ?? {},
+      b3: (row as any).b3 ?? {},
+      b4: (row as any).b4 ?? {},
+      b5: (row as any).b5 ?? {},
+      b6: (row as any).b6 ?? {},
+      b7: (row as any).b7 ?? {},
+      b8: (row as any).b8 ?? {},
+      b9: (row as any).b9 ?? {},
+      l2: (row as any).level2 ?? (row as any).metadata?.level2 ?? (row as any).l2 ?? {},
+      l3: (row as any).level3 ?? (row as any).metadata?.level3 ?? (row as any).l3 ?? {},
+      l4: (row as any).level4 ?? (row as any).metadata?.level4 ?? (row as any).l4 ?? {},
+      l5: (row as any).level5 ?? (row as any).metadata?.level5 ?? (row as any).l5 ?? {},
+    };
+
+    Object.entries(valueMap).forEach(([metricKey, currentValue]) => {
+      const info = getMetricFieldMap(metricKey);
+      if (!info) return;
+      const targetRow = sectionRows[info.section];
+      if (!targetRow) return;
+      sectionRows[info.section] = applyMetricValueToRow(targetRow, info, currentValue);
+    });
+
+    setB1(sectionRows.b1);
+    setB2(sectionRows.b2);
+    setB3(sectionRows.b3);
+    setB4(sectionRows.b4);
+    setB5(sectionRows.b5);
+    setB6(sectionRows.b6);
+    setB7(sectionRows.b7);
+    setB8(sectionRows.b8);
+    setB9(sectionRows.b9);
+
+    setLevel2Data(sectionRows.l2);
+    setLevel3Data(sectionRows.l3);
+    setLevel4Data(sectionRows.l4);
+    setLevel5Data(sectionRows.l5);
 
     if (unitType === "PROVINCE") {
       await loadCommunes(row.unit_id);
@@ -494,14 +673,23 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       if (!currentId) throw new Error("Không tìm thấy dashboard");
 
       const cleanId = (metricId ?? "").trim();
-      const base = (
+
+      // Lấy domain của Xã hoặc fallback về Tỉnh
+      let base = (
         dashboard?.base_domain ||
         dashboard?.metadata?.base_domain ||
         dashboard?.domain_link ||
+        parentProvince?.base_domain ||
+        parentProvince?.metadata?.base_domain ||
+        parentProvince?.domain_link ||
         ""
       ).trim().replace(/\/+$/, "");
 
-      const fullUrl = base ? `${base}/${cleanId}` : cleanId;
+      if (base && !base.startsWith("http://") && !base.startsWith("https://")) {
+        base = `https://${base}`;
+      }
+
+      const fullUrl = base ? `${base}/${cleanId}` : (cleanId.startsWith("http") ? cleanId : `https://${cleanId}`);
 
       const linkRes = await fetch("/api/v1/metrics/set-link", {
         method: "POST",
@@ -517,8 +705,26 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       const linkData = await linkRes.json().catch(() => null);
       if (!linkRes.ok) throw new Error(linkData?.error || "Lỗi lưu ID");
 
+      // 👉 Cập nhật ngay vào State để giao diện có Link và nhớ ID tức thì
       setMetricLinks((prev) => ({ ...prev, [metricKey]: fullUrl }));
-      await refetchAfterSave();
+      setMetricIds((prev) => ({ ...prev, [metricKey]: cleanId }));
+
+      // Cập nhật số liệu nếu có
+      if (linkData?.value !== undefined && linkData?.value !== null) {
+        const parsedVal = Number(linkData.value);
+        const info = getMetricFieldMap(metricKey);
+        if (info) {
+          const sectionSetters: Record<string, any> = {
+            b1: setB1, b2: setB2, b3: setB3, b4: setB4, b5: setB5,
+            b6: setB6, b7: setB7, b8: setB8, b9: setB9,
+            l2: setLevel2Data, l3: setLevel3Data, l4: setLevel4Data, l5: setLevel5Data,
+          };
+          sectionSetters[info.section]?.((prev: KpiRow) => applyMetricValueToRow(prev, info, parsedVal, true));
+        }
+      }
+
+      // Tải lại DB an toàn
+      await fetchAll();
 
       if (linkData?.value !== undefined && linkData?.value !== null) {
         alert(`Đã đồng bộ số liệu thành công: ${linkData.value}`);
@@ -526,7 +732,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         alert("Đã lưu link thành công!");
       }
     },
-    [dashboard, refetchAfterSave]
+    [dashboard, parentProvince, fetchAll]
   );
 
   const handleOpenB1Qty = (metricKey: string): void => {
@@ -682,6 +888,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     b1={b1}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onOpenQtyModal={handleOpenB1Qty}
                     onSaveMetricId={handleSaveMetricId}
@@ -693,6 +900,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     b2={b2}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                   />
@@ -703,6 +911,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     data={b3}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
@@ -713,6 +922,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     data={b4}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
@@ -724,6 +934,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     data={b5}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
@@ -734,6 +945,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     data={b6}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
@@ -745,6 +957,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     data={b7}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
@@ -755,6 +968,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     data={b8}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
@@ -766,6 +980,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     dashboard={dashboard}
                     data={b9}
                     metricLinks={metricLinks}
+                    metricIds={metricIds}
                     onChanged={refetchAfterSave}
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
@@ -827,6 +1042,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 dashboard={dashboard}
                 data={level2Data}
                 metricLinks={metricLinks}
+                metricIds={metricIds}
                 onChanged={refetchAfterSave}
                 onSaveMetricId={handleSaveMetricId}
                 onSaveQuantity={handleSaveQuantity}
@@ -861,6 +1077,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 dashboard={dashboard}
                 data={level3Data}
                 metricLinks={metricLinks}
+                metricIds={metricIds}
                 onChanged={refetchAfterSave}
                 onSaveMetricId={handleSaveMetricId}
                 onSaveQuantity={handleSaveQuantity}
@@ -895,6 +1112,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 dashboard={dashboard}
                 data={level4Data}
                 metricLinks={metricLinks}
+                metricIds={metricIds}
                 onChanged={refetchAfterSave}
                 onSaveMetricId={handleSaveMetricId}
                 onSaveQuantity={handleSaveQuantity}
@@ -929,6 +1147,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 dashboard={dashboard}
                 data={level5Data}
                 metricLinks={metricLinks}
+                metricIds={metricIds}
                 onChanged={refetchAfterSave}
                 onSaveMetricId={handleSaveMetricId}
                 onSaveQuantity={handleSaveQuantity}

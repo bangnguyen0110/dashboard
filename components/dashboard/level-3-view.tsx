@@ -16,11 +16,13 @@ import { BlockIdModal } from "./blocks/block-id-modal";
 import { MetricIdModal } from "./blocks/metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { cardLinkProps, getStoredMetricId } from "@/lib/card-link";
 
 interface Level3ViewProps {
   dashboard: DashboardRow;
   data?: KpiRow;
   metricLinks?: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged?: () => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
   onSaveQuantity?: (metricKey: string, value: number) => Promise<void>;
@@ -30,6 +32,7 @@ export function Level3View({
   dashboard,
   data = {},
   metricLinks = {},
+  metricIds = {},
   onChanged = () => {},
   onSaveMetricId,
   onSaveQuantity,
@@ -59,8 +62,7 @@ export function Level3View({
   ).trim().replace(/\/+$/, "");
 
   const handleOpenId = (key: string, label: string) => {
-    const url = metricLinks[key] || "";
-    const id = url.split("/").filter(Boolean).pop() || "";
+    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdTarget({ key, label, id });
   };
 
@@ -82,7 +84,10 @@ export function Level3View({
       {/* 1. HÀNG 1: 2 THẺ CHỈ TIÊU (MỖI THẺ RỘNG 50%) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Thẻ 1: Dự án kêu gọi đầu tư */}
-        <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between">
+        <div
+          {...cardLinkProps(metricLinks["l3_du_an_dau_tu"])}
+          className={`rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_du_an_dau_tu"] ? " cursor-pointer" : ""}`}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
@@ -153,7 +158,10 @@ export function Level3View({
         </div>
 
         {/* Thẻ 2: Thông tin quy hoạch */}
-        <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between">
+        <div
+          {...cardLinkProps(metricLinks["l3_thong_tin_quy_hoach"])}
+          className={`rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_thong_tin_quy_hoach"] ? " cursor-pointer" : ""}`}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">

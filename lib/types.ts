@@ -36,6 +36,7 @@ export interface MetricLinkRow {
   metric_key: string;
   target_url: string;
   metric_id?: string | null;   // ID lưu trữ cho tính năng thiết lập ID / scrape
+  current_value?: number | null; // Giá trị số đã bóc tách (lưu khi Đồng bộ ID)
 }
 
 /** Metadata cho cột settings JSONB chứa các link thiết lập ID cho từng chỉ tiêu */

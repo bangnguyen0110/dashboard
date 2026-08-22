@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getValidUrl } from "@/lib/url-utils";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
@@ -82,12 +83,16 @@ export async function POST(req: NextRequest) {
         : cleanCustomId;
     }
 
-    if (!finalUrl || (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://"))) {
+    // 🔒 Chuẩn hóa URL: luôn có tiền tố http(s)://
+    const normalizedFinalUrl = getValidUrl(finalUrl);
+
+    if (!normalizedFinalUrl) {
       return NextResponse.json(
         { success: false, error: "URL không hợp lệ hoặc Dashboard chưa cấu hình Domain gốc!" },
         { status: 400 }
       );
     }
+    finalUrl = normalizedFinalUrl;
 
     const response = await fetch(finalUrl, {
       headers: {

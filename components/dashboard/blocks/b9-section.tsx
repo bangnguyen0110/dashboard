@@ -22,11 +22,13 @@ import { BlockIdModal } from "./block-id-modal";
 import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { cardLinkProps, getStoredMetricId } from "@/lib/card-link";
 
 interface B9SectionProps {
   dashboard: DashboardRow;
   data?: KpiRow;
   metricLinks: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged: () => void;
   onOpenMetricId?: (key: string, label: string) => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
@@ -37,6 +39,7 @@ export function B9Section({
   dashboard,
   data = {},
   metricLinks,
+  metricIds = {},
   onChanged,
   onOpenMetricId,
   onSaveMetricId,
@@ -69,8 +72,7 @@ export function B9Section({
       onOpenMetricId(key, label);
       return;
     }
-    const url = metricLinks[key] || "";
-    const id = url.split("/").filter(Boolean).pop() || "";
+    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdTarget({ key, label, id });
   };
 
@@ -145,7 +147,10 @@ export function B9Section({
 
             <div className="space-y-3.5">
               {/* 1.1 Tổng số hộ */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_hkd_tong"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_hkd_tong"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Store size={15} className="text-amber-400" />
@@ -203,7 +208,10 @@ export function B9Section({
               </div>
 
               {/* 1.2 Thanh toán số */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_hkd_tt_so"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_hkd_tt_so"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <CreditCard size={15} className="text-emerald-400" />
@@ -271,7 +279,10 @@ export function B9Section({
               </div>
 
               {/* 1.3 Bán hàng Ecom */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_hkd_ecom"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_hkd_ecom"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <ShoppingCart size={15} className="text-cyan-400" />
@@ -361,7 +372,10 @@ export function B9Section({
 
             <div className="space-y-3.5">
               {/* 2.1 Tổng số DN */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_sme_tong"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_sme_tong"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Building2 size={15} className="text-blue-400" />
@@ -419,7 +433,10 @@ export function B9Section({
               </div>
 
               {/* 2.2 Sử dụng Cloud */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_sme_cloud"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_sme_cloud"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Cloud size={15} className="text-indigo-400" />
@@ -487,7 +504,10 @@ export function B9Section({
               </div>
 
               {/* 2.3 Hệ thống QLDN (ERP/CRM) */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_sme_qldn"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_sme_qldn"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Layers size={15} className="text-teal-400" />
@@ -582,7 +602,10 @@ export function B9Section({
 
             <div className="space-y-3.5">
               {/* 3.1 Doanh nghiệp lớn */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_large_tong"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_large_tong"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Building2 size={15} className="text-purple-400" />
@@ -640,7 +663,10 @@ export function B9Section({
               </div>
 
               {/* 3.2 Tự động hóa */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_large_tu_dong_hoa"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_large_tu_dong_hoa"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Zap size={15} className="text-pink-400" />
@@ -708,7 +734,10 @@ export function B9Section({
               </div>
 
               {/* 3.3 Ứng dụng AI */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["b9_large_ai"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-3.5 transition hover:border-white/10${metricLinks["b9_large_ai"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Bot size={15} className="text-cyan-400" />

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getValidUrl } from "@/lib/url-utils";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -28,20 +29,32 @@ export async function POST(req: NextRequest) {
     // Quét song song tất cả các link
     await Promise.all(
       links.map(async (item) => {
-        if (item.target_url && (item.target_url.startsWith("http://") || item.target_url.startsWith("https://"))) {
+        // 🔒 Chuẩn hóa URL: luôn có http(s):// (dữ liệu cũ có thể thiếu tiền tố)
+        const targetUrl = getValidUrl(item.target_url);
+        if (targetUrl) {
           try {
             const res = await fetch(`${req.nextUrl.origin}/api/scrape-metric`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                url: item.target_url,
-                targetUrl: item.target_url,
+                url: targetUrl,
+                targetUrl,
                 metricKey: item.metric_key,
                 dashboardId,
               }),
             });
             const data = await res.json();
-            if (data.success) successCount++;
+            if (data.success) {
+              successCount++;
+              // Đồng bộ kèm giá trị vào metric_links để lần refetch sau lấy được số liệu
+              if (typeof data.value === "number") {
+                await supabase
+                  .from("metric_links")
+                  .update({ current_value: data.value, target_url: targetUrl })
+                  .eq("dashboard_id", dashboardId)
+                  .eq("metric_key", item.metric_key);
+              }
+            }
           } catch (e) {
             console.error(`Lỗi quét link ${item.metric_key}:`, e);
           }

@@ -18,11 +18,13 @@ import { BlockIdModal } from "./blocks/block-id-modal";
 import { MetricIdModal } from "./blocks/metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { cardLinkProps, getStoredMetricId } from "@/lib/card-link";
 
 interface Level2ViewProps {
   dashboard: DashboardRow;
   data?: KpiRow;
   metricLinks?: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged?: () => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
   onSaveQuantity?: (metricKey: string, value: number) => Promise<void>;
@@ -32,6 +34,7 @@ export function Level2View({
   dashboard,
   data = {},
   metricLinks = {},
+  metricIds = {},
   onChanged = () => {},
   onSaveMetricId,
   onSaveQuantity,
@@ -66,8 +69,7 @@ export function Level2View({
   ).trim().replace(/\/+$/, "");
 
   const handleOpenId = (key: string, label: string) => {
-    const url = metricLinks[key] || "";
-    const id = url.split("/").filter(Boolean).pop() || "";
+    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdTarget({ key, label, id });
   };
 
@@ -91,7 +93,10 @@ export function Level2View({
     const valYear = Number(data[keyYear] ?? 0);
 
     return (
-      <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between transition-all hover:border-white/20">
+      <div
+        {...cardLinkProps(metricLinks[keyYear])}
+        className={`w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between transition-all hover:border-white/20${metricLinks[keyYear] ? " cursor-pointer" : ""}`}
+      >
         <div>
           <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3">
             <div className="flex items-center gap-2.5 min-w-0">

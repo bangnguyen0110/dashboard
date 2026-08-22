@@ -6,11 +6,13 @@ import { StatCell } from "./stat-cell";
 import { CellQuantityModal } from "./cell-quantity-modal";
 import { MetricIdModal } from "./metric-id-modal";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { getStoredMetricId } from "@/lib/card-link";
 
 interface B4SectionProps {
   dashboard: DashboardRow;
   data?: KpiRow;
   metricLinks: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged: () => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
   onSaveQuantity?: (metricKey: string, value: number) => Promise<void>;
@@ -20,6 +22,7 @@ export function B4Section({
   dashboard,
   data = {},
   metricLinks,
+  metricIds = {},
   onChanged,
   onSaveMetricId,
   onSaveQuantity,
@@ -42,8 +45,7 @@ export function B4Section({
   const pct = (val: number) => (total > 0 ? ((val / total) * 100).toFixed(1) : "0.0");
 
   const handleOpenId = (key: string, label: string) => {
-    const url = metricLinks[key] || "";
-    const id = url.split("/").filter(Boolean).pop() || "";
+    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdTarget({ key, label, id });
   };
 

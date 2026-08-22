@@ -8,11 +8,13 @@ import { BlockIdModal } from "./block-id-modal";
 import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { getStoredMetricId } from "@/lib/card-link";
 
 interface B2SectionProps {
   dashboard: DashboardRow;
   b2: KpiRow;
   metricLinks: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged: () => void;
   onOpenQtyModal?: (key: string) => void;
   onOpenMetricId?: (key: string, label: string) => void;
@@ -25,6 +27,7 @@ export function B2Section({
   dashboard,
   b2,
   metricLinks,
+  metricIds = {},
   onChanged,
   onOpenQtyModal,
   onOpenMetricId,
@@ -59,9 +62,7 @@ export function B2Section({
       onOpenMetricId(key, label);
       return;
     }
-    const currentUrl = metricLinks[key] || "";
-    const parts = currentUrl.split("/").filter(Boolean);
-    const existingId = parts.length > 0 ? parts[parts.length - 1] : "";
+    const existingId = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdState({ metricKey: key, label, metricId: existingId });
   };
 

@@ -19,11 +19,13 @@ import { BlockIdModal } from "./block-id-modal";
 import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { cardLinkProps, getStoredMetricId } from "@/lib/card-link";
 
 interface B6SectionProps {
   dashboard: DashboardRow;
   data?: KpiRow;
   metricLinks: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged: () => void;
   onOpenMetricId?: (key: string, label: string) => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
@@ -98,6 +100,7 @@ export function B6Section({
   dashboard,
   data = {},
   metricLinks,
+  metricIds = {},
   onChanged,
   onOpenMetricId,
   onSaveMetricId,
@@ -130,8 +133,7 @@ export function B6Section({
       onOpenMetricId(key, label);
       return;
     }
-    const url = metricLinks[key] || "";
-    const id = url.split("/").filter(Boolean).pop() || "";
+    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdTarget({ key, label, id });
   };
 
@@ -176,7 +178,8 @@ export function B6Section({
             return (
               <div
                 key={item.key}
-                className="w-full rounded-2xl border border-white/5 bg-[#0c1830]/90 p-4 shadow-xl transition-all duration-300 hover:border-white/15"
+                {...cardLinkProps(metricLinks[item.key])}
+                className={`w-full rounded-2xl border border-white/5 bg-[#0c1830]/90 p-4 shadow-xl transition-all duration-300 hover:border-white/15${metricLinks[item.key] ? " cursor-pointer" : ""}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   {/* Trái: Icon + Tiêu đề + Mô tả */}

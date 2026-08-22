@@ -8,11 +8,13 @@ import { BlockIdModal } from "./block-id-modal";
 import { MetricIdModal } from "./metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { getStoredMetricId } from "@/lib/card-link";
 
 interface B1SectionProps {
   dashboard: DashboardRow;
   b1: KpiRow;
   metricLinks: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged: () => void;
   onOpenLinkModal?: (key: string) => void;
   onOpenQtyModal?: (key: string) => void;
@@ -27,6 +29,7 @@ export function B1Section({
   dashboard,
   b1,
   metricLinks,
+  metricIds = {},
   onChanged,
   onOpenQtyModal,
   onOpenMetricId,
@@ -64,9 +67,11 @@ export function B1Section({
       onOpenMetricId(key, label);
       return;
     }
-    const currentUrl = metricLinks[key] || "";
-    const parts = currentUrl.split("/").filter(Boolean);
-    const existingId = parts.length > 0 ? parts[parts.length - 1] : "";
+    // 👉 Tự động lấy ID từ metricIds hoặc tách từ link hiện có
+    const rawUrl = metricLinks[key] || "";
+    const extractedId = rawUrl.split("/").filter(Boolean).pop() || "";
+    const existingId = metricIds[key] || extractedId || "";
+    
     setMetricIdState({ metricKey: key, label, metricId: existingId });
   };
 
@@ -494,12 +499,12 @@ export function B1Section({
           metricLabel={metricIdState.label}
           label={metricIdState.label}
           baseDomain={baseDomain}
-          currentId={metricIdState.metricId}
-          initialId={metricIdState.metricId}
+          currentId={metricIds[metricIdState.metricKey] || metricIdState.metricId}
+          initialId={metricIds[metricIdState.metricKey] || metricIdState.metricId}
           onClose={() => setMetricIdState(null)}
           onSave={async (key: string, id: string) => {
             if (onSaveMetricId) await onSaveMetricId(key, id);
-            onChanged();
+            setMetricIdState(null);
           }}
           onSaved={onChanged}
         />

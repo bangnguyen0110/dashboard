@@ -123,10 +123,7 @@ export function CellQuantityModal({
           className="glass w-full rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent"
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3">
-          <span className="text-xs opacity-60">Hoặc auto-fill từ PDF:</span>
-          <PdfImportButton onImported={handleImported} />
-        </div>
+      
 
         {error ? <p className="text-xs text-red-400">{error}</p> : null}
 

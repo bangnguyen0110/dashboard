@@ -21,11 +21,13 @@ import { BlockIdModal } from "./blocks/block-id-modal";
 import { MetricIdModal } from "./blocks/metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
+import { cardLinkProps, getStoredMetricId } from "@/lib/card-link";
 
 interface Level5ViewProps {
   dashboard: DashboardRow;
   data?: KpiRow;
   metricLinks?: Record<string, string>;
+  metricIds?: Record<string, string>;
   onChanged?: () => void;
   onOpenMetricId?: (key: string, label: string) => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
@@ -36,6 +38,7 @@ export function Level5View({
   dashboard,
   data = {},
   metricLinks = {},
+  metricIds = {},
   onChanged = () => {},
   onOpenMetricId,
   onSaveMetricId,
@@ -70,8 +73,7 @@ export function Level5View({
       onOpenMetricId(key, label);
       return;
     }
-    const url = metricLinks[key] || "";
-    const id = url.split("/").filter(Boolean).pop() || "";
+    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
     setMetricIdTarget({ key, label, id });
   };
 
@@ -91,7 +93,10 @@ export function Level5View({
         {/* ================= CỘT TRÁI (35%): THẺ 1 & THẺ 2 ================= */}
         <div className="w-full lg:w-[35%] flex flex-col justify-between gap-5">
           {/* THẺ 1: TỔNG ĐIỂM BÁN XANH */}
-          <div className="flex-1 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15">
+          <div
+            {...cardLinkProps(metricLinks["l5_diem_ban_xanh"])}
+            className={`flex-1 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15${metricLinks["l5_diem_ban_xanh"] ? " cursor-pointer" : ""}`}
+          >
             <div>
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -164,7 +169,10 @@ export function Level5View({
           </div>
 
           {/* THẺ 2: HUB XANH (CẤP XÃ/PHƯỜNG) */}
-          <div className="flex-1 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15">
+          <div
+            {...cardLinkProps(metricLinks["l5_hub_xanh"])}
+            className={`flex-1 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15${metricLinks["l5_hub_xanh"] ? " cursor-pointer" : ""}`}
+          >
             <div>
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
@@ -266,7 +274,10 @@ export function Level5View({
             {/* DANH SÁCH 3 TIÊU CHÍ O2O */}
             <div className="space-y-4">
               {/* 3.1 Độ Phủ Mạng Lưới */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-4 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["l5_do_phu"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-4 transition hover:border-white/10${metricLinks["l5_do_phu"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     <span className="grid h-8 w-8 place-items-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -337,7 +348,10 @@ export function Level5View({
               </div>
 
               {/* 3.2 Đơn Hàng Xử Lý (Hub) */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-4 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["l5_don_hang_hub"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-4 transition hover:border-white/10${metricLinks["l5_don_hang_hub"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
@@ -401,7 +415,10 @@ export function Level5View({
               </div>
 
               {/* 3.3 Doanh Thu Giao Dịch */}
-              <div className="rounded-xl border border-white/5 bg-[#061121]/70 p-4 transition hover:border-white/10">
+              <div
+                {...cardLinkProps(metricLinks["l5_doanh_thu_o2o"])}
+                className={`rounded-xl border border-white/5 bg-[#061121]/70 p-4 transition hover:border-white/10${metricLinks["l5_doanh_thu_o2o"] ? " cursor-pointer" : ""}`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     <span className="grid h-8 w-8 place-items-center rounded-lg bg-pink-500/10 text-pink-400 border border-pink-500/20">

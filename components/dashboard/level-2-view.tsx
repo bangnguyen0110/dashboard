@@ -2,30 +2,19 @@
 
 import React, { useState } from "react";
 import {
-  Building2,
   Server,
   Globe,
   Cpu,
   TrendingUp,
   FileText,
-  HeartHandshake,
-  Users,
-  Briefcase,
-  Calendar,
-  Layers,
-  Sparkles,
-  CreditCard,
-  ShoppingCart,
-  Cloud,
   ExternalLink,
   Link as LinkIcon,
   Edit3,
-  Eye,
-  Search,
-  BookOpen,
-  Compass,
+  Calendar,
+  Layers,
 } from "lucide-react";
 import { CellQuantityModal } from "./blocks/cell-quantity-modal";
+import { BlockIdModal } from "./blocks/block-id-modal";
 import { MetricIdModal } from "./blocks/metric-id-modal";
 import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
@@ -39,17 +28,6 @@ interface Level2ViewProps {
   onSaveQuantity?: (metricKey: string, value: number) => Promise<void>;
 }
 
-type TabKey = "all" | "A" | "B" | "C" | "D" | "E";
-
-const TABS: { id: TabKey; label: string; icon: React.ElementType }[] = [
-  { id: "all", label: "Tổng quan Nhóm A-E", icon: Layers },
-  { id: "A", label: "A - (Hạ tầng)", icon: Server },
-  { id: "B", label: "B (Hiện diện số)", icon: Globe },
-  { id: "C", label: "C (Vận hành)", icon: Cpu },
-  { id: "D", label: "D (Thị trường)", icon: TrendingUp },
-  { id: "E", label: "E (Thông tin)", icon: FileText },
-];
-
 export function Level2View({
   dashboard,
   data = {},
@@ -59,7 +37,12 @@ export function Level2View({
   onSaveQuantity,
 }: Level2ViewProps) {
   const { isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabKey>("all");
+  const [activeTab, setActiveTab] = useState<"all" | "A" | "B" | "C" | "D" | "E">("all");
+  const [showBlockId, setShowBlockId] = useState(false);
+
+  const now = new Date();
+  const currentMonthStr = `tháng ${now.getMonth() + 1}`;
+  const currentYearStr = `năm ${now.getFullYear()}`;
 
   const [qtyTarget, setQtyTarget] = useState<{
     key: string;
@@ -88,95 +71,107 @@ export function Level2View({
     setMetricIdTarget({ key, label, id });
   };
 
-  // Helper render thẻ chỉ số lớn
-  const renderCard = ({
-    itemKey,
-    field,
-    label,
-    value,
+  /** Render thẻ chi tiết cho các Tab A, B, C, D, E (Có trong tháng & trong năm) */
+  const renderMetricCard = ({
+    title,
+    keyMonth,
+    keyYear,
     unit = "",
-    deltaText = "+0 trong tháng",
-    icon: Icon,
-    color = "text-cyan-400",
-    badgeBg = "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+    icon: Icon = Layers,
+    colorClass = "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
   }: {
-    itemKey: string;
-    field: string;
-    label: string;
-    value: number;
+    title: string;
+    keyMonth: string;
+    keyYear: string;
     unit?: string;
-    deltaText?: string;
-    icon: React.ElementType;
-    color?: string;
-    badgeBg?: string;
+    icon?: React.ElementType;
+    colorClass?: string;
   }) => {
-    const targetUrl = metricLinks[itemKey] || "";
+    const valMonth = Number(data[keyMonth] ?? 0);
+    const valYear = Number(data[keyYear] ?? 0);
 
     return (
-      <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border ${badgeBg}`}>
-              <Icon size={18} />
-            </div>
-            <div>
-              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wide text-slate-200">
-                {label}
+      <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between transition-all hover:border-white/20">
+        <div>
+          <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border ${colorClass}`}>
+                <Icon size={18} />
+              </span>
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wide text-slate-100 truncate">
+                {title}
               </h4>
-              <span className="text-[11px] font-medium text-emerald-400">{deltaText}</span>
+            </div>
+
+            <div className="flex items-center gap-1">
+              {metricLinks[keyYear] && (
+                <a
+                  href={metricLinks[keyYear]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                  title="Xem link"
+                >
+                  <ExternalLink size={13} />
+                </a>
+              )}
+              {isAdmin && (
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenId(keyYear, title)}
+                    className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                    title="Thiết lập ID"
+                  >
+                    <LinkIcon size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setQtyTarget({
+                        key: keyYear,
+                        field: keyYear.replace("l2_", ""),
+                        label: `${title} (Trong ${currentYearStr})`,
+                        current: valYear,
+                        matchTokens: [title.toLowerCase()],
+                      })
+                    }
+                    className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    title="Setup số lượng"
+                  >
+                    <Edit3 size={13} />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {targetUrl && (
-              <a
-                href={targetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
-                title="Xem web"
-              >
-                <ExternalLink size={13} />
-              </a>
-            )}
-            {isAdmin && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleOpenId(itemKey, label)}
-                  className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
-                  title="Thiết lập ID"
-                >
-                  <LinkIcon size={13} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setQtyTarget({
-                      key: itemKey,
-                      field,
-                      label,
-                      current: value,
-                      matchTokens: [label.toLowerCase()],
-                    })
-                  }
-                  className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
-                  title="Setup số lượng"
-                >
-                  <Edit3 size={13} />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+          <div className="mt-3.5 space-y-2.5 text-xs">
+            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5">
+              <span className="flex items-center gap-1.5 text-slate-400">
+                <Calendar size={13} className="text-emerald-400" />
+                Trong {currentMonthStr}:
+              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="font-extrabold text-emerald-400 tabular-nums text-sm">
+                  +{valMonth.toLocaleString("vi-VN")}
+                </span>
+                {unit && <span className="text-[11px] text-slate-400">{unit}</span>}
+              </div>
+            </div>
 
-        <div className="mt-4 flex items-baseline justify-between pt-3 border-t border-white/5">
-          <span className="text-xs font-semibold text-slate-400">Số lượng hiện tại</span>
-          <div>
-            <span className={`text-2xl sm:text-3xl font-black tabular-nums ${color}`}>
-              {value.toLocaleString("vi-VN")}
-            </span>
-            {unit && <span className="ml-1.5 text-xs font-bold text-slate-400">{unit}</span>}
+            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5">
+              <span className="flex items-center gap-1.5 text-slate-300 font-medium">
+                <Calendar size={13} className="text-cyan-400" />
+                Trong {currentYearStr}:
+              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="font-black text-cyan-300 tabular-nums text-base">
+                  {valYear.toLocaleString("vi-VN")}
+                </span>
+                {unit && <span className="text-[11px] text-slate-400 font-semibold">{unit}</span>}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -184,540 +179,450 @@ export function Level2View({
   };
 
   return (
-    <div className="space-y-6">
-      {/* HEADER TAB NAVIGATION */}
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-2 shadow-xl backdrop-blur-xl">
-        {TABS.map((tab) => {
+    <div className="space-y-6 w-full">
+      {/* THANH ĐIỀU HƯỚNG TAB CHUẨN FORM */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/5 pb-3">
+        {[
+          { id: "all", label: "Tổng quan Nhóm A-E", icon: Layers },
+          { id: "A", label: "A - (Hạ tầng)", icon: Server },
+          { id: "B", label: "B (Hiện diện số)", icon: Globe },
+          { id: "C", label: "C (Vận hành)", icon: Cpu },
+          { id: "D", label: "D (Thị trường)", icon: TrendingUp },
+          { id: "E", label: "E (Thông tin)", icon: FileText },
+        ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
-
           return (
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold transition-all duration-300 ${
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
                 isActive
-                  ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_15px_-3px_rgba(6,182,212,0.4)]"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
+                  ? "bg-[#0d274c] text-[#00d2ff] border border-[#00d2ff]/40 shadow-sm"
+                  : "glass opacity-70 hover:opacity-100 text-slate-300"
               }`}
             >
-              <Icon size={16} />
+              <Icon size={15} className={isActive ? "text-[#00d2ff]" : "text-slate-400"} />
               <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* ================= TAB 1: TỔNG QUAN NHÓM A - E ================= */}
-      {/* ================= TAB 1: TỔNG QUAN NHÓM A - E (MOBILE: WIDTH 100%) ================= */}
+      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E (GIỮ NGUYÊN BỐ CỤC) ================= */}
       {activeTab === "all" && (
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
-          {/* Nhóm A: Hạ tầng */}
-          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                  <Server size={16} />
-                </span>
-                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-cyan-400">
-                  A. HẠ TẦNG & SẴN SÀNG
-                </h4>
+        <div className="space-y-5 w-full">
+          {/* HÀNG TRÊN: 3 THẺ A, B, C */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
+            {/* THẺ A: HẠ TẦNG & SẴN SÀNG */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                    <Server size={18} />
+                  </span>
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-cyan-400">
+                    A. HẠ TẦNG & SẴN SÀNG
+                  </h4>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">DN CĐS:</span>
+                    <strong className="text-cyan-400 font-mono text-sm">
+                      {Number(data["l2_a_dn_cds_year"] ?? data["l2_a_dn_cds"] ?? 211).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">Lên Cloud:</span>
+                    <strong className="text-cyan-400 font-mono text-sm">
+                      {Number(data["l2_a_cloud_year"] ?? data["l2_a_cloud"] ?? 180).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-300 font-medium">NetID:</span>
+                    <strong className="text-cyan-400 font-mono text-sm">
+                      {Number(data["l2_a_netid_year"] ?? data["l2_a_netid"] ?? 320).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">DN CĐS:</span>
-                  <strong className="text-cyan-400 font-mono text-sm">
-                    {Number(data["l2_a_dn_cds"] ?? data["a_so_hoa_info"] ?? 211).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">Lên Cloud:</span>
-                  <strong className="text-cyan-400 font-mono text-sm">
-                    {Number(data["l2_a_cloud"] ?? data["a_cloud"] ?? 180).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center py-1.5">
-                  <span className="text-slate-300 font-medium">NetID:</span>
-                  <strong className="text-cyan-400 font-mono text-sm">
-                    {Number(data["l2_a_netid"] ?? data["a_netid"] ?? 320).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("A")}
+                className="mt-5 w-full rounded-xl bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20"
+              >
+                Xem chi tiết Nhóm A ➜
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab("A")}
-              className="mt-4 w-full rounded-xl bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20"
-            >
-              Xem chi tiết Nhóm A ➜
-            </button>
+
+            {/* THẺ B: HIỆN DIỆN SỐ & TM */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30">
+                    <Globe size={18} />
+                  </span>
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-blue-400">
+                    B. HIỆN DIỆN SỐ & TM
+                  </h4>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">Web/E-com:</span>
+                    <strong className="text-blue-400 font-mono text-sm">
+                      {Number(data["l2_b_web_year"] ?? data["l2_b_web_ecom"] ?? 145).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">Đơn hàng:</span>
+                    <strong className="text-blue-400 font-mono text-sm">
+                      {Number(data["l2_b_don_hang_year"] ?? data["l2_b_don_hang"] ?? 1250).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-300 font-medium">Tăng trưởng:</span>
+                    <strong className="text-emerald-400 font-mono text-sm">
+                      +{Number(data["l2_b_tang_truong_year"] ?? 18.5)}%
+                    </strong>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("B")}
+                className="mt-5 w-full rounded-xl bg-blue-500/10 py-2.5 text-xs font-bold text-blue-300 transition hover:bg-blue-500/20"
+              >
+                Xem chi tiết Nhóm B ➜
+              </button>
+            </div>
+
+            {/* THẺ C: VẬN HÀNH & NGUỒN LỰC */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
+                    <Cpu size={18} />
+                  </span>
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-purple-400">
+                    C. VẬN HÀNH & NGUỒN LỰC
+                  </h4>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">Hệ thống QLDN:</span>
+                    <strong className="text-purple-400 font-mono text-sm">
+                      {Number(data["l2_c_erp_year"] ?? data["l2_c_erp"] ?? 86).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">Tổng nhân sự:</span>
+                    <strong className="text-purple-400 font-mono text-sm">
+                      {Number(data["l2_c_nhan_su_year"] ?? data["l2_c_nhan_su"] ?? 4850).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-300 font-medium">Khóa đào tạo:</span>
+                    <strong className="text-purple-400 font-mono text-sm">
+                      {Number(data["l2_c_dao_tao_year"] ?? data["l2_c_dao_tao"] ?? 24).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("C")}
+                className="mt-5 w-full rounded-xl bg-purple-500/10 py-2.5 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20"
+              >
+                Xem chi tiết Nhóm C ➜
+              </button>
+            </div>
           </div>
 
-          {/* Nhóm B: Hiện diện số */}
-          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/30">
-                  <Globe size={16} />
-                </span>
-                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-blue-400">
-                  B. HIỆN DIỆN SỐ & TM
-                </h4>
+          {/* HÀNG DƯỚI: THẺ D (1 CỘT TRÁI) & THẺ E (2 CỘT PHẢI) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
+            {/* THẺ D: TƯƠNG TÁC & THỊ TRƯỜNG (CỘT TRÁI 1/3) */}
+            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <TrendingUp size={18} />
+                  </span>
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-emerald-400">
+                    D. TƯƠNG TÁC & THỊ TRƯỜNG
+                  </h4>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">Trang xem:</span>
+                    <strong className="text-emerald-400 font-mono text-sm">
+                      {Number(data["l2_d_trang_xem_year"] ?? data["l2_d_trang_xem"] ?? 45200).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-white/5">
+                    <span className="text-slate-300 font-medium">Google SEO:</span>
+                    <strong className="text-emerald-400 font-mono text-sm">
+                      {Number(data["l2_d_seo_year"] ?? data["l2_d_seo"] ?? 10282).toLocaleString("vi-VN")}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-300 font-medium">Doanh thu:</span>
+                    <strong className="text-emerald-400 font-mono text-sm">
+                      {Number(data["l2_d_doanh_thu_year"] ?? 14800).toLocaleString("vi-VN")} TR
+                    </strong>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">Web/E-com:</span>
-                  <strong className="text-blue-400 font-mono text-sm">
-                    {Number(data["l2_b_web_ecom"] ?? data["b_web_ecom"] ?? 145).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">Đơn hàng:</span>
-                  <strong className="text-blue-400 font-mono text-sm">
-                    {Number(data["l2_b_don_hang"] ?? data["b_don_hang"] ?? 1250).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center py-1.5">
-                  <span className="text-slate-300 font-medium">Tăng trưởng:</span>
-                  <strong className="text-emerald-400 font-mono text-sm">+18.5%</strong>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("D")}
+                className="mt-5 w-full rounded-xl bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20"
+              >
+                Xem chi tiết Nhóm D ➜
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab("B")}
-              className="mt-4 w-full rounded-xl bg-blue-500/10 py-2.5 text-xs font-bold text-blue-300 transition hover:bg-blue-500/20"
-            >
-              Xem chi tiết Nhóm B ➜
-            </button>
-          </div>
 
-          {/* Nhóm C: Vận hành */}
-          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/30">
-                  <Cpu size={16} />
-                </span>
-                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-purple-400">
-                  C. VẬN HÀNH & NGUỒN LỰC
-                </h4>
-              </div>
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">Hệ thống QLDN:</span>
-                  <strong className="text-purple-400 font-mono text-sm">
-                    {Number(data["l2_c_erp"] ?? data["c_erp"] ?? 86).toLocaleString("vi-VN")}
-                  </strong>
+            {/* THẺ E: QUẢN LÝ THÔNG TIN (CỘT PHẢI 2/3) */}
+            <div className="w-full md:col-span-2 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                    <FileText size={18} />
+                  </span>
+                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-amber-400">
+                    E. QUẢN LÝ THÔNG TIN
+                  </h4>
                 </div>
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">Tổng nhân sự:</span>
-                  <strong className="text-purple-400 font-mono text-sm">
-                    {Number(data["l2_c_nhan_su"] ?? data["c_nhan_su"] ?? 4850).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center py-1.5">
-                  <span className="text-slate-300 font-medium">Khóa đào tạo:</span>
-                  <strong className="text-purple-400 font-mono text-sm">
-                    {Number(data["l2_c_dao_tao"] ?? data["c_dao_tao"] ?? 24).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab("C")}
-              className="mt-4 w-full rounded-xl bg-purple-500/10 py-2.5 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20"
-            >
-              Xem chi tiết Nhóm C ➜
-            </button>
-          </div>
 
-          {/* Nhóm D: Thị trường */}
-          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                  <TrendingUp size={16} />
-                </span>
-                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-emerald-400">
-                  D. TƯƠNG TÁC & THỊ TRƯỜNG
-                </h4>
-              </div>
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">Trang xem:</span>
-                  <strong className="text-emerald-400 font-mono text-sm">
-                    {Number(data["l2_d_trang_xem"] ?? data["d_trang_xem"] ?? 45200).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-300 font-medium">Google SEO:</span>
-                  <strong className="text-emerald-400 font-mono text-sm">
-                    {Number(data["l2_d_seo"] ?? data["d_seo"] ?? 10282).toLocaleString("vi-VN")}
-                  </strong>
-                </div>
-                <div className="flex justify-between items-center py-1.5">
-                  <span className="text-slate-300 font-medium">Doanh thu:</span>
-                  <strong className="text-emerald-400 font-mono text-sm">
-                    {Number(data["l2_d_doanh_thu"] ?? 14800).toLocaleString("vi-VN")} TR
-                  </strong>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs w-full">
+                  <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
+                    <span className="text-slate-300 font-medium">Thiện nguyện:</span>
+                    <strong className="text-amber-400 font-mono text-base">
+                      {Number(data["l2_e_thien_nguyen"] ?? 6)}
+                    </strong>
+                  </div>
+                  <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
+                    <span className="text-slate-300 font-medium">Kêu gọi ĐT:</span>
+                    <strong className="text-amber-400 font-mono text-base">
+                      {Number(data["l2_e_dau_tu"] ?? 8)}
+                    </strong>
+                  </div>
+                  <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
+                    <span className="text-slate-300 font-medium">Dự án:</span>
+                    <strong className="text-amber-400 font-mono text-base">
+                      {Number(data["l2_e_du_an"] ?? 2)}
+                    </strong>
+                  </div>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("E")}
+                className="mt-5 w-full rounded-xl bg-amber-500/10 py-2.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/20"
+              >
+                Xem chi tiết Nhóm E ➜
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab("D")}
-              className="mt-4 w-full rounded-xl bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20"
-            >
-              Xem chi tiết Nhóm D ➜
-            </button>
-          </div>
-
-          {/* Nhóm E: Thông tin */}
-          <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between md:col-span-2 lg:col-span-2">
-            <div>
-              <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                  <FileText size={16} />
-                </span>
-                <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-amber-400">
-                  E. QUẢN LÝ THÔNG TIN
-                </h4>
-              </div>
-              {/* Lưới con: Mobile w-full 1 cột, Tablet/Desktop 3 cột */}
-              <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs w-full">
-                <div className="w-full bg-slate-900/60 p-3 rounded-xl border border-white/5 flex justify-between items-center">
-                  <span className="text-slate-300 font-medium">Thiện nguyện:</span>
-                  <strong className="text-amber-400 font-mono text-sm">
-                    {Number(data["l2_e_thien_nguyen"] ?? data["e_thien_nguyen"] ?? 6)}
-                  </strong>
-                </div>
-                <div className="w-full bg-slate-900/60 p-3 rounded-xl border border-white/5 flex justify-between items-center">
-                  <span className="text-slate-300 font-medium">Kêu gọi ĐT:</span>
-                  <strong className="text-amber-400 font-mono text-sm">
-                    {Number(data["l2_e_dau_tu"] ?? data["e_dau_tu"] ?? 8)}
-                  </strong>
-                </div>
-                <div className="w-full bg-slate-900/60 p-3 rounded-xl border border-white/5 flex justify-between items-center">
-                  <span className="text-slate-300 font-medium">Dự án:</span>
-                  <strong className="text-amber-400 font-mono text-sm">
-                    {Number(data["l2_e_du_an"] ?? data["e_du_an"] ?? 6)}
-                  </strong>
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab("E")}
-              className="mt-4 w-full rounded-xl bg-amber-500/10 py-2.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/20"
-            >
-              Xem chi tiết Nhóm E ➜
-            </button>
           </div>
         </div>
       )}
 
-      {/* ================= TAB 2: A - HẠ TẦNG (4 THẺ - 50% MỖI THẺ) ================= */}
+      {/* ================= 2. TAB A: HẠ TẦNG & SẴN SÀNG (4 thẻ, mỗi thẻ 50%) ================= */}
       {activeTab === "A" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {renderCard({
-            itemKey: "l2_a_so_hoa_info",
-            field: "a_so_hoa_info",
-            label: "Tổng DN số hóa thông tin",
-            value: Number(data["a_so_hoa_info"] ?? 211),
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+          {renderMetricCard({
+            title: "Tổng DN số hóa thông tin",
+            keyMonth: "l2_a_dn_cds_month",
+            keyYear: "l2_a_dn_cds_year",
             unit: "DN",
-            deltaText: "+0 trong tháng",
             icon: Server,
-            color: "text-cyan-400",
-            badgeBg: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_a_cloud",
-            field: "a_cloud",
-            label: "Tổng DN lên Cloud",
-            value: Number(data["a_cloud"] ?? 180),
+          {renderMetricCard({
+            title: "Tổng DN lên Cloud",
+            keyMonth: "l2_a_cloud_month",
+            keyYear: "l2_a_cloud_year",
             unit: "DN",
-            deltaText: "+0 trong tháng",
-            icon: Cloud,
-            color: "text-blue-400",
-            badgeBg: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+            icon: Server,
+            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_a_dn_toan_dien",
-            field: "a_dn_toan_dien",
-            label: "DN số hóa toàn diện",
-            value: Number(data["a_dn_toan_dien"] ?? 45),
+          {renderMetricCard({
+            title: "DN số hóa toàn diện",
+            keyMonth: "l2_a_toan_dien_month",
+            keyYear: "l2_a_toan_dien_year",
             unit: "DN",
-            deltaText: "+2 trong tháng",
-            icon: Cpu,
-            color: "text-emerald-400",
-            badgeBg: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+            icon: Server,
+            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_a_netid",
-            field: "a_netid",
-            label: "Card điện tử NetID",
-            value: Number(data["a_netid"] ?? 320),
-            unit: "CARD",
-            deltaText: "+0 trong tháng",
-            icon: CreditCard,
-            color: "text-purple-400",
-            badgeBg: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+          {renderMetricCard({
+            title: "Card điện tử NetID",
+            keyMonth: "l2_a_netid_month",
+            keyYear: "l2_a_netid_year",
+            unit: "Card",
+            icon: Server,
+            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
           })}
         </div>
       )}
 
-      {/* ================= TAB 3: B - HIỆN DIỆN SỐ (4 THẺ - 50% MỖI THẺ) ================= */}
+      {/* ================= 3. TAB B: HIỆN DIỆN SỐ (4 thẻ, mỗi thẻ 50%) ================= */}
       {activeTab === "B" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {renderCard({
-            itemKey: "l2_b_web_ecom",
-            field: "b_web_ecom",
-            label: "Website & E-commerce",
-            value: Number(data["b_web_ecom"] ?? 145),
-            unit: "WEB",
-            deltaText: "+0 phát sinh tháng",
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+          {renderMetricCard({
+            title: "Website & E-commerce",
+            keyMonth: "l2_b_web_month",
+            keyYear: "l2_b_web_year",
+            unit: "Website",
             icon: Globe,
-            color: "text-blue-400",
-            badgeBg: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_b_sp_cds",
-            field: "b_sp_cds",
-            label: "Sản phẩm / Dịch vụ CĐS",
-            value: Number(data["b_sp_cds"] ?? 820),
-            unit: "SP/DV",
-            deltaText: "+0 phát sinh tháng",
-            icon: ShoppingCart,
-            color: "text-emerald-400",
-            badgeBg: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+          {renderMetricCard({
+            title: "Sản phẩm / Dịch vụ CĐS",
+            keyMonth: "l2_b_sp_cds_month",
+            keyYear: "l2_b_sp_cds_year",
+            unit: "Website",
+            icon: Globe,
+            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_b_don_hang",
-            field: "b_don_hang",
-            label: "Tổng đơn hàng",
-            value: Number(data["b_don_hang"] ?? 1250),
-            unit: "ĐƠN",
-            deltaText: "+0 phát sinh tháng",
-            icon: TrendingUp,
-            color: "text-amber-400",
-            badgeBg: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+          {renderMetricCard({
+            title: "Tổng đơn hàng",
+            keyMonth: "l2_b_don_hang_month",
+            keyYear: "l2_b_don_hang_year",
+            unit: "Website",
+            icon: Globe,
+            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_b_tang_truong",
-            field: "b_tang_truong",
-            label: "Tốc độ tăng trưởng",
-            value: Number(data["b_tang_truong"] ?? 18.5),
-            unit: "%",
-            deltaText: "+0 phát sinh tháng",
-            icon: Sparkles,
-            color: "text-pink-400",
-            badgeBg: "bg-pink-500/15 text-pink-400 border-pink-500/30",
+          {renderMetricCard({
+            title: "Tốc độ tăng trưởng",
+            keyMonth: "l2_b_tang_truong_month",
+            keyYear: "l2_b_tang_truong_year",
+            unit: "Website",
+            icon: Globe,
+            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
           })}
         </div>
       )}
 
-      {/* ================= TAB 4: C - VẬN HÀNH (3 THẺ / 1 HÀNG) ================= */}
+      {/* ================= 4. TAB C: VẬN HÀNH (3 thẻ chia đều 1 hàng) ================= */}
       {activeTab === "C" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {renderCard({
-            itemKey: "l2_c_erp",
-            field: "c_erp",
-            label: "Hệ thống quản lý ERP",
-            value: Number(data["c_erp"] ?? 86),
-            unit: "HT",
-            deltaText: "+0 phát sinh tháng",
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
+          {renderMetricCard({
+            title: "Hệ thống quản lý ERP",
+            keyMonth: "l2_c_erp_month",
+            keyYear: "l2_c_erp_year",
+            unit: "hệ thống",
             icon: Cpu,
-            color: "text-purple-400",
-            badgeBg: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+            colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_c_nhan_su",
-            field: "c_nhan_su",
-            label: "Tổng nhân sự toàn hệ thống",
-            value: Number(data["c_nhan_su"] ?? 4850),
-            unit: "NGƯỜI",
-            deltaText: "+0 phát sinh tháng",
-            icon: Users,
-            color: "text-blue-400",
-            badgeBg: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+          {renderMetricCard({
+            title: "Tổng nhân sự toàn hệ thống",
+            keyMonth: "l2_c_nhan_su_month",
+            keyYear: "l2_c_nhan_su_year",
+            unit: "Website",
+            icon: Cpu,
+            colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
           })}
-          {renderCard({
-            itemKey: "l2_c_dao_tao",
-            field: "c_dao_tao",
-            label: "Khóa đào tạo",
-            value: Number(data["c_dao_tao"] ?? 24),
-            unit: "KHÓA",
-            deltaText: "+0 phát sinh tháng",
-            icon: BookOpen,
-            color: "text-emerald-400",
-            badgeBg: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+          {renderMetricCard({
+            title: "Khóa đào tạo",
+            keyMonth: "l2_c_dao_tao_month",
+            keyYear: "l2_c_dao_tao_year",
+            unit: "Website",
+            icon: Cpu,
+            colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
           })}
         </div>
       )}
 
-      {/* ================= TAB 5: D - THỊ TRƯỜNG (HÀNG 1: 3 THẺ, HÀNG 2: 2 THẺ) ================= */}
+      {/* ================= 5. TAB D: THỊ TRƯỜNG (Hàng 1: 3 thẻ, Hàng 2: 2 thẻ) ================= */}
       {activeTab === "D" && (
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            {renderCard({
-              itemKey: "l2_d_trang_xem",
-              field: "d_trang_xem",
-              label: "Tương tác trang xem",
-              value: Number(data["d_trang_xem"] ?? 45200),
-              unit: "LƯỢT",
-              deltaText: "+252 / tháng",
-              icon: Eye,
-              color: "text-cyan-400",
-              badgeBg: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+        <div className="space-y-5 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
+            {renderMetricCard({
+              title: "Tương tác trang xem",
+              keyMonth: "l2_d_trang_xem_month",
+              keyYear: "l2_d_trang_xem_year",
+              unit: "",
+              icon: TrendingUp,
+              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
-            {renderCard({
-              itemKey: "l2_d_nguoi_xem",
-              field: "d_nguoi_xem",
-              label: "Tổng số người xem",
-              value: Number(data["d_nguoi_xem"] ?? 12450),
-              unit: "NGƯỜI",
-              deltaText: "+55 / tháng",
-              icon: Users,
-              color: "text-blue-400",
-              badgeBg: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+            {renderMetricCard({
+              title: "Tổng số người xem",
+              keyMonth: "l2_d_nguoi_xem_month",
+              keyYear: "l2_d_nguoi_xem_year",
+              unit: "Website",
+              icon: TrendingUp,
+              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
-            {renderCard({
-              itemKey: "l2_d_seo",
-              field: "d_seo",
-              label: "Google SEO hàng tháng",
-              value: Number(data["d_seo"] ?? 10282),
-              unit: "LƯỢT",
-              deltaText: "+10282 / tháng",
-              icon: Search,
-              color: "text-emerald-400",
-              badgeBg: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+            {renderMetricCard({
+              title: "Google SEO hàng tháng",
+              keyMonth: "l2_d_seo_month",
+              keyYear: "l2_d_seo_year",
+              unit: "Website",
+              icon: TrendingUp,
+              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {renderCard({
-              itemKey: "l2_d_khach_hang",
-              field: "d_khach_hang",
-              label: "Khách hàng",
-              value: Number(data["d_khach_hang"] ?? 1450),
-              unit: "KH",
-              deltaText: "+55 / tháng",
-              icon: Users,
-              color: "text-amber-400",
-              badgeBg: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-            })}
-            {renderCard({
-              itemKey: "l2_d_tang_truong_tien",
-              field: "d_tang_truong_tien",
-              label: "Tốc độ tăng trưởng",
-              value: Number(data["d_tang_truong_tien"] ?? 0),
-              unit: "TR / THÁNG",
-              deltaText: "+0 Tr / tháng",
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+            {renderMetricCard({
+              title: "Khách hàng",
+              keyMonth: "l2_d_khach_hang_month",
+              keyYear: "l2_d_khach_hang_year",
+              unit: "Website",
               icon: TrendingUp,
-              color: "text-pink-400",
-              badgeBg: "bg-pink-500/15 text-pink-400 border-pink-500/30",
+              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+            })}
+            {renderMetricCard({
+              title: "Tốc độ tăng trưởng",
+              keyMonth: "l2_d_tang_truong_month",
+              keyYear: "l2_d_tang_truong_year",
+              unit: "Website",
+              icon: TrendingUp,
+              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
           </div>
         </div>
       )}
 
-      {/* ================= TAB 6: E - THÔNG TIN (TIÊU ĐỀ + LƯỚI 9 CHỈ TIÊU 3x3) ================= */}
+      {/* ================= 6. TAB E: THÔNG TIN (Giữ nguyên) ================= */}
       {activeTab === "E" && (
-        <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl sm:p-6">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
-                <FileText size={16} />
-              </span>
-              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyan-300">
-                Chỉ số theo dõi Hệ sinh thái (Nhóm E) - Trong Tháng & Năm
-              </h4>
-            </div>
-            <span className="text-xs font-semibold text-slate-400">9 chỉ tiêu tổng hợp</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { key: "l2_e_dn", label: "Doanh nghiệp", val: Number(data["e_dn"] ?? 211), delta: "+0 Tháng", icon: Building2, color: "text-blue-400" },
-              { key: "l2_e_thien_nguyen", label: "Công tác thiện nguyện", val: Number(data["e_thien_nguyen"] ?? 6), delta: "+0 Tháng", icon: HeartHandshake, color: "text-rose-400" },
-              { key: "l2_e_bang_tin", label: "Bảng tin", val: Number(data["e_bang_tin"] ?? 76), delta: "+0 Tháng", icon: FileText, color: "text-cyan-400" },
-              { key: "l2_e_du_an", label: "Dự án", val: Number(data["e_du_an"] ?? 6), delta: "+0 Tháng", icon: Briefcase, color: "text-emerald-400" },
-              { key: "l2_e_dau_tu", label: "Kêu gọi đầu tư", val: Number(data["e_dau_tu"] ?? 8), delta: "+0 Tháng", icon: TrendingUp, color: "text-amber-400" },
-              { key: "l2_e_du_lich", label: "Du lịch", val: Number(data["e_du_lich"] ?? 6), delta: "+0 Tháng", icon: Compass, color: "text-pink-400" },
-              { key: "l2_e_su_kien", label: "Sự kiện nổi bật", val: Number(data["e_su_kien"] ?? 7), delta: "+0 Tháng", icon: Calendar, color: "text-purple-400" },
-              { key: "l2_e_cds", label: "Chuyển đổi số", val: Number(data["e_cds"] ?? 2), delta: "+0 Tháng", icon: Cpu, color: "text-teal-400" },
-              { key: "l2_e_thu_vien", label: "Thư viện", val: Number(data["e_thu_vien"] ?? 4), delta: "+0 Tháng", icon: BookOpen, color: "text-indigo-400" },
-            ].map((item) => {
-              const Icon = item.icon;
-              const targetUrl = metricLinks[item.key] || "";
-
-              return (
-                <div
-                  key={item.key}
-                  className="rounded-xl border border-white/5 bg-[#061121]/70 p-4 transition hover:border-white/15 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-9 w-9 place-items-center rounded-lg bg-slate-800/60 border border-white/5">
-                      <Icon size={16} className={item.color} />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-200">{item.label}</div>
-                      <div className="text-[11px] font-semibold text-emerald-400">{item.delta}</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xl font-black tabular-nums ${item.color}`}>
-                      {item.val}
-                    </span>
-                    {targetUrl && (
-                      <a
-                        href={targetUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
-                        title="Xem web"
-                      >
-                        <ExternalLink size={12} />
-                      </a>
-                    )}
-                    {isAdmin && (
-                      <div className="flex items-center gap-0.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenId(item.key, item.label)}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
-                          title="Thiết lập ID"
-                        >
-                          <LinkIcon size={11} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setQtyTarget({
-                              key: item.key,
-                              field: item.key.replace("l2_", ""),
-                              label: item.label,
-                              current: item.val,
-                              matchTokens: [item.label.toLowerCase()],
-                            })
-                          }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
-                          title="Setup Số lượng"
-                        >
-                          <Edit3 size={11} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
+          {renderMetricCard({
+            title: "Thiện nguyện",
+            keyMonth: "l2_e_thien_nguyen_month",
+            keyYear: "l2_e_thien_nguyen",
+            unit: "Dự án",
+            icon: FileText,
+            colorClass: "text-amber-400 border-amber-500/30 bg-amber-500/10",
+          })}
+          {renderMetricCard({
+            title: "Kêu gọi ĐT",
+            keyMonth: "l2_e_dau_tu_month",
+            keyYear: "l2_e_dau_tu",
+            unit: "Dự án",
+            icon: FileText,
+            colorClass: "text-amber-400 border-amber-500/30 bg-amber-500/10",
+          })}
+          {renderMetricCard({
+            title: "Dự án",
+            keyMonth: "l2_e_du_an_month",
+            keyYear: "l2_e_du_an",
+            unit: "Dự án",
+            icon: FileText,
+            colorClass: "text-amber-400 border-amber-500/30 bg-amber-500/10",
+          })}
         </div>
+      )}
+
+      {/* Modal Block ID */}
+      {showBlockId && (
+        <BlockIdModal
+          dashboard={dashboard}
+          section="L2"
+          currentId={(dashboard as any).l2_custom_id ?? (dashboard as any)?.metadata?.l2_custom_id ?? ""}
+          onClose={() => setShowBlockId(false)}
+          onSaved={onChanged}
+        />
       )}
 
       {/* Modal Chỉnh sửa số lượng */}
@@ -737,7 +642,7 @@ export function Level2View({
         />
       )}
 
-      {/* Modal Thiết lập ID */}
+      {/* Modal Thiết lập Metric ID */}
       {metricIdTarget && (
         <MetricIdModal
           dashboard={dashboard}

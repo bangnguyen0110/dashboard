@@ -1,12 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+// Tăng thời gian chờ xử lý lên tối đa 60 giây để tránh timeout
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 );
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+
+/**
+ * Hàm làm sạch toàn bộ ký tự Markdown tương thích mọi phiên bản JavaScript / TypeScript
+ */
+function cleanMarkdownToPlainText(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/^#{1,6}\s+/gm, "") // Xóa các thẻ tiêu đề #, ##, ###
+    .replace(/\*\*(.*?)\*\*/g, "$1") // Xóa in đậm **text**
+    .replace(/\*(.*?)\*/g, "$1") // Xóa in nghiêng *text*
+    .replace(/__(.*?)__/g, "$1") // Xóa gạch dưới __text__
+    .replace(/_(.*?)_/g, "$1") // Xóa in nghiêng _text_
+    .replace(/`{1,3}([\s\S]*?)`{1,3}/g, "$1") // Xóa code block (tương thích không cần cờ s)
+    .replace(/~~(.*?)~~/g, "$1") // Xóa gạch ngang
+    .replace(/^>\s+/gm, "") // Xóa blockquote
+    .replace(/\[(.*?)\]\((.*?)\)/g, "$1 ($2)") // Chuyển đổi link
+    .trim();
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +38,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Thiếu dashboardId" }, { status: 400 });
     }
 
-    // 1. Lấy toàn bộ số liệu của Dashboard
+    // 1. Lấy dữ liệu thực tế từ Supabase
     const { data: dash, error: dashErr } = await supabase
       .from("dashboards")
       .select("*, unit:administrative_units(*)")
@@ -27,7 +49,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Không tìm thấy dashboard" }, { status: 404 });
     }
 
-    // Khóa cache phân tích theo phạm vi (all | level1 | level2)
     const cacheKey = scope || (level === 0 ? "all" : `level_${level}`);
     const cachedAnalysis = dash.metadata?.ai_analysis?.[cacheKey];
 
@@ -42,69 +63,75 @@ export async function POST(req: NextRequest) {
 
     if (!GEMINI_API_KEY) {
       return NextResponse.json(
-        { success: false, error: "Chưa cấu hình GEMINI_API_KEY trong file .env.local" },
+        { success: false, error: "Chưa cấu hình GEMINI_API_KEY trong biến môi trường" },
         { status: 500 }
       );
     }
 
-    // 2. Tổng hợp dữ liệu ngữ cảnh
+    // 2. Tổng hợp ngữ cảnh dữ liệu đa tầng
     const unitName = dash.unit?.name || dash.title || "Địa phương";
     const unitType = dash.unit?.type === "PROVINCE" ? "Cấp Tỉnh" : "Cấp Xã/Phường";
-
-    let contextSummary = `BÁO CÁO DỮ LIỆU ĐỊA BÀN: ${unitName} (${unitType})\n`;
 
     const b1 = dash.b1 || dash.metadata?.b1 || {};
     const totalUnits = Number(b1.sme_total || 0) + Number(b1.hkd_total || 0) + Number(b1.htx_total || 0);
     const totalDx = Number(b1.sme_dx || 0) + Number(b1.hkd_dx || 0) + Number(b1.htx_dx || 0);
     const dxRate = totalUnits > 0 ? ((totalDx / totalUnits) * 100).toFixed(1) : "0";
 
-    contextSummary += `
---- DỮ LIỆU TẦNG 1 (ĐƠN VỊ KINH DOANH & CĐS) ---
-- Tổng đơn vị kinh doanh: ${totalUnits} (SME: ${b1.sme_total || 0}, Hộ KD: ${b1.hkd_total || 0}, HTX: ${b1.htx_total || 0})
-- Đã chuyển đổi số (CĐS): ${totalDx} đơn vị (Tỷ lệ: ${dxRate}%)
-- Doanh nghiệp SME CĐS: ${b1.sme_dx || 0}/${b1.sme_total || 0}
-- Hộ kinh doanh CĐS: ${b1.hkd_dx || 0}/${b1.hkd_total || 0}
-- Hợp tác xã CĐS: ${b1.htx_dx || 0}/${b1.htx_total || 0}
-- Sản phẩm OCOP & Dịch vụ: ${JSON.stringify(dash.b2 || {})}
-- Doanh thu & Quy mô kinh tế: ${JSON.stringify(dash.b3 || {})}
-`;
-
+    const b2 = dash.b2 || dash.metadata?.b2 || {};
+    const b3 = dash.b3 || dash.metadata?.b3 || {};
     const l2 = dash.level2 || dash.metadata?.level2 || {};
     const dynamicE = dash.metadata?.level2_e_items || [];
-    contextSummary += `
---- DỮ LIỆU TẦNG 2 (HỆ SINH THÁI KTS NHÓM A - E) ---
-- Nhóm A (Hạ tầng & Sẵn sàng CĐS): ${JSON.stringify(l2)}
-- Nhóm B (Hiện diện số & TMĐT): Web/Ecom=${l2.l2_b_web_year || 0}, Đơn hàng=${l2.l2_b_don_hang_year || 0}
-- Nhóm C (Vận hành & Nhân lực): ERP=${l2.l2_c_erp_year || 0}, Nhân sự=${l2.l2_c_nhan_su_year || 0}
-- Nhóm D (Tương tác & Thị trường): Trang xem=${l2.l2_d_trang_xem_year || 0}, SEO=${l2.l2_d_seo_year || 0}
-- Nhóm E (Bóc tách dữ liệu Hệ sinh thái):
-${dynamicE.map((i: any) => `  + ${i.title}: ${i.value}`).join("\n")}
+
+    const contextData = `
+BÁO CÁO CƠ SỞ DỮ LIỆU ĐỊA BÀN: ${unitName.toUpperCase()} (${unitType.toUpperCase()})
+
+[1. DỮ LIỆU TẦNG 1 - TỔNG QUAN KINH TẾ ĐỊA BÀN & CHUYỂN ĐỔI SỐ]
+- Tổng số đơn vị kinh tế: ${totalUnits} cơ sở.
+  + Doanh nghiệp nhỏ và vừa (SME): ${b1.sme_total || 0} DN (Đã CĐS: ${b1.sme_dx || 0} DN, đạt ${b1.sme_total ? ((b1.sme_dx / b1.sme_total) * 100).toFixed(1) : 0}%).
+  + Hộ kinh doanh cá thể: ${b1.hkd_total || 0} hộ (Đã CĐS: ${b1.hkd_dx || 0} hộ, đạt ${b1.hkd_total ? ((b1.hkd_dx / b1.hkd_total) * 100).toFixed(1) : 0}%).
+  + Hợp tác xã (HTX): ${b1.htx_total || 0} HTX (Đã CĐS: ${b1.htx_dx || 0} HTX, đạt ${b1.htx_total ? ((b1.htx_dx / b1.htx_total) * 100).toFixed(1) : 0}%).
+- Tỷ lệ chuyển đổi số chung toàn địa bàn: ${dxRate}%.
+- Sản phẩm OCOP & Đặc sản địa phương: 
+  + OCOP 3 sao: ${b2.ocop_3star || b2.ocop_3 || 0} SP
+  + OCOP 4 sao: ${b2.ocop_4star || b2.ocop_4 || 0} SP
+  + OCOP 5 sao: ${b2.ocop_5star || b2.ocop_5 || 0} SP
+  + Sản phẩm thương mại & Dịch vụ số: ${b2.sp_thuong || 0} SP, ${b2.dich_vu || 0} dịch vụ.
+- Doanh thu ghi nhận: ${b3.doanh_thu || 0} triệu VNĐ.
+
+[2. DỮ LIỆU TẦNG 2 - BỘ TIÊU CHÍ HỆ SINH THÁI SỐ (NHÓM A - E)]
+- Nhóm A (Hạ tầng số & Sẵn sàng CĐS): DN số hóa thông tin=${l2.l2_a_dn_cds_year || l2.l2_a_dn_cds || 0}, Lên Cloud=${l2.l2_a_cloud_year || l2.l2_a_cloud || 0}, Danh thiếp NetID=${l2.l2_a_netid_year || l2.l2_a_netid || 0}.
+- Nhóm B (Hiện diện số & TMĐT): Website/Gian hàng số=${l2.l2_b_web_year || l2.l2_b_web_ecom || 0}, Đơn hàng số=${l2.l2_b_don_hang_year || l2.l2_b_don_hang || 0}, Tốc độ tăng trưởng=${l2.l2_b_tang_truong_year || 0}%.
+- Nhóm C (Vận hành & Nhân lực số): Hệ thống quản lý ERP=${l2.l2_c_erp_year || l2.l2_c_erp || 0}, Nhân sự số=${l2.l2_c_nhan_su_year || l2.l2_c_nhan_su || 0}, Khóa đào tạo kỹ năng=${l2.l2_c_dao_tao_year || l2.l2_c_dao_tao || 0}.
+- Nhóm D (Tương tác & Thị trường số): Lượt xem trang=${l2.l2_d_trang_xem_year || l2.l2_d_trang_xem || 0}, Lượng tìm kiếm Google SEO=${l2.l2_d_seo_year || l2.l2_d_seo || 0}.
+- Nhóm E (Bóc tách dữ liệu Hệ sinh thái số thực tế):
+${dynamicE.length > 0 ? dynamicE.map((i: any) => `  - ${i.title}: ${i.value}`).join("\n") : "  - Chưa có mục bóc tách bổ sung."}
 `;
 
-    // 3. Prompt tư vấn chiến lược
+    // 3. Prompt phân tích thực chứng không dùng Markdown
     const prompt = `
-Bạn là Chuyên gia Cao cấp về Chuyển đổi số và Phát triển Kinh tế địa phương tại Việt Nam.
-Hãy phân tích dữ liệu thực tế sau và đưa ra đánh giá, khuyến nghị hành động cụ thể, súc tích và có tính ứng dụng cao cho lãnh đạo ${unitName}.
+Bạn là Cố vấn Cấp cao về Chiến lược Chuyển đổi số Quốc gia và Phát triển Kinh tế số Địa phương tại Việt Nam.
+Hãy nghiên cứu kỹ các số liệu thực tế dưới đây của ${unitName} (${unitType}) và lập BÁO CÁO PHÂN TÍCH HIỆN TRẠNG & TƯ VẤN HÀNH ĐỘNG ĐIỀU HÀNH.
 
-${contextSummary}
+DỮ LIỆU ĐẦU VÀO:
+${contextData}
 
-YÊU CẦU ĐỊNH DẠNG ĐẦU RA (Trả về định dạng Markdown chuẩn, không dùng lời mở đầu sáo rỗng):
+YÊU CẦU NỘI DUNG VÀ CHIỀU SÂU:
+1. Đánh giá tính cân đối giữa các chủ thể: So sánh tỷ lệ CĐS giữa Doanh nghiệp SME vs Hộ kinh doanh vs HTX. Chỉ rõ chủ thể nào đang là "vùng trũng" kéo lùi tốc độ chung.
+2. Phân tích chiều sâu công nghệ: Đánh giá xem địa phương mới dừng ở mức "hiện diện số bề nổi" (tạo trang web, đưa thông tin) hay đã đi vào "chiều sâu vận hành" (ứng dụng Cloud, ERP, tạo ra đơn hàng, giao dịch TMĐT).
+3. Đánh giá hệ sinh thái sản phẩm và nguồn lực bản địa (OCOP, quy hoạch, dự án đầu tư, chính sách): Phân tích hiệu quả liên kết giữa kinh tế số và kinh tế thực.
+4. Đưa ra các khuyến nghị hành động cấp bách (30 ngày) và trung hạn (trong năm) có tính khả thi cao.
+5. Đưa ra 3 chỉ số mục tiêu định lượng cụ thể cần đạt trong kỳ tới.
 
-### 🌟 1. Đánh giá Tổng quan & Điểm sáng
-- Nêu rõ 2-3 điểm tích cực nổi bật nhất từ dữ liệu số liệu (kèm con số minh chứng cụ thể).
-
-### ⚠️ 2. Điểm nghẽn & Thách thức cần tháo gỡ
-- Chỉ rõ 2-3 nút thắt lớn nhất (ví dụ: tỷ lệ CĐS hộ kinh doanh còn thấp, chưa khai thác thương mại số, thiếu thông tin doanh nghiệp...).
-
-### 🎯 3. Khuyến nghị Hành động Chiến lược (Next Steps)
-- **Hành động ngắn hạn (Trong tháng):** 2 việc cần làm ngay.
-- **Giải pháp trung hạn (Trong năm):** 2 giải pháp thúc đẩy phát triển hệ sinh thái số và tăng trưởng kinh tế địa phương.
-
-### 💡 4. Dự báo & Mục tiêu đề xuất
-- Đưa ra 1-2 con số mục tiêu khả thi cần đạt được trong chu kỳ tới.
+QUY CÁCH TRÌNH BÀY BẮT BUỘC:
+- TUYỆT ĐỐI KHÔNG DÙNG BẤT KỲ KÝ TỰ MARKDOWN NÀO (Không dùng dấu sao *, **, dấu thăng #, ##, ###, gạch dưới _, dấu >).
+- Trình bày toàn bộ theo định dạng VĂN BẢN BÁO CÁO HÀNH CHÍNH chuẩn mực:
+  + Các phần lớn đánh số La Mã: I. TỔNG QUAN VÀ ĐÁNH GIÁ ĐIỂM SÁNG, II. NHẬN DIỆN ĐIỂM NGHẼN VÀ NGUY CƠ, III. CƠ HỘI ĐỘT PHÁ, IV. LỘ TRÌNH VÀ HÀNH ĐỘNG CHIẾN LƯỢC, V. CHỈ SỐ MỤC TIÊU ĐỀ XUẤT.
+  + Các mục con dùng số: 1., 2., 3.
+  + Các ý chi tiết dùng gạch đầu dòng đơn giản (-) hoặc a., b., c.
+- Hãy viết cô đọng, súc tích, đi thẳng vào vấn đề và ĐẢM BẢO HOÀN THÀNH ĐẦY ĐỦ CẢ 5 PHẦN TỚI KẾT LUẬN CUỐI CÙNG (không được dừng giữa chừng).
 `;
 
-    // 4. Model Google Gemini API chuẩn
+    // 4. Model Google Gemini API
     const MODEL_NAME = "gemini-3.6-flash";
 
     const geminiRes = await fetch(
@@ -115,7 +142,8 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA (Trả về định dạng Markdown chuẩn,
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            maxOutputTokens: 2000,
+            temperature: 0.3,
+            maxOutputTokens: 8192,
           },
         }),
       }
@@ -127,17 +155,19 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA (Trả về định dạng Markdown chuẩn,
     }
 
     const geminiData = await geminiRes.json();
-    const analysisText =
-      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "Không thể tạo nội dung phân tích.";
+    const candidate = geminiData?.candidates?.[0];
+    const rawAnalysisText = candidate?.content?.parts?.[0]?.text || "Không thể tạo nội dung phân tích.";
 
-    // 5. Lưu Cache vào metadata Supabase
+    // 5. Làm sạch triệt để ký tự Markdown trước khi lưu
+    const cleanAnalysisText = cleanMarkdownToPlainText(rawAnalysisText);
+
     const nowIso = new Date().toISOString();
     const updatedMeta = {
       ...(dash.metadata || {}),
       ai_analysis: {
         ...(dash.metadata?.ai_analysis || {}),
         [cacheKey]: {
-          content: analysisText,
+          content: cleanAnalysisText,
           updated_at: nowIso,
         },
       },
@@ -147,7 +177,7 @@ YÊU CẦU ĐỊNH DẠNG ĐẦU RA (Trả về định dạng Markdown chuẩn,
 
     return NextResponse.json({
       success: true,
-      data: analysisText,
+      data: cleanAnalysisText,
       updatedAt: nowIso,
       isCached: false,
     });

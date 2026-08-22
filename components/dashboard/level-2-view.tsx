@@ -79,7 +79,7 @@ export function Level2View({
     setMetricIdTarget({ key, label, id });
   };
 
-  /** Render thẻ chi tiết cho các Tab A, B, C, D (width: 100%) */
+  /** Render thẻ chi tiết (100% width trên mobile, chia cột trên màn hình lớn) */
   const renderMetricCard = ({
     title,
     keyMonth,
@@ -101,7 +101,7 @@ export function Level2View({
     return (
       <div
         {...cardLinkProps(metricLinks[keyYear])}
-        className={`w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between transition-all hover:border-white/20${metricLinks[keyYear] ? " cursor-pointer" : ""}`}
+        className={`w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all hover:border-white/20 ${metricLinks[keyYear] ? "cursor-pointer" : ""}`}
       >
         <div className="w-full">
           <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
@@ -210,7 +210,7 @@ export function Level2View({
   ];
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6 w-full block">
       {/* THANH ĐIỀU HƯỚNG TAB */}
       <div className="flex flex-wrap items-center gap-2 border-b border-white/5 pb-3 w-full">
         {[
@@ -241,14 +241,15 @@ export function Level2View({
         })}
       </div>
 
-      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E (100% width trên mobile bằng grid-cols-1 md:grid-cols-3 w-full) ================= */}
+      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E (100% width trên mobile bằng grid-cols-1 lg:grid-cols-3) ================= */}
       {activeTab === "all" && (
-        <div className="space-y-5 w-full">
+        <div className="space-y-5 w-full block">
+          
           {/* HÀNG TRÊN: A, B, C */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
             
             {/* THẺ A */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
@@ -289,7 +290,7 @@ export function Level2View({
             </div>
 
             {/* THẺ B */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30">
@@ -330,7 +331,7 @@ export function Level2View({
             </div>
 
             {/* THẺ C */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
@@ -372,10 +373,10 @@ export function Level2View({
           </div>
 
           {/* HÀNG DƯỚI: D & E */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
             
             {/* THẺ D */}
-            <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
@@ -416,7 +417,7 @@ export function Level2View({
             </div>
 
             {/* THẺ E */}
-            <div className="w-full md:col-span-2 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full lg:col-span-2 block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
@@ -651,7 +652,7 @@ export function Level2View({
                 <div
                   key={item.key}
                   {...cardLinkProps(targetUrl)}
-                  className={`w-full group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
+                  className={`w-full block group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
                     hasLink ? "cursor-pointer hover:border-cyan-500/40 hover:-translate-y-0.5 hover:bg-[#0f1f3d]" : ""
                   }`}
                 >

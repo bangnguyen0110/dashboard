@@ -9,6 +9,80 @@ const supabaseKey =
   "";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+/**
+ * Hàm quét tự động linh động toàn bộ các mục của Nhóm E:
+ * Hỗ trợ cả cấu trúc HTML (ad_in_line_1) và text dạng "✅ Tên mục: 123"
+ */
+function parseDynamicGroupE(html: string, targetUrl: string) {
+  const dynamicItems: Array<{ key: string; title: string; value: number; url: string }> = [];
+  const seenKeys = new Set<string>();
+
+  const cleanNum = (str?: string) => {
+    if (!str) return 0;
+    const n = str.replace(/,/g, "").replace(/\.(?=\d{3})/g, "").trim();
+    const val = parseFloat(n);
+    return isNaN(val) ? 0 : val;
+  };
+
+  const makeKey = (title: string) => {
+    return (
+      "l2_e_" +
+      title
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+    );
+  };
+
+  const addItem = (title: string, value: number) => {
+    const cleanTitle = title.replace(/^[^\w\s\u00C0-\u1EF9]+/, "").trim();
+    if (!cleanTitle || cleanTitle.length < 2 || cleanTitle.length > 70) return;
+    
+    // Bỏ qua các tiêu đề thuộc nhóm Tháng/Năm của Nhóm A-D
+    if (cleanTitle.toLowerCase().includes("tháng") || cleanTitle.toLowerCase().includes("năm")) return;
+
+    const key = makeKey(cleanTitle);
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      dynamicItems.push({
+        key,
+        title: cleanTitle,
+        value,
+        url: targetUrl,
+      });
+    }
+  };
+
+  // 1. Quét theo cấu trúc khối HTML (nếu web dùng chung class ad_in_line_1)
+  const lineRegex = /<div[^>]*class="[^"]*ad_in_line_1[^"]*"[^>]*>([\s\S]*?)<div[^>]*class="[^"]*ad_dileft_info[^"]*"[^>]*>\s*([\d.,]+)\s*<\/div>/gi;
+  let lineMatch;
+  while ((lineMatch = lineRegex.exec(html)) !== null) {
+    const rawTitle = lineMatch[1].replace(/<[^>]+>/g, "").trim();
+    const val = cleanNum(lineMatch[2]);
+    if (rawTitle) {
+      addItem(rawTitle, val);
+    }
+  }
+
+  // 2. Quét dự phòng theo Text phẳng (Bắt các dòng dạng "✅ Tên mục: 123" hoặc "Tên mục: 123")
+  const cleanText = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+    .replace(/<[^>]+>/g, "\n");
+
+  const textRegex = /(?:✅\s*)?([^:\n\r\t<>]+)[:\n\r]+\s*([\d,.]+)/g;
+  let textMatch;
+  while ((textMatch = textRegex.exec(cleanText)) !== null) {
+    const rawTitle = textMatch[1].trim();
+    const val = cleanNum(textMatch[2]);
+    addItem(rawTitle, val);
+  }
+
+  return dynamicItems;
+}
+
 function extractMonthYear(html: string, keywordRegex: RegExp): { month: number; year: number } | null {
   const lineRegex = new RegExp(
     `<div[^>]*class="[^"]*ad_in_line_1[^"]*"[^>]*>[\\s\\S]*?${keywordRegex.source}[\\s\\S]*?<div[^>]*class="[^"]*ad_dileft_info[^"]*"[^>]*>([\\s\\S]*?)<\\/div>`,
@@ -32,20 +106,6 @@ function extractMonthYear(html: string, keywordRegex: RegExp): { month: number; 
     month: cleanNum(monthMatch?.[1]),
     year: cleanNum(yearMatch?.[1]),
   };
-}
-
-function extractSingleValue(html: string, keywordRegex: RegExp): number | null {
-  const lineRegex = new RegExp(
-    `<div[^>]*class="[^"]*ad_in_line_1[^"]*"[^>]*>[\\s\\S]*?${keywordRegex.source}[\\s\\S]*?<div[^>]*class="[^"]*ad_dileft_info[^"]*"[^>]*>\\s*([\\d.,]+)\\s*<\\/div>`,
-    "i"
-  );
-  const match = html.match(lineRegex);
-  if (match && match[1]) {
-    const n = match[1].replace(/,/g, "").replace(/\.(?=\d{3})/g, "").trim();
-    const val = parseFloat(n);
-    return isNaN(val) ? null : val;
-  }
-  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -208,15 +268,11 @@ export async function POST(req: NextRequest) {
       extractedLevel2["l2_d_doanh_thu_year"] = dDoanhThu.year;
     }
 
-    // --- BÓC TÁCH NHÓM E ---
-    const eDn = extractSingleValue(html, /Doanh\s*nghi\u1EC7p/i);
-    if (eDn !== null) extractedLevel2["l2_e_thien_nguyen"] = eDn;
-
-    const eInfo = extractSingleValue(html, /Th\u00F4ng\s*tin\s*doanh\s*nghi\u1EC7p/i);
-    if (eInfo !== null) extractedLevel2["l2_e_dau_tu"] = eInfo;
-
-    const eSp = extractSingleValue(html, /S\u1EA3n\s*ph\u1EA9m\s*&\s*D\u1ECBch\s*v\u1EE5/i);
-    if (eSp !== null) extractedLevel2["l2_e_du_an"] = eSp;
+    // --- 👉 BÓC TÁCH LINH ĐỘNG TOÀN BỘ NHÓM E ---
+    const dynamicEList = parseDynamicGroupE(html, finalUrl);
+    for (const item of dynamicEList) {
+      extractedLevel2[item.key] = item.value;
+    }
 
     // Lưu vào database Supabase
     const currentLevel2 = (dash as any)?.level2 || (dash as any)?.metadata?.level2 || {};
@@ -226,6 +282,11 @@ export async function POST(req: NextRequest) {
     meta.level2_custom_id = cleanCustomId;
     meta.level2_url = finalUrl;
     meta.level2 = mergedData;
+    meta.level2_e_items = dynamicEList; // 👈 Lưu mảng động các mục Nhóm E
+    meta.level2_metrics = {
+      ...(meta.level2_metrics || {}),
+      ...extractedLevel2,
+    };
 
     await supabase
       .from("dashboards")
@@ -248,8 +309,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Đã bóc tách thành công ${Object.keys(extractedLevel2).length} chỉ số cho Tầng 2!`,
+      message: `Đã bóc tách thành công ${Object.keys(extractedLevel2).length} chỉ số Tầng 2 (gồm ${dynamicEList.length} mục Nhóm E)!`,
       data: extractedLevel2,
+      dynamicEItems: dynamicEList,
       url: finalUrl,
     });
   } catch (error: any) {

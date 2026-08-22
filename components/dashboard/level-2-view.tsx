@@ -12,6 +12,10 @@ import {
   Edit3,
   Calendar,
   Layers,
+  Building2,
+  Package,
+  HeartHandshake,
+  Info,
 } from "lucide-react";
 import { CellQuantityModal } from "./blocks/cell-quantity-modal";
 import { BlockIdModal } from "./blocks/block-id-modal";
@@ -69,11 +73,13 @@ export function Level2View({
   ).trim().replace(/\/+$/, "");
 
   const handleOpenId = (key: string, label: string) => {
-    const id = getStoredMetricId(metricIds, key, metricLinks[key]);
+    const rawUrl = metricLinks[key] || "";
+    const extractedId = rawUrl.split("/").filter(Boolean).pop() || "";
+    const id = metricIds[key] || extractedId || getStoredMetricId(metricIds, key, rawUrl);
     setMetricIdTarget({ key, label, id });
   };
 
-  /** Render thẻ chi tiết cho các Tab A, B, C, D, E (Có trong tháng & trong năm) */
+  /** Render thẻ chi tiết cho các Tab A, B, C, D (Có trong tháng & trong năm) */
   const renderMetricCard = ({
     title,
     keyMonth,
@@ -124,7 +130,10 @@ export function Level2View({
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => handleOpenId(keyYear, title)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenId(keyYear, title);
+                    }}
                     className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
                     title="Thiết lập ID"
                   >
@@ -132,15 +141,16 @@ export function Level2View({
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setQtyTarget({
                         key: keyYear,
                         field: keyYear.replace("l2_", ""),
                         label: `${title} (Trong ${currentYearStr})`,
                         current: valYear,
                         matchTokens: [title.toLowerCase()],
-                      })
-                    }
+                      });
+                    }}
                     className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                     title="Setup số lượng"
                   >
@@ -183,6 +193,128 @@ export function Level2View({
     );
   };
 
+  /** Danh sách thẻ đơn lẻ cho Tab E (Không phân theo tháng & năm) */
+  /** Danh sách các thẻ chỉ số Hệ sinh thái chuẩn (Tab E) */
+  const TAB_E_ITEMS = [
+    {
+      key: "l2_e_doanh_nghiep",
+      title: "Doanh nghiệp",
+      unit: "DN",
+      defaultValue: 201,
+      icon: Building2,
+      color: "#60a5fa",
+      matchTokens: ["doanh nghiệp", "dn"],
+    },
+    {
+      key: "l2_e_thong_tin_dn",
+      title: "Thông tin doanh nghiệp",
+      unit: "Hồ sơ",
+      defaultValue: 177,
+      icon: FileText,
+      color: "#22d3ee",
+      matchTokens: ["thông tin doanh nghiệp"],
+    },
+    {
+      key: "l2_e_san_pham_dv",
+      title: "Sản phẩm & Dịch vụ",
+      unit: "SP/DV",
+      defaultValue: 27,
+      icon: Package,
+      color: "#34d399",
+      matchTokens: ["sản phẩm & dịch vụ", "sản phẩm và dịch vụ", "sản phẩm"],
+    },
+    {
+      key: "l2_e_tai_lieu_cds",
+      title: "Tài liệu CĐS cấp phường/xã",
+      unit: "Tài liệu",
+      defaultValue: 0,
+      icon: FileText,
+      color: "#a78bfa",
+      matchTokens: ["tài liệu chuyển đổi số", "tài liệu cds"],
+    },
+    {
+      key: "l2_e_quy_hoach",
+      title: "Thông tin quy hoạch",
+      unit: "Mục",
+      defaultValue: 0,
+      icon: Globe,
+      color: "#38bdf8",
+      matchTokens: ["thông tin quy hoạch", "quy hoạch"],
+    },
+    {
+      key: "l2_e_du_lich_le_hoi",
+      title: "Du lịch - Ẩm thực - Lễ hội",
+      unit: "Mục",
+      defaultValue: 1,
+      icon: Calendar,
+      color: "#f472b6",
+      matchTokens: ["du lịch", "ẩm thực", "lễ hội"],
+    },
+    {
+      key: "l2_e_keu_goi_dau_tu",
+      title: "Dự án kêu gọi đầu tư",
+      unit: "Dự án",
+      defaultValue: 0,
+      icon: TrendingUp,
+      color: "#fbbf24",
+      matchTokens: ["kêu gọi đầu tư", "dự án kêu gọi đầu tư"],
+    },
+    {
+      key: "l2_e_tieu_chi_kts",
+      title: "Tiêu chí nền tảng kinh tế số",
+      unit: "Tiêu chí",
+      defaultValue: 0,
+      icon: Cpu,
+      color: "#2dd4bf",
+      matchTokens: ["tiêu chí nền tảng", "tiêu chí kinh tế số"],
+    },
+    {
+      key: "l2_e_doanh_thu",
+      title: "Doanh thu",
+      unit: "TR",
+      defaultValue: 0,
+      icon: TrendingUp,
+      color: "#4ade80",
+      matchTokens: ["doanh thu"],
+    },
+    {
+      key: "l2_e_thong_ke_bao_cao",
+      title: "Thống kê báo cáo",
+      unit: "Báo cáo",
+      defaultValue: 0,
+      icon: Layers,
+      color: "#818cf8",
+      matchTokens: ["thống kê báo cáo", "báo cáo"],
+    },
+    {
+      key: "l2_e_lien_minh",
+      title: "Liên minh",
+      unit: "Liên minh",
+      defaultValue: 20,
+      icon: HeartHandshake,
+      color: "#fb923c",
+      matchTokens: ["liên minh"],
+    },
+    {
+      key: "l2_e_chinh_sach_ht",
+      title: "Chính sách hỗ trợ doanh nghiệp",
+      unit: "Chính sách",
+      defaultValue: 2,
+      icon: FileText,
+      color: "#a3e635",
+      matchTokens: ["chính sách hỗ trợ", "chính sách"],
+    },
+    {
+      key: "l2_e_giai_dap_kn",
+      title: "Giải đáp kiến nghị doanh nghiệp",
+      unit: "Kiến nghị",
+      defaultValue: 0,
+      icon: Info,
+      color: "#e879f9",
+      matchTokens: ["giải đáp kiến nghị", "kiến nghị"],
+    },
+  ];
+
   return (
     <div className="space-y-6 w-full">
       {/* THANH ĐIỀU HƯỚNG TAB CHUẨN FORM */}
@@ -215,7 +347,7 @@ export function Level2View({
         })}
       </div>
 
-      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E (GIỮ NGUYÊN BỐ CỤC) ================= */}
+      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E ================= */}
       {activeTab === "all" && (
         <div className="space-y-5 w-full">
           {/* HÀNG TRÊN: 3 THẺ A, B, C */}
@@ -346,7 +478,7 @@ export function Level2View({
 
           {/* HÀNG DƯỚI: THẺ D (1 CỘT TRÁI) & THẺ E (2 CỘT PHẢI) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-            {/* THẺ D: TƯƠNG TÁC & THỊ TRƯỜNG (CỘT TRÁI 1/3) */}
+            {/* THẺ D: TƯƠNG TÁC & THỊ TRƯỜNG */}
             <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
@@ -387,7 +519,7 @@ export function Level2View({
               </button>
             </div>
 
-            {/* THẺ E: QUẢN LÝ THÔNG TIN (CỘT PHẢI 2/3) */}
+            {/* THẺ E: QUẢN LÝ THÔNG TIN */}
             <div className="w-full md:col-span-2 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4">
@@ -401,21 +533,21 @@ export function Level2View({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs w-full">
                   <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span className="text-slate-300 font-medium">Thiện nguyện:</span>
-                    <strong className="text-amber-400 font-mono text-base">
-                      {Number(data["l2_e_thien_nguyen"] ?? 6)}
+                    <span className="text-slate-300 font-medium">Doanh nghiệp:</span>
+                    <strong className="text-blue-400 font-mono text-base">
+                      {Number(data["l2_e_doanh_nghiep"] ?? 200).toLocaleString("vi-VN")} DN
                     </strong>
                   </div>
                   <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span className="text-slate-300 font-medium">Kêu gọi ĐT:</span>
-                    <strong className="text-amber-400 font-mono text-base">
-                      {Number(data["l2_e_dau_tu"] ?? 8)}
+                    <span className="text-slate-300 font-medium">Thông tin DN:</span>
+                    <strong className="text-cyan-400 font-mono text-base">
+                      {Number(data["l2_e_thong_tin_dn"] ?? 177).toLocaleString("vi-VN")}
                     </strong>
                   </div>
                   <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span className="text-slate-300 font-medium">Dự án:</span>
-                    <strong className="text-amber-400 font-mono text-base">
-                      {Number(data["l2_e_du_an"] ?? 2)}
+                    <span className="text-slate-300 font-medium">Sản phẩm:</span>
+                    <strong className="text-emerald-400 font-mono text-base">
+                      {Number(data["l2_e_san_pham"] ?? 145).toLocaleString("vi-VN")} SP
                     </strong>
                   </div>
                 </div>
@@ -432,7 +564,7 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 2. TAB A: HẠ TẦNG & SẴN SÀNG (4 thẻ, mỗi thẻ 50%) ================= */}
+      {/* ================= 2. TAB A: HẠ TẦNG & SẴN SÀNG ================= */}
       {activeTab === "A" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
           {renderMetricCard({
@@ -470,7 +602,7 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 3. TAB B: HIỆN DIỆN SỐ (4 thẻ, mỗi thẻ 50%) ================= */}
+      {/* ================= 3. TAB B: HIỆN DIỆN SỐ ================= */}
       {activeTab === "B" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
           {renderMetricCard({
@@ -508,7 +640,7 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 4. TAB C: VẬN HÀNH (3 thẻ chia đều 1 hàng) ================= */}
+      {/* ================= 4. TAB C: VẬN HÀNH ================= */}
       {activeTab === "C" && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
           {renderMetricCard({
@@ -538,7 +670,7 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 5. TAB D: THỊ TRƯỜNG (Hàng 1: 3 thẻ, Hàng 2: 2 thẻ) ================= */}
+      {/* ================= 5. TAB D: THỊ TRƯỜNG ================= */}
       {activeTab === "D" && (
         <div className="space-y-5 w-full">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
@@ -589,33 +721,136 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 6. TAB E: THÔNG TIN (Giữ nguyên) ================= */}
+      {/* ================= 6. TAB E: THÔNG TIN (ĐÃ SỬA THEO MÔ TẢ ĐƠN LẺ) ================= */}
       {activeTab === "E" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
-          {renderMetricCard({
-            title: "Thiện nguyện",
-            keyMonth: "l2_e_thien_nguyen_month",
-            keyYear: "l2_e_thien_nguyen",
-            unit: "Dự án",
-            icon: FileText,
-            colorClass: "text-amber-400 border-amber-500/30 bg-amber-500/10",
-          })}
-          {renderMetricCard({
-            title: "Kêu gọi ĐT",
-            keyMonth: "l2_e_dau_tu_month",
-            keyYear: "l2_e_dau_tu",
-            unit: "Dự án",
-            icon: FileText,
-            colorClass: "text-amber-400 border-amber-500/30 bg-amber-500/10",
-          })}
-          {renderMetricCard({
-            title: "Dự án",
-            keyMonth: "l2_e_du_an_month",
-            keyYear: "l2_e_du_an",
-            unit: "Dự án",
-            icon: FileText,
-            colorClass: "text-amber-400 border-amber-500/30 bg-amber-500/10",
-          })}
+        <div className="space-y-5 w-full">
+          {/* Header Tab E */}
+          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
+                <Info size={20} />
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-cyan-500/20 px-2 py-0.5 text-[11px] font-bold text-cyan-300 border border-cyan-500/30">
+                    Tab: E (Thông tin)
+                  </span>
+                </div>
+                <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
+                  Chỉ số theo dõi Hệ sinh thái (Nhóm E)
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Lưới Thẻ đơn lẻ bóc tách dữ liệu */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            {TAB_E_ITEMS.map((item) => {
+              const val = Number(
+                data[item.key] ??
+                  (dashboard as any)?.metadata?.level2_metrics?.[item.key] ??
+                  (dashboard as any)?.metadata?.[item.key] ??
+                  item.defaultValue
+              );
+              const targetUrl = metricLinks[item.key] || "";
+              const hasLink = Boolean(targetUrl);
+
+              return (
+                <div
+                  key={item.key}
+                  {...cardLinkProps(targetUrl)}
+                  className={`group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
+                    hasLink ? "cursor-pointer hover:border-cyan-500/40 hover:-translate-y-0.5 hover:bg-[#0f1f3d]" : ""
+                  }`}
+                >
+                  {/* Header thẻ */}
+                  <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-emerald-400 text-sm font-bold shrink-0">✅</span>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-200 truncate group-hover:text-cyan-300 transition">
+                        {item.title}
+                      </h4>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0 z-10">
+                      {hasLink && (
+                        <a
+                          href={targetUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                          title="Xem link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink size={13} />
+                        </a>
+                      )}
+                      {isAdmin && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleOpenId(item.key, item.title);
+                            }}
+                            className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                            title="Thiết lập ID"
+                          >
+                            <LinkIcon size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setQtyTarget({
+                                key: item.key,
+                                field: item.key.replace("l2_", ""),
+                                label: item.title,
+                                current: val,
+                                matchTokens: [item.title.toLowerCase()],
+                              });
+                            }}
+                            className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                            title="Setup số lượng"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Giá trị số duy nhất */}
+                  <div className="mt-3.5 flex items-baseline gap-1.5">
+                    <span
+                      className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight"
+                      style={{ color: item.color }}
+                    >
+                      {val.toLocaleString("vi-VN")}
+                    </span>
+                    {item.unit && (
+                      <span className="text-xs font-semibold text-slate-400 font-sans">{item.unit}</span>
+                    )}
+                  </div>
+
+                  {/* Footer link */}
+                  <div className="mt-3 flex items-center justify-between text-[11px] border-t border-white/5 pt-2">
+                    {hasLink ? (
+                      <span className="flex items-center gap-1 text-cyan-400 font-medium">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
+                        Bấm để mở link
+                        <ExternalLink size={11} />
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">Chưa cài link</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

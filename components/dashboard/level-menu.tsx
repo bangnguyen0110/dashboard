@@ -227,7 +227,7 @@ export function LevelMenu({
           }`}
         />
 
-        {/* Khung Sidebar trượt từ bên trái */}
+        {/* Khung Sidebar */}
         <aside
           className={`fixed left-0 top-0 z-50 h-screen w-[295px] max-w-[85vw] border-r border-[#14233c] bg-[#071326] text-slate-200 transition-transform duration-300 ease-out flex flex-col justify-between select-none md:translate-x-0 ${
             mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
@@ -248,7 +248,6 @@ export function LevelMenu({
                 </div>
               </div>
 
-              {/* Nút đóng Sidebar trên Mobile */}
               <button
                 type="button"
                 onClick={onCloseMobile}
@@ -342,7 +341,7 @@ export function LevelMenu({
               </div>
             </div>
 
-            {/* Footer Sidebar: Gom nút Làm mới số liệu & Import PDF vào đây */}
+            {/* Footer Sidebar */}
             <div className="p-3 border-t border-white/5 shrink-0 space-y-2">
               {onSyncLive && (
                 <button
@@ -371,7 +370,7 @@ export function LevelMenu({
           </div>
         </aside>
 
-        {/* Modal nhập Custom Link */}
+        {/* Modal Custom Link */}
         {showDocModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#0c1830] p-6">

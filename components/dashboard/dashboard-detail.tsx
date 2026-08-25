@@ -1399,7 +1399,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveMetricId={handleSaveMetricId}
                   />
                 </div>
-
+                    <div className="andata">
                 <div className="w-full flex flex-col">
                   <B3Section
                     dashboard={dashboard}
@@ -1479,7 +1479,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
                   />
-                </div>
+                </div> </div>
               </div>
             </div>
           ) : currentLevel === 2 ? (

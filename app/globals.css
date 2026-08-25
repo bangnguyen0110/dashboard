@@ -113,6 +113,9 @@ button.glass.grid.h-9.w-9.shrink-0.place-items-center.rounded-xl.text-amber-400.
     border-radius: 15px;
 }
 
+.andata{
+  display: none;
+}
 .gear {
   transition: transform 0.35s ease;
 }

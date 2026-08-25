@@ -79,7 +79,7 @@ export function Level2View({
     setMetricIdTarget({ key, label, id });
   };
 
-  /** Render thẻ chi tiết (100% width trên mobile, chia cột trên màn hình lớn) */
+  /** Render thẻ chi tiết (width: 100%) */
   const renderMetricCard = ({
     title,
     keyMonth,
@@ -194,17 +194,17 @@ export function Level2View({
   };
 
   const TAB_E_ITEMS = [
-    { key: "l2_e_doanh_nghiep", title: "Doanh nghiệp", unit: "DN", defaultValue: 201, icon: Building2, color: "#60a5fa" },
-    { key: "l2_e_thong_tin_dn", title: "Thông tin doanh nghiệp", unit: "Hồ sơ", defaultValue: 177, icon: FileText, color: "#22d3ee" },
-    { key: "l2_e_san_pham_dv", title: "Sản phẩm & Dịch vụ", unit: "SP/DV", defaultValue: 27, icon: Package, color: "#34d399" },
-    { key: "l2_e_tai_lieu_cds", title: "Tài liệu CĐS cấp phường/xã", unit: "Tài liệu", defaultValue: 0, icon: FileText, color: "#a78bfa" },
-    { key: "l2_e_quy_hoach", title: "Thông tin quy hoạch", unit: "Mục", defaultValue: 0, icon: Globe, color: "#38bdf8" },
+    { key: "l2_e_doanh_nghiep", title: "Tổng số doanh nghiệp / Cơ sở", unit: "Cơ sở", defaultValue: 201, icon: Building2, color: "#60a5fa" },
+    { key: "l2_e_thong_tin_dn", title: "Thông tin doanh nghiệp & Hộ KD", unit: "Hồ sơ", defaultValue: 177, icon: FileText, color: "#22d3ee" },
+    { key: "l2_e_san_pham_dv", title: "Sản phẩm & Dịch vụ số", unit: "SP/DV", defaultValue: 27, icon: Package, color: "#34d399" },
+    { key: "l2_e_tai_lieu_cds", title: "Tài liệu Chuyển đổi số", unit: "Tài liệu", defaultValue: 0, icon: FileText, color: "#a78bfa" },
+    { key: "l2_e_quy_hoach", title: "Thông tin Quy hoạch kinh tế", unit: "Mục", defaultValue: 0, icon: Globe, color: "#38bdf8" },
     { key: "l2_e_du_lich_le_hoi", title: "Du lịch - Ẩm thực - Lễ hội", unit: "Mục", defaultValue: 1, icon: Calendar, color: "#f472b6" },
-    { key: "l2_e_keu_goi_dau_tu", title: "Dự án kêu gọi đầu tư", unit: "Dự án", defaultValue: 0, icon: TrendingUp, color: "#fbbf24" },
-    { key: "l2_e_tieu_chi_kts", title: "Tiêu chí nền tảng kinh tế số", unit: "Tiêu chí", defaultValue: 0, icon: Cpu, color: "#2dd4bf" },
-    { key: "l2_e_doanh_thu", title: "Doanh thu", unit: "TR", defaultValue: 0, icon: TrendingUp, color: "#4ade80" },
-    { key: "l2_e_thong_ke_bao_cao", title: "Thống kê báo cáo", unit: "Báo cáo", defaultValue: 0, icon: Layers, color: "#818cf8" },
-    { key: "l2_e_lien_minh", title: "Liên minh", unit: "Liên minh", defaultValue: 20, icon: HeartHandshake, color: "#fb923c" },
+    { key: "l2_e_keu_goi_dau_tu", title: "Dự án Kêu gọi đầu tư", unit: "Dự án", defaultValue: 0, icon: TrendingUp, color: "#fbbf24" },
+    { key: "l2_e_tieu_chi_kts", title: "Tiêu chí nền tảng Kinh tế số", unit: "Tiêu chí", defaultValue: 0, icon: Cpu, color: "#2dd4bf" },
+    { key: "l2_e_doanh_thu", title: "Tổng doanh thu kinh tế số", unit: "TR VNĐ", defaultValue: 14800, icon: TrendingUp, color: "#4ade80" },
+    { key: "l2_e_thong_ke_bao_cao", title: "Thống kê Báo cáo định kỳ", unit: "Báo cáo", defaultValue: 0, icon: Layers, color: "#818cf8" },
+    { key: "l2_e_lien_minh", title: "Mạng lưới Liên minh số", unit: "Liên minh", defaultValue: 20, icon: HeartHandshake, color: "#fb923c" },
     { key: "l2_e_chinh_sach_ht", title: "Chính sách hỗ trợ doanh nghiệp", unit: "Chính sách", defaultValue: 2, icon: FileText, color: "#a3e635" },
     { key: "l2_e_giai_dap_kn", title: "Giải đáp kiến nghị doanh nghiệp", unit: "Kiến nghị", defaultValue: 0, icon: Info, color: "#e879f9" },
   ];
@@ -241,7 +241,7 @@ export function Level2View({
         })}
       </div>
 
-      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E (100% width trên mobile bằng grid-cols-1 lg:grid-cols-3) ================= */}
+      {/* ================= 1. TAB TỔNG QUAN NHÓM A-E ================= */}
       {activeTab === "all" && (
         <div className="space-y-5 w-full block">
           
@@ -388,7 +388,7 @@ export function Level2View({
                 </div>
                 <div className="space-y-3 text-xs w-full">
                   <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Trang xem:</span>
+                    <span className="text-slate-300 font-medium">Tổng tương tác:</span>
                     <strong className="text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_trang_xem_year"] ?? data["l2_d_trang_xem"] ?? 45200).toLocaleString("vi-VN")}
                     </strong>
@@ -400,7 +400,7 @@ export function Level2View({
                     </strong>
                   </div>
                   <div className="flex justify-between items-center py-1 w-full">
-                    <span className="text-slate-300 font-medium">Doanh thu:</span>
+                    <span className="text-slate-300 font-medium">Tổng doanh thu:</span>
                     <strong className="text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_doanh_thu_year"] ?? 14800).toLocaleString("vi-VN")} TR
                     </strong>
@@ -567,12 +567,28 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 5. TAB D CHI TIẾT ================= */}
+      {/* ================= 5. TAB D CHI TIẾT (CHUẨN 5 NHÃN THỰC TẾ) ================= */}
       {activeTab === "D" && (
         <div className="space-y-5 w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 w-full">
+          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
+            <div className="flex items-center gap-3 w-full">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                <TrendingUp size={20} />
+              </span>
+              <div>
+                <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300 border border-emerald-500/30">
+                  Tab: D (Thị trường)
+                </span>
+                <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
+                  Chỉ số Tương tác & Thị trường (Nhóm D)
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
             {renderMetricCard({
-              title: "Tương tác trang xem",
+              title: "Tổng tương tác Trang xem",
               keyMonth: "l2_d_trang_xem_month",
               keyYear: "l2_d_trang_xem_year",
               unit: "Lượt",
@@ -588,16 +604,13 @@ export function Level2View({
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
             {renderMetricCard({
-              title: "Google SEO hàng tháng",
+              title: "Tổng số Google SEO hàng tháng",
               keyMonth: "l2_d_seo_month",
               keyYear: "l2_d_seo_year",
               unit: "Lượt",
               icon: TrendingUp,
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
             {renderMetricCard({
               title: "Khách hàng",
               keyMonth: "l2_d_khach_hang_month",
@@ -607,10 +620,10 @@ export function Level2View({
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}
             {renderMetricCard({
-              title: "Tốc độ tăng trưởng",
-              keyMonth: "l2_d_tang_truong_month",
-              keyYear: "l2_d_tang_truong_year",
-              unit: "%",
+              title: "Tổng doanh thu",
+              keyMonth: "l2_d_doanh_thu_month",
+              keyYear: "l2_d_doanh_thu_year",
+              unit: "TR VNĐ",
               icon: TrendingUp,
               colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
             })}

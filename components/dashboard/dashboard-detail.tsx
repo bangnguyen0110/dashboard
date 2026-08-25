@@ -151,6 +151,16 @@ function applyMetricValueToRow(
   return next;
 }
 
+/** 🛠️ Hàm chuẩn hóa và sửa lỗi hiển thị font tiếng Việt cho tiêu đề Dashboard */
+function cleanDashboardTitle(title: string): string {
+  if (!title) return "";
+  return title
+    .replace(/KINH TẶM SỘ/g, "KINH TẾ SỐ")
+    .replace(/KINH TẬM SỐ/g, "KINH TẾ SỐ")
+    .replace(/TẶM SỘ/g, "TẾ SỐ")
+    .replace(/TẬM SỐ/g, "TẾ SỐ");
+}
+
 function formatReportContent(text: string): string {
   if (!text) return "";
   const lines = text.split("\n").map((l) => l.trim()).filter((l) => l !== "");
@@ -217,7 +227,6 @@ function AiAdvisorModal({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  // State cho Tooltip khi bôi đen văn bản
   const [selectedText, setSelectedText] = useState("");
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [aiPopupContent, setAiPopupContent] = useState<{ title: string; text: string } | null>(null);
@@ -238,7 +247,6 @@ function AiAdvisorModal({
     }
   }, [dashboard, selectedScope, open]);
 
-  // Thanh tiến trình giả lập mượt mà
   useEffect(() => {
     let timer: any;
     if (loading) {
@@ -252,7 +260,6 @@ function AiAdvisorModal({
     return () => clearInterval(timer);
   }, [loading]);
 
-  // Tự động cuộn màn hình popup xuống đúng vị trí kết quả khi AI chạy xong
   useEffect(() => {
     if (aiPopupContent && !subLoading) {
       resultEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -291,8 +298,6 @@ function AiAdvisorModal({
     }
   };
 
-  // Bắt sự kiện bôi đen văn bản và lấy tọa độ chính xác tại vị trí thả chuột
-  // Bắt sự kiện bôi đen văn bản và bám sát con trỏ chuột thả ra
   const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
@@ -306,15 +311,13 @@ function AiAdvisorModal({
       if (!container) return;
 
       const containerRect = container.getBoundingClientRect();
-      
-      // Tính toán chính xác vị trí tương đối bên trong khung cuộn
       const relativeX = e.clientX - containerRect.left;
       const relativeY = e.clientY - containerRect.top + container.scrollTop;
 
       setSelectedText(text);
       setTooltipPos({
         x: relativeX,
-        y: relativeY - 45, // Hiển thị ngay phía trên trỏ chuột một khoảng gọn gàng
+        y: relativeY - 45,
       });
     }
   };
@@ -324,11 +327,12 @@ function AiAdvisorModal({
     setSubLoading(true);
     setAiPopupContent(null);
 
+    const cleanTitle = cleanDashboardTitle(dashboard.title);
     const title = actionType === "explain" ? "Giải thích nội dung" : "Phân tích chiều sâu nội dung";
     const prompt =
       actionType === "explain"
-        ? `Hãy giải thích ngắn gọn, súc tích và dễ hiểu về đoạn văn bản sau dựa theo ngữ cảnh chuyển đổi số của địa bàn ${dashboard.title}:\n\n"${selectedText}"`
-        : `Hãy phân tích chuyên sâu, chỉ ra nguyên nhân, tác động và gợi ý giải pháp thực tế đối với đoạn văn bản sau tại địa bàn ${dashboard.title}:\n\n"${selectedText}"`;
+        ? `Hãy giải thích ngắn gọn, súc tích và dễ hiểu về đoạn văn bản sau dựa theo ngữ cảnh chuyển đổi số của địa bàn ${cleanTitle}:\n\n"${selectedText}"`
+        : `Hãy phân tích chuyên sâu, chỉ ra nguyên nhân, tác động và gợi ý giải pháp thực tế đối với đoạn văn bản sau tại địa bàn ${cleanTitle}:\n\n"${selectedText}"`;
 
     try {
       const res = await fetch("/api/v1/ai/analyze", {
@@ -355,7 +359,7 @@ function AiAdvisorModal({
 
   const handleDownloadWord = () => {
     if (!analysis) return;
-    const unitTitle = dashboard.title || "Địa phương";
+    const unitTitle = cleanDashboardTitle(dashboard.title || "Địa phương");
     const fileName = `Bao_cao_Chien_luoc_${unitTitle.replace(/[^a-zA-Z0-9\u00C0-\u1EF9]/g, "_")}.doc`;
     const dateObj = new Date();
     const dateStr = `ngày ${dateObj.getDate()} tháng ${dateObj.getMonth() + 1} năm ${dateObj.getFullYear()}`;
@@ -398,7 +402,7 @@ function AiAdvisorModal({
 
   const handleDownloadPdf = () => {
     if (!analysis) return;
-    const unitTitle = dashboard.title || "Địa phương";
+    const unitTitle = cleanDashboardTitle(dashboard.title || "Địa phương");
     const dateObj = new Date();
     const dateStr = `ngày ${dateObj.getDate()} tháng ${dateObj.getMonth() + 1} năm ${dateObj.getFullYear()}`;
     const printWindow = window.open("", "_blank", "width=950,height=900");
@@ -451,7 +455,7 @@ function AiAdvisorModal({
                 Trợ lý AI Phân tích & Tương tác Báo cáo
               </h3>
               <p className="text-[11px] text-slate-400">
-                Địa bàn: <strong className="text-cyan-300">{dashboard.title}</strong>
+                Địa bàn: <strong className="text-cyan-300">{cleanDashboardTitle(dashboard.title)}</strong>
               </p>
             </div>
           </div>
@@ -515,7 +519,6 @@ function AiAdvisorModal({
           </div>
         )}
 
-        {/* Khung kết quả chính có thể chỉnh sửa & Bôi đen */}
         <div ref={contentRef} onMouseUp={handleMouseUp} className="relative flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
           
           {loading && (
@@ -561,7 +564,6 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* TOOLTIP NỔI XUẤT HIỆN NGAY KHI BÔI ĐEN VĂN BẢN */}
           {selectedText && tooltipPos && (
             <div
               className="absolute z-50 flex items-center gap-1 rounded-xl border border-cyan-500/50 bg-[#071326] p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
@@ -584,7 +586,6 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* HIỂN THỊ KẾT QUẢ PHẢN HỒI TỪ TOOLTIP (GIẢI THÍCH / PHÂN TÍCH SÂU) */}
           {subLoading && (
             <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse">
               <RefreshCw size={15} className="animate-spin text-cyan-400" />
@@ -608,7 +609,6 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* Điểm neo (Anchor) tự động cuộn xuống đúng vị trí kết quả */}
           <div ref={resultEndRef} />
 
         </div>
@@ -889,11 +889,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
     if (unitType === "PROVINCE") {
       await loadCommunes(row.unit_id);
-      // Tự động tính tổng các xã quy về tỉnh khi load trang
       fetch("/api/v1/dashboards/sync-province-metrics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ communeDashboardId: row.id }), // Hoặc truyền trực tiếp id tỉnh
+        body: JSON.stringify({ communeDashboardId: row.id }),
       }).catch(() => {});
     }
 
@@ -1074,15 +1073,15 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       } catch (error: any) {
         alert(`Không thể lưu số liệu: ${error?.message || "Lỗi kết nối DB"}`);
         throw error;
-      }// Thêm đoạn này vào cuối hàm handleSaveQuantity trong DashboardDetail.tsx:
+      }
+
       fetch("/api/v1/dashboards/sync-province-metrics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ communeDashboardId: currentDashId }),
       }).catch(() => {});
-        },
+    },
     [dashboard]
-    
   );
 
   const handleSaveBaseDomain = useCallback(
@@ -1285,8 +1284,12 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 <ArrowLeft size={18} />
               </button>
               <div className="min-w-0 pr-12 md:pr-0">
-                <h1 className="truncate text-sm sm:text-lg font-bold">{dashboard.title}</h1>
-                <p className="truncate text-[11px] sm:text-xs opacity-60">{dashboard.unit?.name ?? ""}, Việt Nam</p>
+                <h1 className="truncate text-sm sm:text-lg font-bold font-sans tracking-wide">
+                  {cleanDashboardTitle(dashboard.title)}
+                </h1>
+                <p className="truncate text-[11px] sm:text-xs opacity-60 font-sans">
+                  {dashboard.unit?.name ?? ""}, Việt Nam
+                </p>
               </div>
             </div>
 

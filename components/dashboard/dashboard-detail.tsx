@@ -210,7 +210,7 @@ const reportStyles = `
   .paragraph { font-size: 13pt; text-align: justify; margin-bottom: 4px; padding-left: 24px; line-height: 1.35; }
 `;
 
-/** ================= POPUP MODAL PHÂN TÍCH AI (TÍCH HỢP TOOLTIP & AUTO-SCROLL) ================= */
+/** ================= POPUP MODAL PHÂN TÍCH AI (GIAO DIỆN CHAT ĐỒNG NHẤT) ================= */
 function AiAdvisorModal({
   dashboard,
   open,
@@ -227,9 +227,13 @@ function AiAdvisorModal({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // State quản lý danh sách tin nhắn hội thoại chung (Chat history)
+  const [userQuery, setUserQuery] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
+
   const [selectedText, setSelectedText] = useState("");
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
-  const [aiPopupContent, setAiPopupContent] = useState<{ title: string; text: string } | null>(null);
   const [subLoading, setSubLoading] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -245,11 +249,13 @@ function AiAdvisorModal({
       setAnalysis("");
       setUpdatedAt("");
     }
+    setMessages([]);
+    setUserQuery("");
   }, [dashboard, selectedScope, open]);
 
   useEffect(() => {
     let timer: any;
-    if (loading) {
+    if (loading || chatLoading || subLoading) {
       setProgress(10);
       timer = setInterval(() => {
         setProgress((prev) => (prev >= 90 ? prev : prev + Math.floor(Math.random() * 15) + 5));
@@ -258,20 +264,22 @@ function AiAdvisorModal({
       setProgress(100);
     }
     return () => clearInterval(timer);
-  }, [loading]);
+  }, [loading, chatLoading, subLoading]);
 
+  // Tự động cuộn mượt mà xuống dưới khi có tin nhắn hoặc trạng thái loading thay đổi
   useEffect(() => {
-    if (aiPopupContent && !subLoading) {
-      resultEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if ((messages.length > 0 || chatLoading || subLoading) && open) {
+      setTimeout(() => {
+        resultEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, 100);
     }
-  }, [aiPopupContent, subLoading]);
+  }, [messages, chatLoading, subLoading, open]);
 
   if (!open) return null;
 
   const handleRunAnalysis = async (force = false) => {
     setLoading(true);
     setError(null);
-    setAiPopupContent(null);
     try {
       const res = await fetch("/api/v1/ai/analyze", {
         method: "POST",
@@ -295,6 +303,43 @@ function AiAdvisorModal({
       setError(err.message || "Lỗi kết nối API AI");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 🌟 Gửi câu hỏi tùy chỉnh (hoặc từ gợi ý nhanh)
+  const handleAskCustomQuestion = async (questionText: string) => {
+    const q = questionText.trim();
+    if (!q || chatLoading) return;
+
+    setUserQuery("");
+    setChatLoading(true);
+    setError(null);
+
+    const nextMessages = [...messages, { role: "user" as const, content: q }];
+    setMessages(nextMessages);
+
+    const cleanTitle = cleanDashboardTitle(dashboard.title);
+    const prompt = `Dựa trên số liệu thực tế chuyển đổi số và kinh tế của địa bàn ${cleanTitle}, hãy trả lời câu hỏi sau một cách chi tiết, sắc sảo và sát thực tế:\n\n"${q}"`;
+
+    try {
+      const res = await fetch("/api/v1/ai/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dashboardId: dashboard.id,
+          customPrompt: prompt,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setMessages([...nextMessages, { role: "assistant" as const, content: json.data }]);
+      } else {
+        throw new Error(json.error);
+      }
+    } catch (err: any) {
+      setMessages([...nextMessages, { role: "assistant" as const, content: `Lỗi xử lý: ${err.message}` }]);
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -322,13 +367,20 @@ function AiAdvisorModal({
     }
   };
 
+  // 🌟 Xử lý khi bôi đen và nhấn "Giải thích" hoặc "Phân tích sâu" -> Đẩy vào luồng chat bubbles
   const handleSubAiAction = async (actionType: "explain" | "deep_analyze") => {
     if (!selectedText) return;
     setSubLoading(true);
-    setAiPopupContent(null);
+    setTooltipPos(null);
 
     const cleanTitle = cleanDashboardTitle(dashboard.title);
-    const title = actionType === "explain" ? "Giải thích nội dung" : "Phân tích chiều sâu nội dung";
+    const actionLabel = actionType === "explain" ? "Giải thích đoạn văn bản" : "Phân tích chiều sâu đoạn văn bản";
+    const userQueryLabel = `${actionLabel}: "${selectedText}"`;
+
+    const nextMessages = [...messages, { role: "user" as const, content: userQueryLabel }];
+    setMessages(nextMessages);
+    setSelectedText("");
+
     const prompt =
       actionType === "explain"
         ? `Hãy giải thích ngắn gọn, súc tích và dễ hiểu về đoạn văn bản sau dựa theo ngữ cảnh chuyển đổi số của địa bàn ${cleanTitle}:\n\n"${selectedText}"`
@@ -345,15 +397,14 @@ function AiAdvisorModal({
       });
       const json = await res.json();
       if (json.success) {
-        setAiPopupContent({ title, text: json.data });
+        setMessages([...nextMessages, { role: "assistant" as const, content: json.data }]);
       } else {
         throw new Error(json.error);
       }
     } catch (err: any) {
-      setAiPopupContent({ title, text: `Lỗi xử lý: ${err.message}` });
+      setMessages([...nextMessages, { role: "assistant" as const, content: `Lỗi xử lý: ${err.message}` }]);
     } finally {
       setSubLoading(false);
-      setSelectedText("");
     }
   };
 
@@ -519,6 +570,7 @@ function AiAdvisorModal({
           </div>
         )}
 
+        {/* Vùng nội dung chính */}
         <div ref={contentRef} onMouseUp={handleMouseUp} className="relative flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
           
           {loading && (
@@ -548,7 +600,7 @@ function AiAdvisorModal({
                   contentEditable
                   suppressContentEditableWarning
                   onBlur={(e) => setAnalysis(e.currentTarget.innerText)}
-                  className="outline-none focus:ring-1 focus:ring-cyan-500/40 rounded-lg p-2 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-sans select-text min-h-[300px]"
+                  className="outline-none focus:ring-1 focus:ring-cyan-500/40 rounded-lg p-2 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-sans select-text min-h-[200px]"
                 >
                   {analysis}
                 </div>
@@ -557,13 +609,62 @@ function AiAdvisorModal({
           )}
 
           {!loading && !analysis && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="flex flex-col items-center justify-center py-16 text-center">
               <Target size={32} className="text-cyan-400 mb-2" />
-              <p className="text-sm font-bold text-slate-200">Chưa có kết quả phân tích cho phạm vi này.</p>
-              <p className="text-xs text-slate-400 mt-1">Bấm nút "Bắt đầu phân tích" ở trên để AI tạo báo cáo ngay.</p>
+              <p className="text-sm font-bold text-slate-200">Chưa có kết quả phân tích tổng thể cho phạm vi này.</p>
+              <p className="text-xs text-slate-400 mt-1">Bấm nút "Bắt đầu phân tích" ở trên hoặc chọn gợi ý bên dưới để đặt câu hỏi cho AI.</p>
             </div>
           )}
 
+          {/* 🌟 HIỂN THỊ CÁC TIN NHẮN HỘI THOẠI (BAO GỒM CẢ CÂU HỎI CHAT & HÀNH ĐỘNG TÔ ĐEN) */}
+          {messages.map((msg, index) => (
+            <div key={index} className={`flex w-full my-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              {msg.role === "assistant" ? (
+                <div className="flex items-start gap-3 max-w-[90%] sm:max-w-[85%]">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                    <Bot size={16} />
+                  </span>
+                  <div className="rounded-2xl rounded-tl-sm bg-[#061225] border border-cyan-500/30 p-4 text-xs sm:text-sm text-slate-200 shadow-xl whitespace-pre-line font-sans leading-relaxed">
+                    {msg.content}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-end max-w-[85%] sm:max-w-[75%]">
+                  <div className="rounded-2xl rounded-tr-sm bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-3 text-xs sm:text-sm text-white shadow-md whitespace-pre-line font-sans leading-relaxed">
+                    {msg.content}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Trạng thái đang tải phản hồi khi bôi đen */}
+          {subLoading && (
+            <div className="flex items-center gap-3 my-4">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
+                <Bot size={16} />
+              </span>
+              <div className="p-4 rounded-2xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
+                <RefreshCw size={15} className="animate-spin text-cyan-400" />
+                <span>AI đang phân tích đoạn văn bản bạn vừa bôi đen...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Trạng thái đang tải phản hồi từ ô chat */}
+          {chatLoading && (
+            <div className="flex items-center gap-3 my-4">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
+                <Bot size={16} />
+              </span>
+              <div className="p-4 rounded-2xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
+                <RefreshCw size={15} className="animate-spin text-cyan-400" />
+                <span>Trợ lý AI đang tra cứu cơ sở dữ liệu và trả lời câu hỏi của bạn...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Tooltip bôi đen (Giải thích / Phân tích sâu) */}
           {selectedText && tooltipPos && (
             <div
               className="absolute z-50 flex items-center gap-1 rounded-xl border border-cyan-500/50 bg-[#071326] p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
@@ -586,32 +687,61 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {subLoading && (
-            <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse">
-              <RefreshCw size={15} className="animate-spin text-cyan-400" />
-              <span>AI đang xử lý đoạn văn bản bạn vừa chọn theo ngữ cảnh thực tế...</span>
-            </div>
-          )}
-
-          {aiPopupContent && !subLoading && (
-            <div className="rounded-2xl border border-cyan-500/40 bg-[#061225] p-5 shadow-2xl relative">
-              <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
-                <h5 className="text-xs font-extrabold uppercase tracking-wide text-cyan-300 flex items-center gap-2">
-                  <Sparkles size={14} /> {aiPopupContent.title}
-                </h5>
-                <button type="button" onClick={() => setAiPopupContent(null)} className="text-slate-400 hover:text-white">
-                  <X size={14} />
-                </button>
-              </div>
-              <p className="text-xs sm:text-sm leading-relaxed text-slate-200 whitespace-pre-line font-sans">
-                {aiPopupContent.text}
-              </p>
-            </div>
-          )}
-
+          {/* Điểm neo tự động trượt xuống dưới cùng */}
           <div ref={resultEndRef} />
-
         </div>
+
+        {/* 🌟 Ô NHẬP CÂU HỎI & GỢI Ý NHANH Ở ĐÁY MODAL */}
+        <div className="shrink-0 p-4 bg-[#050e1c] border-t border-white/10 space-y-2.5">
+          {/* Gợi ý câu hỏi nhanh */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+            <span className="text-[11px] font-bold text-slate-400 shrink-0 flex items-center gap-1">
+              <Sparkles size={12} className="text-cyan-400" /> Gợi ý nhanh:
+            </span>
+            {[
+              "Đánh giá điểm yếu lớn nhất của địa bàn?",
+              "Đề xuất 3 giải pháp thúc đẩy CĐS hộ kinh doanh?",
+              "Phân tích hiệu quả sản phẩm OCOP địa phương?",
+              "Chỉ số nào cần ưu tiên cải thiện trong 30 ngày tới?",
+            ].map((suggestion, idx) => (
+              <button
+                key={idx}
+                type="button"
+                disabled={chatLoading || subLoading}
+                onClick={() => handleAskCustomQuestion(suggestion)}
+                className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-medium text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 transition disabled:opacity-50"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+
+          {/* Ô nhập câu hỏi tự do */}
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={userQuery}
+              onChange={(e) => setUserQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !chatLoading && !subLoading) {
+                  handleAskCustomQuestion(userQuery);
+                }
+              }}
+              placeholder="Nhập nội dung cần hỏi trợ lý AI về số liệu địa phương..."
+              className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+            />
+            <button
+              type="button"
+              disabled={chatLoading || subLoading || !userQuery.trim()}
+              onClick={() => handleAskCustomQuestion(userQuery)}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:brightness-110 active:scale-95 disabled:opacity-50 transition"
+            >
+              {chatLoading ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              <span>Gửi</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   );
@@ -1242,7 +1372,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const headerLink = dashboard?.base_domain ?? dashboard?.metadata?.base_domain ?? dashboard?.domain_link ?? "";
 
   // 🌟 Lấy thời gian đồng bộ / cập nhật mới nhất cho Header
-  const rawSyncTime = dashboard?.updated_at || dashboard?.metadata?.synced_at || dashboard?.metadata?.last_sync_at;
+  const rawSyncTime = dashboard?.metadata?.last_sync_at || dashboard?.updated_at || dashboard?.metadata?.synced_at;
   const syncTimeFormatted = rawSyncTime
     ? new Date(rawSyncTime).toLocaleString("vi-VN", {
         hour: "2-digit",
@@ -1290,7 +1420,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
               <button
                 type="button"
                 onClick={() => {
-                  // 🌟 Nút Back quay về trang danh sách của chính nó
                   router.push(backHref);
                 }}
                 aria-label="Quay lại"
@@ -1399,7 +1528,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveMetricId={handleSaveMetricId}
                   />
                 </div>
-                    <div className="andata">
+
                 <div className="w-full flex flex-col">
                   <B3Section
                     dashboard={dashboard}
@@ -1479,7 +1608,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
                   />
-                </div> </div>
+                </div>
               </div>
             </div>
           ) : currentLevel === 2 ? (
@@ -1669,7 +1798,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         </button>
       )}
 
-      {/* 👉 POPUP MODAL PHÂN TÍCH AI */}
+      {/* 👉 POPUP MODAL PHÂN TÍCH AI (TÍCH HỢP CHAT & GỢI Ý NHANH) */}
       {dashboard && (
         <AiAdvisorModal
           dashboard={dashboard}

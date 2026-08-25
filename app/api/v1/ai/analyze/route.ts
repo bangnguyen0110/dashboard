@@ -51,6 +51,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 🌟 1. LẤY SỐ LIỆU TẦNG 1 (B1 & B2) TỪ BẢNG RIÊNG BIỆT
+    const [b1Res, b2Res] = await Promise.all([
+      supabase
+        .from("kpi_business_units")
+        .select("*")
+        .eq("dashboard_id", dashboardId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("kpi_products")
+        .select("*")
+        .eq("dashboard_id", dashboardId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+    const b1 = b1Res.data || dash.b1 || dash.metadata?.b1 || {};
+    const b2 = b2Res.data || dash.b2 || dash.metadata?.b2 || {};
+
     // Nếu là request gọi từ tính năng bôi đen (Giải thích / Phân tích sâu)
     let promptToRun = customPrompt;
 
@@ -72,12 +93,10 @@ export async function POST(req: NextRequest) {
       const unitName = dash.unit?.name || dash.title || "Địa phương";
       const unitType = dash.unit?.type === "PROVINCE" ? "Cấp Tỉnh" : "Cấp Xã/Phường";
 
-      const b1 = dash.b1 || dash.metadata?.b1 || {};
       const totalUnits = Number(b1.sme_total || 0) + Number(b1.hkd_total || 0) + Number(b1.htx_total || 0);
-      const totalDx = Number(b1.sme_dx || 0) + Number(b1.hkd_dx || 0) + Number(b1.htx_dx || 0);
+      const totalDx = Number(b1.sme_dx || b1.sme_cds || 0) + Number(b1.hkd_dx || b1.hkd_cds || 0) + Number(b1.htx_dx || b1.htx_cds || 0);
       const dxRate = totalUnits > 0 ? ((totalDx / totalUnits) * 100).toFixed(1) : "0";
 
-      const b2 = dash.b2 || dash.metadata?.b2 || {};
       const b3 = dash.b3 || dash.metadata?.b3 || {};
       const l2 = dash.level2 || dash.metadata?.level2 || {};
       const dynamicE = dash.metadata?.level2_e_items || [];
@@ -87,9 +106,9 @@ BÁO CÁO CƠ SỞ DỮ LIỆU ĐỊA BÀN: ${unitName.toUpperCase()} (${unitTyp
 
 [1. DỮ LIỆU TẦNG 1 - TỔNG QUAN KINH TẾ ĐỊA BÀN & CHUYỂN ĐỔI SỐ]
 - Tổng số đơn vị kinh tế: ${totalUnits} cơ sở.
-  + Doanh nghiệp nhỏ và vừa (SME): ${b1.sme_total || 0} DN (Đã CĐS: ${b1.sme_dx || 0} DN).
-  + Hộ kinh doanh cá thể: ${b1.hkd_total || 0} hộ (Đã CĐS: ${b1.hkd_dx || 0} hộ).
-  + Hợp tác xã (HTX): ${b1.htx_total || 0} HTX (Đã CĐS: ${b1.htx_dx || 0} HTX).
+  + Doanh nghiệp nhỏ và vừa (SME): ${b1.sme_total || 0} DN (Đã CĐS: ${b1.sme_dx || b1.sme_cds || 0} DN).
+  + Hộ kinh doanh cá thể: ${b1.hkd_total || 0} hộ (Đã CĐS: ${b1.hkd_dx || b1.hkd_cds || 0} hộ).
+  + Hợp tác xã (HTX): ${b1.htx_total || 0} HTX (Đã CĐS: ${b1.htx_dx || b1.htx_cds || 0} HTX).
 - Tỷ lệ chuyển đổi số chung: ${dxRate}%.
 - Sản phẩm OCOP & Đặc sản địa phương: 
   + OCOP 3 sao: ${b2.ocop_3star || b2.ocop_3 || 0} SP

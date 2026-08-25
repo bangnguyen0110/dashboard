@@ -1241,6 +1241,18 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   const headerLink = dashboard?.base_domain ?? dashboard?.metadata?.base_domain ?? dashboard?.domain_link ?? "";
 
+  // 🌟 Lấy thời gian đồng bộ / cập nhật mới nhất cho Header
+  const rawSyncTime = dashboard?.updated_at || dashboard?.metadata?.synced_at || dashboard?.metadata?.last_sync_at;
+  const syncTimeFormatted = rawSyncTime
+    ? new Date(rawSyncTime).toLocaleString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : null;
+
   return (
     <div className="relative min-h-screen">
       <div className="dashboard-bg" />
@@ -1277,19 +1289,38 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
-                onClick={() => router.push(backHref)}
+                onClick={() => {
+                  // 🌟 Nút Back quay về trang danh sách của chính nó
+                  router.push(backHref);
+                }}
                 aria-label="Quay lại"
                 className="glass grid h-10 w-10 shrink-0 place-items-center rounded-xl text-foreground transition hover:text-accent"
+                title="Quay lại danh sách"
               >
                 <ArrowLeft size={18} />
               </button>
+
+              {/* 🌟 LAYOUT TIÊU ĐỀ & THỜI GIAN ĐỒNG BỘ */}
               <div className="min-w-0 pr-12 md:pr-0">
-                <h1 className="truncate text-sm sm:text-lg font-bold font-sans tracking-wide">
+                <h1 className="truncate text-sm sm:text-base font-bold font-sans tracking-wide text-foreground">
                   {cleanDashboardTitle(dashboard.title)}
                 </h1>
-                <p className="truncate text-[11px] sm:text-xs opacity-60 font-sans">
-                  {dashboard.unit?.name ?? ""}, Việt Nam
-                </p>
+
+                <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                  <p className="truncate text-[11px] sm:text-xs opacity-60 font-sans">
+                    {dashboard.unit?.name ?? ""}, Việt Nam
+                  </p>
+
+                  {syncTimeFormatted && (
+                    <>
+                      <span className="text-[10px] opacity-30">•</span>
+                      <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-cyan-400 font-mono font-medium bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20">
+                        <Clock size={11} className="shrink-0" />
+                        <span>Dữ liệu đồng bộ lúc: {syncTimeFormatted}</span>
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -1318,7 +1349,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
-                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">{activeLevel.title}</h2>
+                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">Tầng 1: Bộ tiêu chí kinh tế số {isProvince ? "UBND Tỉnh" : "UBDN xã/phường"}</h2>
                     <p className="mt-1 text-xs opacity-60">{isProvince ? "Dashboard Tỉnh" : "Dashboard Xã/Phường"}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -1450,19 +1481,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                   />
                 </div>
               </div>
-
-              {!isProvince && parentProvince && (
-                <section className="glass rounded-3xl p-5">
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/${parentProvince.id}`)}
-                    className="inline-flex items-center gap-2 rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-medium text-accent transition hover:bg-accent/20"
-                  >
-                    <ArrowLeft size={15} />
-                    Về Dashboard Tỉnh {parentProvince.unit?.name ?? ""}
-                  </button>
-                </section>
-              )}
             </div>
           ) : currentLevel === 2 ? (
             /* ================= TẦNG 2 ================= */

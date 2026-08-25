@@ -14,6 +14,7 @@ import {
   X,
   Check,
   Globe,
+  GitMerge,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -103,6 +104,12 @@ export function LevelMenu({
   const [docUrlInput, setDocUrlInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [savedUrl, setSavedUrl] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+  // State quản lý Modal Đồng bộ số liệu từ xã/phường
+  const [showCommuneSyncModal, setShowCommuneSyncModal] = useState(false);
+  const [communeSyncUrl, setCommuneSyncUrl] = useState("");
+  const [isSyncingCommunes, setIsSyncingCommunes] = useState(false);
 
   const resolvedDashboardId =
     dashboard?.id ||
@@ -214,6 +221,88 @@ export function LevelMenu({
   const handleSelectLevel = (level: number) => {
     onChange(level);
     onCloseMobile();
+  };
+
+  // Mở modal đồng bộ xã/phường với URL tự động tạo sẵn
+  const handleOpenCommuneSyncModal = () => {
+    const meta = dashboard?.metadata as Record<string, any> | undefined;
+    const baseDomain = dashboard?.base_domain || dashboard?.domain_link || "kienhaiangiang.vn";
+    const autoDefaultUrl =
+      meta?.sync_communes_url ||
+      `https://${baseDomain.replace(/^https?:\/\//, "")}/tong-hop-xa-phuong-${resolvedDashboardId}`;
+    
+    setCommuneSyncUrl(autoDefaultUrl);
+    setShowCommuneSyncModal(true);
+  };
+
+// Thực hiện đồng bộ số liệu xã/phường, reset ID ở tỉnh và lưu URL mới
+  const handleExecuteCommuneSync = async () => {
+    if (!resolvedDashboardId) {
+      alert("Không tìm thấy ID Dashboard!");
+      return;
+    }
+
+    try {
+      setIsSyncingCommunes(true);
+      const res = await fetch("/api/v1/metrics/sync-from-communes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dashboardId: resolvedDashboardId,
+          customSyncUrl: communeSyncUrl,
+          resetIds: true, // 🌟 Bật cờ reset toàn bộ ID đã thiết lập nhầm ở dashboard Tỉnh
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message || "Đồng bộ số liệu xã/phường và reset ID tỉnh thành công!");
+        setShowCommuneSyncModal(false);
+        if (onChanged) onChanged();
+        window.location.reload();
+      } else {
+        alert("Lỗi: " + (data.error || "Không thể đồng bộ số liệu"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Đã xảy ra lỗi kết nối khi đồng bộ số liệu.");
+    } finally {
+      setIsSyncingCommunes(false);
+    }
+  };
+
+  // Hàm xử lý Làm mới dữ liệu chung
+  const handleSmartRefresh = async () => {
+    if (!resolvedDashboardId) {
+      if (onSyncLive) onSyncLive();
+      return;
+    }
+
+    try {
+      setRefreshing(true);
+      const res = await fetch("/api/v1/metrics/refresh-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dashboardId: resolvedDashboardId }),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        alert(result.message || "Đã làm mới dữ liệu thành công!");
+        if (onSyncLive) onSyncLive();
+        if (onChanged) onChanged();
+        window.location.reload();
+      } else {
+        if (onSyncLive) onSyncLive();
+        else alert("Lỗi: " + (result.error || "Không thể làm mới dữ liệu"));
+      }
+    } catch (err) {
+      console.error("Lỗi làm mới dữ liệu:", err);
+      if (onSyncLive) onSyncLive();
+      else alert("Đã xảy ra lỗi kết nối.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   if (variant === "sidebar") {
@@ -343,18 +432,30 @@ export function LevelMenu({
 
             {/* Footer Sidebar */}
             <div className="p-3 border-t border-white/5 shrink-0 space-y-2">
-              {onSyncLive && (
+              {/* 🌟 1. NÚT DÀNH CHO ADMIN: Đồng bộ số liệu từ xã/phường (Đặt TRÊN nút làm mới) */}
+              {isAdmin && (
                 <button
                   type="button"
-                  onClick={onSyncLive}
-                  disabled={isSyncing}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
-                  title="Lấy số liệu mới nhất từ các website liên kết"
+                  onClick={handleOpenCommuneSyncModal}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3.5 py-2.5 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20"
+                  title="Tổng sum số liệu từ tất cả xã/phường trực thuộc về Tỉnh"
                 >
-                  <RefreshCw size={14} className={isSyncing ? "animate-spin text-cyan-400" : ""} />
-                  <span>{isSyncing ? "Đang đồng bộ..." : "Làm mới dữ liệu"}</span>
+                  <GitMerge size={14} />
+                  <span>Đồng bộ số liệu từ xã/phường</span>
                 </button>
               )}
+
+              {/* 🌟 2. NÚT LÀM MỚI DỮ LIỆU */}
+              <button
+                type="button"
+                onClick={handleSmartRefresh}
+                disabled={isSyncing || refreshing}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
+                title="Làm mới toàn bộ số liệu mới nhất ngay tại thời điểm hiện tại"
+              >
+                <RefreshCw size={14} className={isSyncing || refreshing ? "animate-spin text-cyan-400" : ""} />
+                <span>{isSyncing || refreshing ? "Đang cập nhật..." : "Làm mới dữ liệu"}</span>
+              </button>
 
               {isAdmin && onOpenImportPdf && (
                 <button
@@ -370,7 +471,76 @@ export function LevelMenu({
           </div>
         </aside>
 
-        {/* Modal Custom Link */}
+        {/* Modal cấu hình đường dẫn tự động & Đồng bộ số liệu xã/phường */}
+        {showCommuneSyncModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#0c1830] p-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
+                    <GitMerge size={18} />
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-purple-300">
+                      Đồng bộ số liệu từ Xã/Phường
+                    </h3>
+                    <p className="text-xs text-slate-400">Tổng sum dữ liệu cấp tỉnh & tùy chỉnh liên kết</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCommuneSyncModal(false)}
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1.5">
+                    Đường dẫn liên kết (Tự động tạo & Có thể chỉnh sửa):
+                  </label>
+                  <input
+                    type="url"
+                    value={communeSyncUrl}
+                    onChange={(e) => setCommuneSyncUrl(e.target.value)}
+                    placeholder="https://kienhaiangiang.vn/tong-hop-xa-phuong"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-900/90 px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:border-purple-400 focus:outline-none font-mono"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    * Link được tự động tạo sẵn. Nếu bạn chỉnh sửa ở đây, các thẻ card/link sẽ tự động trỏ tới đường dẫn mới đó.
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-3 text-xs text-purple-200">
+                  ℹ️ Khi bấm thực hiện, hệ thống sẽ tự động tổng sum toàn bộ số liệu của tất cả các xã/phường trực thuộc để cập nhật lên dashboard Tỉnh.
+                </div>
+
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setShowCommuneSyncModal(false)}
+                    className="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExecuteCommuneSync}
+                    disabled={isSyncingCommunes}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-4 py-2 text-xs font-bold text-white transition disabled:opacity-50"
+                  >
+                    <GitMerge size={14} className={isSyncingCommunes ? "animate-spin" : ""} />
+                    <span>{isSyncingCommunes ? "Đang đồng bộ..." : "Thực hiện đồng bộ ngay"}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Custom Link Tài liệu */}
         {showDocModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#0c1830] p-6">

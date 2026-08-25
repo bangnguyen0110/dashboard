@@ -8,15 +8,6 @@ import { MIN_LEVEL, MAX_LEVEL } from "./level-menu";
 import type { DashboardRow, MetricKV } from "@/lib/types";
 import type { ExtractedMetric } from "@/lib/pdf-parser";
 
-/**
- * Modal "Thiết lập Số lượng": quản lý danh sách chỉ tiêu (Metrics/Key Indicators)
- * dạng Key-Value của Dashboard (Tỉnh / Xã-Phường), lưu vào cột `metadata` (JSONB).
- * Hỗ trợ Import từ PDF để auto-fill số lượng trước khi bấm Save.
- *
- * Component được render có điều kiện (mount khi mở) nên state luôn khởi tạo
- * mới từ `dashboard` mỗi lần mở modal.
- */
-
 interface MetricsModalProps {
   dashboard: DashboardRow;
   onClose: () => void;
@@ -32,6 +23,12 @@ export function MetricsModal({ dashboard, onClose, onSaved }: MetricsModalProps)
     dashboard.metadata?.metrics ?? {}
   );
   const [level, setLevel] = useState(dashboard.metadata?.level ?? MIN_LEVEL);
+  
+  // Cho phép customId / ID nguồn được để trống để tự động tổng sum từ xã/phường
+  const [customId, setCustomId] = useState<string>(
+    (dashboard.metadata as any)?.level2_custom_id ?? (dashboard as any)?.l2_custom_id ?? ""
+  );
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +46,6 @@ export function MetricsModal({ dashboard, onClose, onSaved }: MetricsModalProps)
     });
   };
 
-  /** Gộp danh sách chỉ tiêu bóc tách từ PDF vào form (auto-fill). */
   const handleImported = (extracted: ExtractedMetric[]): void => {
     setMetrics((prev) => {
       const next = { ...prev };
@@ -82,7 +78,11 @@ export function MetricsModal({ dashboard, onClose, onSaved }: MetricsModalProps)
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: dashboard.title,
-          metadata: { level, metrics: cleaned },
+          metadata: { 
+            level, 
+            metrics: cleaned,
+            level2_custom_id: customId.trim(),
+          },
         }),
       });
 
@@ -109,7 +109,6 @@ export function MetricsModal({ dashboard, onClose, onSaved }: MetricsModalProps)
       onClose={onClose}
     >
       <form onSubmit={handleSave} className="space-y-4">
-        {/* Chọn tầng hiển thị */}
         <div>
           <label htmlFor="metric-level" className="mb-1 block text-sm opacity-70">
             Tầng hiển thị
@@ -131,7 +130,20 @@ export function MetricsModal({ dashboard, onClose, onSaved }: MetricsModalProps)
           </select>
         </div>
 
-        {/* Danh sách chỉ tiêu */}
+        <div>
+          <label htmlFor="custom-id-input" className="mb-1 block text-sm opacity-70">
+            Mã ID / Đường dẫn nguồn (Để trống để tự động tổng sum xã/phường)
+          </label>
+          <input
+            id="custom-id-input"
+            type="text"
+            value={customId}
+            onChange={(e) => setCustomId(e.target.value)}
+            placeholder="Nhập mã ID hoặc để trống để tổng sum xã/phường"
+            className="glass w-full rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent font-mono"
+          />
+        </div>
+
         <div>
           <div className="mb-1 flex items-center justify-between gap-2">
             <label className="text-sm opacity-70">Chỉ tiêu (Key – Value)</label>
@@ -217,3 +229,6 @@ export function MetricsModal({ dashboard, onClose, onSaved }: MetricsModalProps)
     </Dialog>
   );
 }
+
+// Export dự phòng nếu file trước đó dùng MetricIdModal
+export { MetricsModal as MetricIdModal };

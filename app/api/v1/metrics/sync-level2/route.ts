@@ -10,13 +10,11 @@ const supabaseKey =
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
- * 🔍 Hàm bóc tách cục bộ thông minh cho Nhóm D (Tương tác & Thị trường)
- * Quét chính xác từ khóa nhãn và trích xuất số liệu tháng/năm trong phạm vi gần nhất.
+ * 🔍 Hàm bóc tách cục bộ chính xác cho Nhóm D (Tương tác & Thị trường)
  */
 function parseGroupDFromHtml(html: string) {
   const result: Record<string, number> = {};
 
-  // Chuyển toàn bộ HTML thành văn bản phẳng giữ khoảng trắng
   const cleanText = html
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
@@ -31,27 +29,18 @@ function parseGroupDFromHtml(html: string) {
 
   const extractMetricValues = (labelKeywords: string[]) => {
     for (const kw of labelKeywords) {
-      const index = cleanText.toLowerCase().indexOf(kw.toLowerCase());
-      if (index !== -1) {
-        // Lấy đoạn snippet 300 ký tự ngay sau từ khóa nhãn
-        const snippet = cleanText.substring(index, index + 300);
-
-        // Tìm kiếm định dạng "Tháng [X]: [Số]" và "Năm [Y]: [Số]"
-        const monthMatch = snippet.match(/th[a\u00E1]ng\s*(?:0?[1-9]|1[0-2])\s*[:\s]*([\d.,]+)/i);
-        const yearMatch = snippet.match(/n\u0103m\s*\d{4}\s*[:\s]*([\d.,]+)/i);
-
-        if (monthMatch || yearMatch) {
-          return {
-            month: cleanNum(monthMatch?.[1]),
-            year: cleanNum(yearMatch?.[1]),
-          };
-        }
+      const regex = new RegExp(`${kw}[\\s\\S]*?Th[a\u00E1]ng\\s*\\d+\\s*[:\\s]*([\\d.,]+)[\\s\\S]*?N\\u0103m\\s*\\d+\\s*[:\\s]*([\\d.,]+)`, "i");
+      const match = cleanText.match(regex);
+      if (match) {
+        return {
+          month: cleanNum(match[1]),
+          year: cleanNum(match[2]),
+        };
       }
     }
     return null;
   };
 
-  // 1. Tổng tương tác Trang xem
   const trangXem = extractMetricValues(["Tổng tương tác Trang xem", "Tương tác Trang xem", "Trang xem"]);
   if (trangXem) {
     result["l2_d_trang_xem_month"] = trangXem.month;
@@ -59,14 +48,12 @@ function parseGroupDFromHtml(html: string) {
     result["l2_d_trang_xem"] = trangXem.year;
   }
 
-  // 2. Tổng số người xem
   const nguoiXem = extractMetricValues(["Tổng số người xem", "Số người xem", "Người xem"]);
   if (nguoiXem) {
     result["l2_d_nguoi_xem_month"] = nguoiXem.month;
     result["l2_d_nguoi_xem_year"] = nguoiXem.year;
   }
 
-  // 3. Tổng số Google SEO hàng tháng
   const googleSeo = extractMetricValues(["Tổng số Google SEO hàng tháng", "Google SEO hàng tháng", "Google SEO"]);
   if (googleSeo) {
     result["l2_d_seo_month"] = googleSeo.month;
@@ -74,14 +61,12 @@ function parseGroupDFromHtml(html: string) {
     result["l2_d_seo"] = googleSeo.year;
   }
 
-  // 4. Khách hàng
   const khachHang = extractMetricValues(["Khách hàng"]);
   if (khachHang) {
     result["l2_d_khach_hang_month"] = khachHang.month;
     result["l2_d_khach_hang_year"] = khachHang.year;
   }
 
-  // 5. Tổng doanh thu
   const doanhThu = extractMetricValues(["Tổng doanh thu", "Doanh thu"]);
   if (doanhThu) {
     result["l2_d_doanh_thu_month"] = doanhThu.month;
@@ -92,7 +77,10 @@ function parseGroupDFromHtml(html: string) {
   return result;
 }
 
-/** Hàm quét tự động linh động toàn bộ các mục của Nhóm E */
+/**
+ * 🌟 Trình quét động hoàn toàn chính xác cho Nhóm E:
+ * Bóc tách trực tiếp nhãn từ class ad_di_info và giá trị từ ad_dileft_info.
+ */
 function parseDynamicGroupE(html: string, targetUrl: string) {
   const dynamicItems: Array<{ key: string; title: string; value: number; url: string }> = [];
   const seenKeys = new Set<string>();
@@ -100,61 +88,65 @@ function parseDynamicGroupE(html: string, targetUrl: string) {
   const cleanNum = (str?: string) => {
     if (!str) return 0;
     const n = str.replace(/,/g, "").replace(/\.(?=\d{3})/g, "").trim();
-    const val = parseFloat(n);
+    const numbers = n.match(/[\d.,]+/g);
+    if (!numbers || numbers.length === 0) return 0;
+    const val = parseFloat(numbers[numbers.length - 1]);
     return isNaN(val) ? 0 : val;
   };
 
-  const groupEMappings = [
-    { keywords: ["tổng số doanh nghiệp", "doanh nghiệp / cơ sở", "cơ sở kinh tế", "doanh nghiệp"], key: "l2_e_doanh_nghiep", title: "Doanh nghiệp" },
-    { keywords: ["thông tin doanh nghiệp", "thông tin dn"], key: "l2_e_thong_tin_dn", title: "Thông tin doanh nghiệp" },
-    { keywords: ["sản phẩm & dịch vụ", "sản phẩm và dịch vụ", "sản phẩm số"], key: "l2_e_san_pham_dv", title: "Sản phẩm & Dịch vụ" },
-    { keywords: ["tài liệu chuyển đổi số", "tài liệu cds"], key: "l2_e_tai_lieu_cds", title: "Tài liệu CĐS cấp phường/xã" },
-    { keywords: ["thông tin quy hoạch", "quy hoạch kinh tế"], key: "l2_e_quy_hoach", title: "Thông tin quy hoạch" },
-    { keywords: ["du lịch", "ẩm thực", "lễ hội"], key: "l2_e_du_lich_le_hoi", title: "Du lịch - Ẩm thực - Lễ hội" },
-    { keywords: ["dự án kêu gọi đầu tư", "kêu gọi đầu tư"], key: "l2_e_keu_goi_dau_tu", title: "Dự án kêu gọi đầu tư" },
-    { keywords: ["tiêu chí nền tảng", "tiêu chí kinh tế số"], key: "l2_e_tieu_chi_kts", title: "Tiêu chí nền tảng kinh tế số" },
-    { keywords: ["tổng doanh thu", "doanh thu kinh tế số"], key: "l2_e_doanh_thu", title: "Doanh thu" },
-    { keywords: ["thống kê báo cáo", "báo cáo định kỳ"], key: "l2_e_thong_ke_bao_cao", title: "Thống kê báo cáo" },
-    { keywords: ["mạng lưới liên minh", "liên minh số", "liên minh"], key: "l2_e_lien_minh", title: "Liên minh" },
-    { keywords: ["chính sách hỗ trợ doanh nghiệp", "chính sách hỗ trợ"], key: "l2_e_chinh_sach_ht", title: "Chính sách hỗ trợ doanh nghiệp" },
-    { keywords: ["giải đáp kiến nghị", "kiến nghị doanh nghiệp"], key: "l2_e_giai_dap_kn", title: "Giải đáp kiến nghị doanh nghiệp" },
+  const makeKey = (title: string) => {
+    return (
+      "l2_e_" +
+      title
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+    );
+  };
+
+  // Từ khóa loại trừ các nhóm A, B, C, D để Nhóm E chỉ lấy đúng thông tin quản lý
+  const excludeKeywords = [
+    "số hóa thông tin", "lên cloud", "số hóa toàn diện", "netid",
+    "website", "e-commerce", "sản phẩm / dịch vụ cđs", "đơn hàng", "tăng trưởng",
+    "erp", "nhân sự", "khóa đào tạo",
+    "trang xem", "người xem", "google seo", "khách hàng", "doanh thu",
+    "tháng", "năm", "hệ thống điều hành"
   ];
 
-  const cleanText = html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
-    .replace(/<[^>]+>/g, "\n");
+  // Regex bắt chuẩn xác cấu trúc HTML thực tế: ad_di_info chứa tên và ad_dileft_info chứa số
+  const regex = /<div[^>]*class=["']?[^"'\s]*ad_di_info[^"'\s]*["']?[^>]*>([\s\S]*?)<\/div>[\s\S]*?<div[^>]*class=["']?[^"'\s]*ad_dileft_info[^"'\s]*["']?[^>]*>([\s\S]*?)<\/div>/gi;
+  let match;
 
-  const lines = cleanText.split("\n").map(l => l.trim()).filter(Boolean);
+  while ((match = regex.exec(html)) !== null) {
+    const rawTitle = match[1].replace(/<[^>]+>/g, "").trim();
+    const rawVal = match[2].replace(/<[^>]+>/g, "").trim();
 
-  for (let i = 0; i < lines.length; i++) {
-    const currentLine = lines[i].toLowerCase();
-    
-    for (const mapping of groupEMappings) {
-      if (seenKeys.has(mapping.key)) continue;
+    if (!rawTitle) continue;
 
-      const matched = mapping.keywords.some(kw => currentLine.includes(kw));
-      if (matched) {
-        let foundVal = 0;
-        const currentNums = lines[i].match(/[\d.,]+/g);
-        if (currentNums && currentNums.length > 0) {
-          foundVal = cleanNum(currentNums[currentNums.length - 1]);
-        } else if (i + 1 < lines.length) {
-          const nextNums = lines[i + 1].match(/[\d.,]+/g);
-          if (nextNums && nextNums.length > 0) {
-            foundVal = cleanNum(nextNums[0]);
-          }
-        }
+    // Làm sạch tiêu đề: loại bỏ ký hiệu checkmark ✅, dấu hai chấm `:` và khoảng trắng thừa
+    const title = rawTitle.replace(/^[^\w\s\u00C0-\u1EF9]+/, "").replace(/[:\-\/]+$/, "").trim();
+    if (!title) continue;
 
-        seenKeys.add(mapping.key);
-        dynamicItems.push({
-          key: mapping.key,
-          title: mapping.title,
-          value: foundVal,
-          url: targetUrl,
-        });
-        break;
-      }
+    const lowerTitle = title.toLowerCase();
+
+    // Bỏ qua nếu thuộc nhóm A, B, C, D hoặc chứa tháng/năm
+    if (excludeKeywords.some(kw => lowerTitle.includes(kw)) || lowerTitle.includes("tháng") || lowerTitle.includes("năm")) {
+      continue;
+    }
+
+    const val = cleanNum(rawVal);
+    const key = makeKey(title);
+
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      dynamicItems.push({
+        key,
+        title, // Lấy chuẩn 100% tên gốc (ví dụ: "Doanh nghiệp")
+        value: val,
+        url: targetUrl,
+      });
     }
   }
 
@@ -316,11 +308,11 @@ export async function POST(req: NextRequest) {
       extractedLevel2["l2_c_dao_tao"] = cDaoTao.year;
     }
 
-    // --- 👉 BÓC TÁCH CHUẨN XÁC NHÓM D (DÙNG PARSER CỤC BỘ DỰA TRÊN TEXT SNIPPET) ---
+    // --- 👉 BÓC TÁCH CHUẨN XÁC NHÓM D ---
     const groupDMetrics = parseGroupDFromHtml(html);
     Object.assign(extractedLevel2, groupDMetrics);
 
-    // --- 👉 BÓC TÁCH LINH ĐỘNG TOÀN BỘ NHÓM E ---
+    // --- 👉 BÓC TÁCH ĐỘNG CHUẨN XÁC 100% NHÓM E TỪ WEBSITE NGUỒN ---
     const dynamicEList = parseDynamicGroupE(html, finalUrl);
     for (const item of dynamicEList) {
       extractedLevel2[item.key] = item.value;
@@ -360,8 +352,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Đã bóc tách thành công toàn bộ chỉ số Nhóm D & E với độ chính xác tuyệt đối!`,
+      message: `Đã bóc tách thành công toàn bộ chỉ số Nhóm D & E (gồm ${dynamicEList.length} mục Nhóm E động từ website nguồn)!`,
       data: extractedLevel2,
+      dynamicEItems: dynamicEList,
       url: finalUrl,
     });
   } catch (error: any) {

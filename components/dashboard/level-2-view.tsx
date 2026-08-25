@@ -193,21 +193,11 @@ export function Level2View({
     );
   };
 
-  const TAB_E_ITEMS = [
-    { key: "l2_e_doanh_nghiep", title: "Tổng số doanh nghiệp / Cơ sở", unit: "Cơ sở", defaultValue: 201, icon: Building2, color: "#60a5fa" },
-    { key: "l2_e_thong_tin_dn", title: "Thông tin doanh nghiệp & Hộ KD", unit: "Hồ sơ", defaultValue: 177, icon: FileText, color: "#22d3ee" },
-    { key: "l2_e_san_pham_dv", title: "Sản phẩm & Dịch vụ số", unit: "SP/DV", defaultValue: 27, icon: Package, color: "#34d399" },
-    { key: "l2_e_tai_lieu_cds", title: "Tài liệu Chuyển đổi số", unit: "Tài liệu", defaultValue: 0, icon: FileText, color: "#a78bfa" },
-    { key: "l2_e_quy_hoach", title: "Thông tin Quy hoạch kinh tế", unit: "Mục", defaultValue: 0, icon: Globe, color: "#38bdf8" },
-    { key: "l2_e_du_lich_le_hoi", title: "Du lịch - Ẩm thực - Lễ hội", unit: "Mục", defaultValue: 1, icon: Calendar, color: "#f472b6" },
-    { key: "l2_e_keu_goi_dau_tu", title: "Dự án Kêu gọi đầu tư", unit: "Dự án", defaultValue: 0, icon: TrendingUp, color: "#fbbf24" },
-    { key: "l2_e_tieu_chi_kts", title: "Tiêu chí nền tảng Kinh tế số", unit: "Tiêu chí", defaultValue: 0, icon: Cpu, color: "#2dd4bf" },
-    { key: "l2_e_doanh_thu", title: "Tổng doanh thu kinh tế số", unit: "TR VNĐ", defaultValue: 14800, icon: TrendingUp, color: "#4ade80" },
-    { key: "l2_e_thong_ke_bao_cao", title: "Thống kê Báo cáo định kỳ", unit: "Báo cáo", defaultValue: 0, icon: Layers, color: "#818cf8" },
-    { key: "l2_e_lien_minh", title: "Mạng lưới Liên minh số", unit: "Liên minh", defaultValue: 20, icon: HeartHandshake, color: "#fb923c" },
-    { key: "l2_e_chinh_sach_ht", title: "Chính sách hỗ trợ doanh nghiệp", unit: "Chính sách", defaultValue: 2, icon: FileText, color: "#a3e635" },
-    { key: "l2_e_giai_dap_kn", title: "Giải đáp kiến nghị doanh nghiệp", unit: "Kiến nghị", defaultValue: 0, icon: Info, color: "#e879f9" },
-  ];
+  // 🌟 Lấy danh sách Nhóm E trực tiếp từ dữ liệu động đã bóc tách từ website nguồn
+  const rawDynamicE = (dashboard as any)?.metadata?.level2_e_items;
+  const dynamicEItems = Array.isArray(rawDynamicE) && rawDynamicE.length > 0
+    ? rawDynamicE
+    : [];
 
   return (
     <div className="space-y-6 w-full block">
@@ -416,7 +406,7 @@ export function Level2View({
               </button>
             </div>
 
-            {/* THẺ E */}
+            {/* THẺ E (HIỂN THỊ ĐỘNG CÁC MỤC THỰC TẾ TỪ WEBSITE NGUỒN) */}
             <div className="w-full lg:col-span-2 block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
@@ -424,30 +414,24 @@ export function Level2View({
                     <FileText size={18} />
                   </span>
                   <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-amber-400 truncate">
-                    E. QUẢN LÝ THÔNG TIN
+                    E. QUẢN LÝ THÔNG TIN ({dynamicEItems.length} mục)
                   </h4>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs w-full">
-                  <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span className="text-slate-300 font-medium">Doanh nghiệp:</span>
-                    <strong className="text-blue-400 font-mono text-base">
-                      {Number(data["l2_e_doanh_nghiep"] ?? 200).toLocaleString("vi-VN")} DN
-                    </strong>
+                {dynamicEItems.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs w-full">
+                    {dynamicEItems.slice(0, 6).map((item: any) => (
+                      <div key={item.key} className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
+                        <span className="text-slate-300 font-medium truncate pr-2" title={item.title}>{item.title}:</span>
+                        <strong className="text-cyan-300 font-mono text-base shrink-0">
+                          {Number(data[item.key] ?? item.value ?? 0).toLocaleString("vi-VN")}
+                        </strong>
+                      </div>
+                    ))}
                   </div>
-                  <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span className="text-slate-300 font-medium">Thông tin DN:</span>
-                    <strong className="text-cyan-400 font-mono text-base">
-                      {Number(data["l2_e_thong_tin_dn"] ?? 177).toLocaleString("vi-VN")}
-                    </strong>
-                  </div>
-                  <div className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span className="text-slate-300 font-medium">Sản phẩm:</span>
-                    <strong className="text-emerald-400 font-mono text-base">
-                      {Number(data["l2_e_san_pham"] ?? 145).toLocaleString("vi-VN")} SP
-                    </strong>
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-xs text-slate-400 italic py-2">Chưa có dữ liệu Nhóm E. Vui lòng bấm "Thiết lập ID Tầng 2" để đồng bộ từ website nguồn.</p>
+                )}
               </div>
               <button
                 type="button"
@@ -567,7 +551,7 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 5. TAB D CHI TIẾT (CHUẨN 5 NHÃN THỰC TẾ) ================= */}
+      {/* ================= 5. TAB D CHI TIẾT ================= */}
       {activeTab === "D" && (
         <div className="space-y-5 w-full">
           <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
@@ -631,7 +615,7 @@ export function Level2View({
         </div>
       )}
 
-      {/* ================= 6. TAB E CHI TIẾT ================= */}
+      {/* ================= 6. TAB E CHI TIẾT (HIỂN THỊ ĐỘNG 100% CÁC MỤC THỰC TẾ) ================= */}
       {activeTab === "E" && (
         <div className="space-y-5 w-full">
           <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
@@ -644,116 +628,116 @@ export function Level2View({
                   Tab: E (Thông tin)
                 </span>
                 <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
-                  Chỉ số theo dõi Hệ sinh thái (Nhóm E)
+                  Chỉ số theo dõi Hệ sinh thái (Nhóm E - {dynamicEItems.length} mục thực tế)
                 </h3>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-            {TAB_E_ITEMS.map((item) => {
-              const val = Number(
-                data[item.key] ??
-                  (dashboard as any)?.metadata?.level2_metrics?.[item.key] ??
-                  (dashboard as any)?.metadata?.[item.key] ??
-                  item.defaultValue
-              );
-              const targetUrl = metricLinks[item.key] || "";
-              const hasLink = Boolean(targetUrl);
+          {dynamicEItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+              {dynamicEItems.map((item: any) => {
+                const val = Number(
+                  data[item.key] ??
+                    (dashboard as any)?.metadata?.level2_metrics?.[item.key] ??
+                    item.value ??
+                    0
+                );
+                const targetUrl = metricLinks[item.key] || item.url || "";
+                const hasLink = Boolean(targetUrl);
 
-              return (
-                <div
-                  key={item.key}
-                  {...cardLinkProps(targetUrl)}
-                  className={`w-full block group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
-                    hasLink ? "cursor-pointer hover:border-cyan-500/40 hover:-translate-y-0.5 hover:bg-[#0f1f3d]" : ""
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-emerald-400 text-sm font-bold shrink-0">✅</span>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-200 truncate group-hover:text-cyan-300 transition">
-                        {item.title}
-                      </h4>
+                return (
+                  <div
+                    key={item.key}
+                    {...cardLinkProps(targetUrl)}
+                    className={`w-full block group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
+                      hasLink ? "cursor-pointer hover:border-cyan-500/40 hover:-translate-y-0.5 hover:bg-[#0f1f3d]" : ""
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-emerald-400 text-sm font-bold shrink-0">✅</span>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-200 truncate group-hover:text-cyan-300 transition" title={item.title}>
+                          {item.title}
+                        </h4>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0 z-10">
+                        {hasLink && (
+                          <a
+                            href={targetUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                            title="Xem link"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink size={13} />
+                          </a>
+                        )}
+                        {isAdmin && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleOpenId(item.key, item.title);
+                              }}
+                              className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                              title="Thiết lập ID"
+                            >
+                              <LinkIcon size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setQtyTarget({
+                                  key: item.key,
+                                  field: item.key.replace("l2_", ""),
+                                  label: item.title,
+                                  current: val,
+                                  matchTokens: [item.title.toLowerCase()],
+                                });
+                              }}
+                              className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                              title="Setup số lượng"
+                            >
+                              <Edit3 size={13} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1 shrink-0 z-10">
-                      {hasLink && (
-                        <a
-                          href={targetUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
-                          title="Xem link"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <ExternalLink size={13} />
-                        </a>
-                      )}
-                      {isAdmin && (
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleOpenId(item.key, item.title);
-                            }}
-                            className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
-                            title="Thiết lập ID"
-                          >
-                            <LinkIcon size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setQtyTarget({
-                                key: item.key,
-                                field: item.key.replace("l2_", ""),
-                                label: item.title,
-                                current: val,
-                                matchTokens: [item.title.toLowerCase()],
-                              });
-                            }}
-                            className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
-                            title="Setup số lượng"
-                          >
-                            <Edit3 size={13} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-3.5 flex items-baseline gap-1.5 w-full">
-                    <span
-                      className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight"
-                      style={{ color: item.color }}
-                    >
-                      {val.toLocaleString("vi-VN")}
-                    </span>
-                    {item.unit && (
-                      <span className="text-xs font-semibold text-slate-400 font-sans">{item.unit}</span>
-                    )}
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between text-[11px] border-t border-white/5 pt-2 w-full">
-                    {hasLink ? (
-                      <span className="flex items-center gap-1 text-cyan-400 font-medium">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
-                        Bấm để mở link
-                        <ExternalLink size={11} />
+                    <div className="mt-3.5 flex items-baseline gap-1.5 w-full">
+                      <span className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-cyan-300">
+                        {val.toLocaleString("vi-VN")}
                       </span>
-                    ) : (
-                      <span className="text-slate-500">Chưa cài link</span>
-                    )}
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between text-[11px] border-t border-white/5 pt-2 w-full">
+                      {hasLink ? (
+                        <span className="flex items-center gap-1 text-cyan-400 font-medium">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
+                          Bấm để mở link
+                          <ExternalLink size={11} />
+                        </span>
+                      ) : (
+                        <span className="text-slate-500">Chưa cài link</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="glass rounded-2xl p-8 text-center text-slate-400 text-xs">
+              Chưa có dữ liệu Nhóm E. Vui lòng bấm vào nút <strong className="text-cyan-300">"Thiết lập ID Tầng 2"</strong> ở góc trên để hệ thống tự động bóc tách từ website nguồn.
+            </div>
+          )}
         </div>
       )}
 

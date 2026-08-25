@@ -112,7 +112,7 @@ export function StatCell({
           <ExternalLink size={11} />
         </p>
       ) : (
-        <p className="mt-1.5 text-[11px] opacity-40">Chưa cài link</p>
+        <p className="mt-1.5 text-[11px] opacity-40">Xem chi tiết</p>
       )}
     </>
   );

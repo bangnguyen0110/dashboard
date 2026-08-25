@@ -266,7 +266,6 @@ function AiAdvisorModal({
     return () => clearInterval(timer);
   }, [loading, chatLoading, subLoading]);
 
-  // Tự động cuộn mượt mà xuống dưới khi có tin nhắn hoặc trạng thái loading thay đổi
   useEffect(() => {
     if ((messages.length > 0 || chatLoading || subLoading) && open) {
       setTimeout(() => {
@@ -367,7 +366,7 @@ function AiAdvisorModal({
     }
   };
 
-  // 🌟 Xử lý khi bôi đen và nhấn "Giải thích" hoặc "Phân tích sâu" -> Đẩy vào luồng chat bubbles
+  // 🌟 Xử lý khi bôi đen và nhấn "Giải thích" hoặc "Phân tích sâu"
   const handleSubAiAction = async (actionType: "explain" | "deep_analyze") => {
     if (!selectedText) return;
     setSubLoading(true);
@@ -616,7 +615,7 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* 🌟 HIỂN THỊ CÁC TIN NHẮN HỘI THOẠI (BAO GỒM CẢ CÂU HỎI CHAT & HÀNH ĐỘNG TÔ ĐEN) */}
+          {/* Hiển thị hội thoại chat */}
           {messages.map((msg, index) => (
             <div key={index} className={`flex w-full my-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               {msg.role === "assistant" ? (
@@ -638,7 +637,6 @@ function AiAdvisorModal({
             </div>
           ))}
 
-          {/* Trạng thái đang tải phản hồi khi bôi đen */}
           {subLoading && (
             <div className="flex items-center gap-3 my-4">
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
@@ -651,7 +649,6 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* Trạng thái đang tải phản hồi từ ô chat */}
           {chatLoading && (
             <div className="flex items-center gap-3 my-4">
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
@@ -664,7 +661,6 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* Tooltip bôi đen (Giải thích / Phân tích sâu) */}
           {selectedText && tooltipPos && (
             <div
               className="absolute z-50 flex items-center gap-1 rounded-xl border border-cyan-500/50 bg-[#071326] p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
@@ -687,13 +683,11 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* Điểm neo tự động trượt xuống dưới cùng */}
           <div ref={resultEndRef} />
         </div>
 
-        {/* 🌟 Ô NHẬP CÂU HỎI & GỢI Ý NHANH Ở ĐÁY MODAL */}
+        {/* Ô nhập câu hỏi & gợi ý nhanh ở đáy modal */}
         <div className="shrink-0 p-4 bg-[#050e1c] border-t border-white/10 space-y-2.5">
-          {/* Gợi ý câu hỏi nhanh */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
             <span className="text-[11px] font-bold text-slate-400 shrink-0 flex items-center gap-1">
               <Sparkles size={12} className="text-cyan-400" /> Gợi ý nhanh:
@@ -716,7 +710,6 @@ function AiAdvisorModal({
             ))}
           </div>
 
-          {/* Ô nhập câu hỏi tự do */}
           <div className="flex items-center gap-2">
             <input
               type="text"
@@ -1528,7 +1521,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveMetricId={handleSaveMetricId}
                   />
                 </div>
-
+              <div className="andata">
                 <div className="w-full flex flex-col">
                   <B3Section
                     dashboard={dashboard}
@@ -1608,6 +1601,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveMetricId={handleSaveMetricId}
                     onSaveQuantity={handleSaveQuantity}
                   />
+                </div>
                 </div>
               </div>
             </div>
@@ -1798,7 +1792,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         </button>
       )}
 
-      {/* 👉 POPUP MODAL PHÂN TÍCH AI (TÍCH HỢP CHAT & GỢI Ý NHANH) */}
+      {/* 👉 POPUP MODAL PHÂN TÍCH AI */}
       {dashboard && (
         <AiAdvisorModal
           dashboard={dashboard}

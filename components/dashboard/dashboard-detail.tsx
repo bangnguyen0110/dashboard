@@ -744,6 +744,13 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const router = useRouter();
   const { isAdmin } = useAuth();
 
+  // 🌟 Ref lưu thời điểm bắt đầu load dashboard để đo hiệu năng
+  const loadStartTimeRef = useRef<number>(performance.now());
+
+  useEffect(() => {
+    loadStartTimeRef.current = performance.now();
+  }, [dashboardId]);
+
   const [state, setState] = useState<ResolvedState>("loading");
   const [dashboard, setDashboard] = useState<DashboardRow | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -1010,8 +1017,9 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     setLevel4Data(sectionRows.l4);
     setLevel5Data(sectionRows.l5);
 
+    // 🚀 BỎ CHỮ "await" ĐỂ TẢI DỮ LIỆU XÃ/PHƯỜNG NGẦM Ở BACKGROUND
     if (unitType === "PROVINCE") {
-      await loadCommunes(row.unit_id);
+      void loadCommunes(row.unit_id);
       fetch("/api/v1/dashboards/sync-province-metrics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1020,6 +1028,15 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     }
 
     setState("ready");
+
+    // Đo và gửi thời gian tải hoàn tất ra terminal VS Code
+    const durationSec = ((performance.now() - loadStartTimeRef.current) / 1000).toFixed(2);
+    fetch("/api/v1/metrics/log-perf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dashboardId, durationSec }),
+    }).catch(() => {});
+
   }, [dashboardId]);
 
   useEffect(() => {
@@ -1059,15 +1076,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     },
     [dashboard?.id, refetchAfterSave]
   );
-
-  useEffect(() => {
-    if (state === "ready" && dashboard?.id) {
-      const timer = setTimeout(() => {
-        void handleLiveSync(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [state, dashboard?.id, handleLiveSync]);
 
   const handleSaveLevel2SyncId = useCallback(
     async (customId: string) => {
@@ -1602,7 +1610,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveQuantity={handleSaveQuantity}
                   />
                 </div>
-                </div>
+              </div>
               </div>
             </div>
           ) : currentLevel === 2 ? (

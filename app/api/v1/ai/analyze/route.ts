@@ -692,7 +692,8 @@ QUY CÁCH TRÌNH BÀY:
 `;
     }
 
-    const MODEL_NAME = "gemini-2.5-flash"; // Cập nhật model ổn định
+    // Sửa đoạn này trong file app/api/v1/ai/analyze/route.ts:
+    const MODEL_NAME = "gemini-3.6-flash"; // Cập nhật model ổn định
     const geminiData = await callGeminiWithFailover(MODEL_NAME, promptToRun);
 
     const candidate = geminiData?.candidates?.[0];

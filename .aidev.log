@@ -296,3 +296,4 @@ Parsing ecmascript source code failed
  GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 102ms (next.js: 68ms, application-code: 34ms)
  GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 50ms (next.js: 19ms, application-code: 31ms)
  GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 40ms (next.js: 16ms, application-code: 24ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 66ms (next.js: 12ms, application-code: 54ms)

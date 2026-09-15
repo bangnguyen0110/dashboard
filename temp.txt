@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+﻿import { NextRequest, NextResponse } from "next/server";
 
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
+
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -26,6 +27,20 @@ function toNum(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Tra ve loai don vi (PROVINCE/COMMUNE/...) tu embedded administrative_units. */
+function resolveUnitType(raw: unknown): string | null {
+  if (!raw) return null;
+  if (Array.isArray(raw)) return (raw as Array<Record<string, unknown>>)[0]?.type as string | null ?? null;
+  return (raw as Record<string, unknown>).type as string | null ?? null;
+}
+
+/** Tra ve parent_id cua embedded administrative_units. */
+function resolveUnitParentId(raw: unknown): string | null {
+  if (!raw) return null;
+  if (Array.isArray(raw)) return (raw as Array<Record<string, unknown>>)[0]?.parent_id as string | null ?? null;
+  return (raw as Record<string, unknown>).parent_id as string | null ?? null;
+}
+
 async function resolveCommuneDashboardIds(provinceDashboardId: string, provinceUnitId?: string): Promise<string[]> {
   let ids: string[] = [];
 
@@ -34,91 +49,157 @@ async function resolveCommuneDashboardIds(provinceDashboardId: string, provinceU
       .from("administrative_units")
       .select("id")
       .eq("parent_id", provinceUnitId);
-
-    const unitIds = childUnits?.map((u) => u.id) ?? [];
+    const unitIds = (childUnits ?? []).map((u) => u.id);
     if (unitIds.length > 0) {
       const { data: cDashboards } = await supabase
         .from("dashboards")
         .select("id")
         .in("unit_id", unitIds);
-      ids = cDashboards?.map((d) => d.id) ?? [];
+      ids = (cDashboards ?? []).map((d) => d.id);
     }
   }
 
+  // Fallback an toan: loc theo unit.type (COMMUNE) thay vi cot level/is_province
   if (ids.length === 0) {
-    // Fallback an toàn: lọc dashboard xã/phường theo unit.type
-    // (cột level/is_province KHÔNG tồn tại trong bảng dashboards -> query cũ luôn lỗi -> trả rỗng)
     const { data: fallbackDash } = await supabase
       .from("dashboards")
       .select("id, unit:administrative_units(type)")
-      .neq("id", provinceDashboardId)
       .limit(5000);
     ids = (fallbackDash ?? [])
-      .filter((d) => {
-        const u = (d as Record<string, unknown>).unit;
-        const t = Array.isArray(u)
-          ? (u as Array<Record<string, unknown>>)[0]?.type
-          : (u as Record<string, unknown> | null)?.type;
-        return t === "COMMUNE" || t === "SPECIAL_ZONE";
-      })
-      .map((d) => (d as Record<string, unknown>).id as string);
+      .filter((d) => d.id !== provinceDashboardId && resolveUnitType((d as Record<string, unknown>).unit) === "COMMUNE")
+      .map((d) => d.id);
   }
 
   return ids;
 }
 
-// 🌟 SỬA LỖI QUAN TRỌNG: Quét triệt để cả metric_id và target_url để xác định chính xác thẻ nào đã gắn ID
 async function getCommuneMetricTargets(communeDashboardId: string): Promise<Array<{ metricKey: string; targetUrl: string; hasExplicitId: boolean }>> {
   const map = new Map<string, { targetUrl: string; hasExplicitId: boolean }>();
 
-  // ⚠️ Chỉ select các cột TỒN TẠI trong schema: url / parent_id / is_province / level KHÔNG tồn tại
-  // trong bảng dashboards. Nếu select cột không có -> TOÀN BỘ query lỗi -> dash = null ->
-  // mất metadata.metric_ids + mất base_domain -> resolveTarget trả null -> thẻ gắn ID bị bỏ qua!
+  // KHONG select cot url/parent_id (co the chua ton tai trong schema cu)
   const { data: dash } = await supabase
     .from("dashboards")
     .select("base_domain, domain_link, metadata, unit_id, unit:administrative_units(parent_id, type)")
     .eq("id", communeDashboardId)
     .maybeSingle();
+  const cDash = (dash ?? {}) as Record<string, unknown>;
+  const metaObj = cDash.metadata as Record<string, unknown> | null | undefined;
 
-  const strOr = (v: unknown): string => (typeof v === "string" ? v : v == null ? "" : String(v));
-  const metaObj = ((dash?.metadata ?? {}) as Record<string, unknown>) || {};
-
+  const parentUnitId = resolveUnitParentId(cDash.unit ?? null);
   let base = (
-    strOr(dash?.base_domain) || strOr(dash?.domain_link) ||
-    strOr(metaObj.base_domain) || strOr(metaObj.domain) || strOr(metaObj.url) || strOr(metaObj.website) || ""
+    cDash.base_domain || cDash.domain_link ||
+    metaObj?.base_domain || metaObj?.domain || metaObj?.url || metaObj?.website || ""
   ).trim().replace(/\/+$/, "");
 
-  // Fallback 1: base_domain của dashboard đơn vị cha (Tỉnh) qua administrative_units.parent_id
-  const unitRow = Array.isArray(dash?.unit)
-    ? (dash?.unit as Array<Record<string, unknown>>)[0]
-    : ((dash?.unit ?? null) as Record<string, unknown> | null);
-  if (!base && unitRow?.parent_id) {
+  // Lay base tu dashboard cha (Tinh) qua chuoi don vi hanh chinh
+  if (!base && parentUnitId) {
     const { data: parentDash } = await supabase
       .from("dashboards")
       .select("base_domain, domain_link, metadata")
-      .eq("unit_id", unitRow.parent_id)
+      .eq("unit_id", parentUnitId)
       .maybeSingle();
-    const parentMeta = (parentDash?.metadata as Record<string, unknown> | null) || {};
-    base = (strOr(parentDash?.base_domain) || strOr(parentDash?.domain_link) || strOr(parentMeta.base_domain) || "").trim().replace(/\/+$/, "");
+    base = (parentDash?.base_domain || parentDash?.domain_link || (parentDash?.metadata as Record<string, unknown> | null)?.base_domain || "").trim().replace(/\/+$/, "");
   }
 
-  // Fallback 2: dashboard Tỉnh bất kỳ (unit.type = PROVINCE) — không dùng is_province/level (không tồn tại)
+  // Fallback: base cua dashboard cap Tinh (unit.type === PROVINCE)
   if (!base) {
-    const { data: provinceDashes } = await supabase
+    const { data: provAll } = await supabase
       .from("dashboards")
       .select("base_domain, domain_link, metadata, unit:administrative_units(type)")
-      .limit(2000);
-    const found = (provinceDashes ?? []).find((d) => {
-      const u = (d as Record<string, unknown>).unit;
-      const t = Array.isArray(u)
-        ? (u as Array<Record<string, unknown>>)[0]?.type
-        : (u as Record<string, unknown> | null)?.type;
-      return t === "PROVINCE";
-    }) as Record<string, unknown> | undefined;
-    if (found) {
-      const foundMeta = (found.metadata as Record<string, unknown> | null) || {};
-      base = (strOr(found.base_domain) || strOr(found.domain_link) || strOr(foundMeta.base_domain) || "").trim().replace(/\/+$/, "");
+      .limit(5000);
+    const provRow = (provAll ?? []).find((d) => resolveUnitType((d as Record<string, unknown>).unit) === "PROVINCE");
+    base = (provRow?.base_domain || provRow?.domain_link || (provRow?.metadata as Record<string, unknown> | null)?.base_domain || "").trim().replace(/\/+$/, "");
+  }
+
+  if (base && !base.startsWith("http://") && !base.startsWith("https://")) base = "https://" + base;
+
+  const resolveTarget = (rawTarget: string): string | null => {
+    const trimmed = (rawTarget || "").trim();
+    if (!trimmed) return null;
+
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      try {
+        const urlObj = new URL(trimmed);
+        if (!urlObj.hostname.includes(".") && base) return null;
+      } catch {
+        return null;
+      }
+      return trimmed;
     }
+
+    if (!base) return null;
+    return base + "/" + trimmed.replace(/^\/+/, "");
+  };
+
+  // Chi dung metadata.metric_ids (ID that). KHONG dung metadata.metrics (la gia tri so lieu).
+  const metaMetricIds = metaObj?.metric_ids as Record<string, unknown> | null | undefined;
+  if (metaMetricIds) {
+    for (const [k, v] of Object.entries(metaMetricIds)) {
+      if (v !== null && v !== undefined && v !== "") {
+        const rawId = String(v).trim();
+        if (rawId) {
+          const resolvedUrl = resolveTarget(rawId);
+          if (resolvedUrl) map.set(k, { targetUrl: resolvedUrl, hasExplicitId: true });
+        }
+      }
+    }
+  }
+
+  const { data: links } = await supabase
+    .from("metric_links")
+    .select("metric_key, target_url, metric_id")
+    .eq("dashboard_id", communeDashboardId);
+
+  if (links && links.length > 0) {
+    for (const l of links) {
+      if (!l.metric_key) continue;
+      const rawKey = l.metric_key.trim();
+      if (rawKey.toLowerCase().includes("sync") || rawKey.toLowerCase().includes("action") || rawKey.toLowerCase().includes("refresh")) continue;
+
+      const rawTarget = String(l.target_url || l.metric_id || "").trim();
+      if (!rawTarget) continue;
+
+      const resolvedUrl = resolveTarget(rawTarget);
+      if (resolvedUrl) {
+        const existing = map.get(rawKey);
+        const hasId = existing ? existing.hasExplicitId : !!l.metric_id || !!l.target_url;
+        map.set(rawKey, { targetUrl: resolvedUrl, hasExplicitId: hasId });
+      }
+    }
+  }
+
+  return Array.from(map.entries()).map(([metricKey, val]) => ({ metricKey, targetUrl: val.targetUrl, hasExplicitId: val.hasExplicitId }));
+}>> {
+  const map = new Map<string, { targetUrl: string; hasExplicitId: boolean }>();
+
+  const { data: dash } = await supabase
+    .from("dashboards")
+    .select("base_domain, domain_link, url, metadata, unit_id, parent_id")
+    .eq("id", communeDashboardId)
+    .maybeSingle();
+
+  let base = (
+    dash?.base_domain || dash?.domain_link || dash?.url ||
+    dash?.metadata?.base_domain || dash?.metadata?.domain || dash?.metadata?.url || dash?.metadata?.website || ""
+  ).trim().replace(/\/+$/, "");
+
+  if (!base && dash?.parent_id) {
+    const { data: parentDash } = await supabase
+      .from("dashboards")
+      .select("base_domain, domain_link, url, metadata")
+      .eq("id", dash.parent_id)
+      .maybeSingle();
+    base = (parentDash?.base_domain || parentDash?.domain_link || parentDash?.url || parentDash?.metadata?.base_domain || "").trim().replace(/\/+$/, "");
+  }
+
+  if (!base) {
+    const { data: provinceDash } = await supabase
+      .from("dashboards")
+      .select("base_domain, domain_link, url, metadata")
+      .or("is_province.eq.true,level.eq.province")
+      .limit(1)
+      .maybeSingle();
+    base = (provinceDash?.base_domain || provinceDash?.domain_link || provinceDash?.url || provinceDash?.metadata?.base_domain || "").trim().replace(/\/+$/, "");
   }
 
   if (base && !base.startsWith("http://") && !base.startsWith("https://")) base = `https://${base}`;
@@ -141,9 +222,11 @@ async function getCommuneMetricTargets(communeDashboardId: string): Promise<Arra
     return `${base}/${trimmed.replace(/^\/+/, "")}`;
   };
 
-  // 1. Lấy từ metadata.metric_ids (ID thẻ đã gán). KHÔNG dùng metadata.metrics — đó là GIÁ TRỊ số liệu,
-  // không phải ID; nếu dùng sẽ cào nhầm thẻ KHÔNG có ID (vi phạm cơ chế "không có ID thì giữ số liệu thủ công").
-  const metaMetricIds = (metaObj.metric_ids ?? {}) as Record<string, unknown>;
+  // ðŸŒŸ CHá»ˆ dÃ¹ng metadata.metric_ids (ID Ä‘Ã£ Ä‘Æ°á»£c NHáº¬P/GÃN cho tháº») lÃ m nguá»“n ID Ä‘á»ƒ cÃ o.
+  // TUYá»†T Äá»I KHÃ”NG dÃ¹ng metadata.metrics lÃ m nguá»“n ID: Ä‘Ã¢y lÃ  GIÃ TRá»Š (sá»‘ liá»‡u input
+  // thá»§ cÃ´ng / káº¿t quáº£ cÃ o Ä‘Ã£ lÆ°u), khÃ´ng pháº£i ID. Náº¿u dÃ¹ng sáº½ cÃ o nháº§m tháº» KHÃ”NG cÃ³ ID
+  // (xÃ¢y URL nhÆ° `base/<sá»‘>`) â€” phÃ¡ vá»¡ cÆ¡ cháº¿ "tháº» khÃ´ng cÃ³ ID thÃ¬ giá»¯ sá»‘ liá»‡u thá»±c táº¿".
+  const metaMetricIds = dash?.metadata?.metric_ids || {};
   for (const [k, v] of Object.entries(metaMetricIds)) {
     if (v !== null && v !== undefined && v !== "") {
       const rawId = String(v).trim();
@@ -154,7 +237,6 @@ async function getCommuneMetricTargets(communeDashboardId: string): Promise<Arra
     }
   }
 
-  // 2. Lấy từ bảng metric_links (Kiểm tra kỹ cả metric_id và target_url)
   const { data: links } = await supabase
     .from("metric_links")
     .select("metric_key, target_url, metric_id")
@@ -166,16 +248,13 @@ async function getCommuneMetricTargets(communeDashboardId: string): Promise<Arra
       const rawKey = l.metric_key.trim();
       if (rawKey.toLowerCase().includes("sync") || rawKey.toLowerCase().includes("action") || rawKey.toLowerCase().includes("refresh")) continue;
 
-      const metricIdVal = String(l.metric_id || "").trim();
-      const targetUrlVal = String(l.target_url || "").trim();
-      const rawTarget = metricIdVal || targetUrlVal;
-      
+      const rawTarget = String(l.target_url || l.metric_id || "").trim();
       if (!rawTarget) continue;
 
       const resolvedUrl = resolveTarget(rawTarget);
       if (resolvedUrl) {
-        // Đánh dấu hasExplicitId = true nếu có metric_id hoặc target_url hợp lệ
-        const hasId = !!metricIdVal || !!targetUrlVal;
+        const existing = map.get(rawKey);
+        const hasId = existing ? existing.hasExplicitId : !!l.metric_id || !!l.target_url;
         map.set(rawKey, { targetUrl: resolvedUrl, hasExplicitId: hasId });
       }
     }
@@ -188,11 +267,10 @@ function extractNumberFromContent(content: string, specificKey?: string): number
   if (!content) return null;
   const trimmed = content.trim();
 
-  // ========== SAO CHÉP NGUYÊN VẸN logic từ /api/scrape-metric (luồng thủ công hoạt động đúng) ==========
-  // 1. Trang JSON API
   try {
     const parsedJson = JSON.parse(trimmed);
     if (typeof parsedJson === "number") return isNaN(parsedJson) ? null : parsedJson;
+    if (typeof parsedJson === "string" && !isNaN(Number(parsedJson))) return Number(parsedJson);
     if (typeof parsedJson === "object" && parsedJson !== null) {
       if (specificKey) {
         const cleanKey = specificKey.toLowerCase().replace(/^(b1_|b2_)/, "");
@@ -206,31 +284,38 @@ function extractNumberFromContent(content: string, specificKey?: string): number
         if (typeof parsedJson[k] === "number") return parsedJson[k];
         if (typeof parsedJson[k] === "string" && !isNaN(Number(parsedJson[k]))) return Number(parsedJson[k]);
       }
-      if (Array.isArray(parsedJson.data)) return parsedJson.data.length;
-      if (Array.isArray(parsedJson)) return parsedJson.length;
     }
   } catch {
-    // Không phải JSON, xử lý HTML
+    // Khong phai JSON -> xu ly HTML
   }
 
-  // 2. HTML: pattern class/id/meta mang ý nghĩa thống kê
-  const regexPatterns = [
+  // Pattern CHUAN (giong cron-sync / sync-live): class/id/meta/nhan tieng Viet
+  const regexPatterns: RegExp[] = [
     /<(?:span|div|b|strong|p|h\d)[^>]*class="[^"]*(?:count|total|stat|number|value|qty|badge|highlight)[^"]*"[^>]*>\s*([\d.,]+)\s*<\//i,
     /<(?:span|div|b|strong|p|h\d)[^>]*id="[^"]*(?:count|total|stat|number|value|qty)[^"]*"[^>]*>\s*([\d.,]+)\s*<\//i,
     /<meta\s+property="[^"]*(?:count|total|value)[^"]*"\s+content="([\d.,]+)"/i,
-    /(?:Tổng|Số lượng|Hiện có|Đã có)\s*:\s*([\d.,]+)/i,
+    /(?:Tá»•ng|Sá»‘ lÆ°á»£ng|Hiá»‡n cÃ³|ÄÃ£ cÃ³|SME|HKD|HTX)\s*[:-]?\s*([\d.,]+)/i,
   ];
+
   for (const regex of regexPatterns) {
     const match = trimmed.match(regex);
     if (match && match[1]) {
       const cleanNum = match[1].replace(/,/g, "").replace(/\.(?=\d{3})/g, "");
       const val = parseFloat(cleanNum);
-      if (!isNaN(val)) return val;
+      if (!isNaN(val) && val >= 0) return val;
     }
   }
 
-  // 3. Fallback: strip toàn bộ thẻ HTML rồi lấy số đầu tiên
-  const strippedText = trimmed.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  // Bo script/style roi moi tim so trong van ban rut gon
+  const strippedText = trimmed
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ");
+
+  const directNum = Number(strippedText.replace(/,/g, "").trim());
+  if (!isNaN(directNum) && strippedText !== "") return directNum;
+
   const fallbackMatch = strippedText.match(/(\b\d{1,3}(?:[.,]\d{3})*(?:\.\d+)?\b|\b\d+\b)/);
   if (fallbackMatch && fallbackMatch[1]) {
     const cleanNum = fallbackMatch[1].replace(/,/g, "").replace(/\.(?=\d{3})/g, "");
@@ -250,10 +335,10 @@ async function scrapeAndSaveForCommune(
   try {
     const { data: dashInfo } = await supabase
       .from("dashboards")
-      .select("title, metadata, level2, level3, level4, level5, b3, b4, b5, b6, b7, b8, b9")
+      .select("title, metadata")
       .eq("id", communeDashboardId)
       .maybeSingle();
-    const communeName = dashInfo?.title || "Xã/Phường";
+    const communeName = dashInfo?.title || "XÃ£/PhÆ°á»ng";
     const meta = dashInfo?.metadata || {};
 
     const { data: linkRows } = await supabase
@@ -261,10 +346,15 @@ async function scrapeAndSaveForCommune(
       .select("metric_key, metric_id, target_url")
       .eq("dashboard_id", communeDashboardId);
 
+    // ðŸŒŸ HÃ€M TÃŒM KIáº¾M ID Tá»I Æ¯U VÃ€ QUÃ‰T TOÃ€N DIá»†N Má»ŒI NGUá»’N Dá»® LIá»†U
     const getMetricIdAsync = async (exactKeys: string[], keywords: string[], isDx: boolean): Promise<string> => {
-      // CHỈ dùng metadata.metric_ids (ID thẻ thật). KHÔNG dùng metadata.metrics / meta
-      // vì chúng chứa GIÁ TRỊ số liệu (input thủ công / kết quả cào), không phải ID.
-      const subSources = [meta.metric_ids];
+      // CHI dung metadata.metric_ids (ID that). KHONG dung metadata.metrics / metadata
+      // vi chua GIA TRI so lieu (input thu cong), khong phai ID.
+      const subSources = [
+        meta.metric_ids
+      ];
+
+      // 1. QuÃ©t trong metadata
       for (const source of subSources) {
         if (source && typeof source === 'object') {
           for (const [k, v] of Object.entries(source)) {
@@ -284,6 +374,7 @@ async function scrapeAndSaveForCommune(
         }
       }
 
+      // 2. QuÃ©t trong báº£ng metric_links
       if (linkRows) {
         for (const l of linkRows) {
           const mk = (l.metric_key || "").trim().toLowerCase();
@@ -299,7 +390,8 @@ async function scrapeAndSaveForCommune(
           }
         }
       }
-      return "Không";
+
+      return "KhÃ´ng";
     };
 
     const idDN = await getMetricIdAsync(["b1_sme_total", "sme_total", "doanh_nghiep", "dn", "sme"], ["sme", "dn", "doanh_nghiep"], false);
@@ -312,8 +404,8 @@ async function scrapeAndSaveForCommune(
     const targets = await getCommuneMetricTargets(communeDashboardId);
     const total = targets.length;
     const hasExplicitIdCount = targets.filter(t => t.hasExplicitId).length;
-    const trangThaiId = hasExplicitIdCount > 0 ? "Có" : "Không";
-    const daQuetMoi = (syncEnabled && hasExplicitIdCount > 0) ? "Có" : "Không";
+    const trangThaiId = hasExplicitIdCount > 0 ? "CÃ³" : "KhÃ´ng";
+    const daQuetMoi = (syncEnabled && hasExplicitIdCount > 0) ? "CÃ³" : "KhÃ´ng";
 
     const nowIso = new Date().toISOString();
     const [{ data: existingB1 }, { data: existingB2 }] = await Promise.all([
@@ -321,25 +413,27 @@ async function scrapeAndSaveForCommune(
       supabase.from("kpi_products").select("*").eq("dashboard_id", communeDashboardId).maybeSingle(),
     ]);
 
-    // ⚠️ Spread dữ liệu cũ TRƯỚC, updated_at mới SAU để không bị giá trị updated_at cũ trong DB ghi đè
-    const b1Updates: JsonRecord = { ...(existingB1 || {}), dashboard_id: communeDashboardId, updated_at: nowIso };
-    const b2Updates: JsonRecord = { ...(existingB2 || {}), dashboard_id: communeDashboardId, updated_at: nowIso };
+    const b1Updates: JsonRecord = { dashboard_id: communeDashboardId, updated_at: nowIso, ...(existingB1 || {}) };
+    const b2Updates: JsonRecord = { dashboard_id: communeDashboardId, updated_at: nowIso, ...(existingB2 || {}) };
 
     const metricLinksToUpsert: JsonRecord[] = [];
     const fetchedValues: Record<string, number> = {};
-    // Ghi nhớ giá trị đã cào theo metric_key GỐC để ghi vào dashboards.metadata (giống luồng thủ công)
-    const metaValueUpdates: Record<string, number> = {};
 
     if (syncEnabled && targets.length > 0) {
       const LINK_CHUNK_SIZE = 3;
+      const FETCH_TIMEOUT_MS = 5000;
       for (let i = 0; i < targets.length; i += LINK_CHUNK_SIZE) {
+        // ðŸ• Dá»«ng sá»›m náº¿u Ä‘Ã£ gáº§n cáº¡n háº¡n thá»i gian tá»•ng (chá»‘ng treo/thá»i gian chá»)
         if (isTimeUp && isTimeUp()) break;
         const chunk = targets.slice(i, i + LINK_CHUNK_SIZE);
 
         await Promise.all(
           chunk.map(async (item) => {
             const rawUrl = item.targetUrl;
+            // â­ CHá»ˆ cÃ o tháº» ÄÃƒ CÃ“ ID / liÃªn káº¿t web nguá»“n (hasExplicitId);
+            // tháº» KHÃ”NG cÃ³ ID -> tá»± Ä‘á»™ng bá» qua, GIá»® NGUYÃŠN sá»‘ liá»‡u thá»§ cÃ´ng.
             if (!rawUrl || !item.hasExplicitId) return;
+            if (isTimeUp && isTimeUp()) return;
 
             const linkData: JsonRecord = {
               dashboard_id: communeDashboardId,
@@ -348,30 +442,22 @@ async function scrapeAndSaveForCommune(
             };
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 6000);
+            const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
             try {
               const finalUrl = rawUrl.includes("?") ? `${rawUrl}&_nocache=${Date.now()}` : `${rawUrl}?_nocache=${Date.now()}`;
               const response = await fetch(finalUrl, {
                 signal: controller.signal,
-                // Headers giống hệt /api/scrape-metric (luồng thủ công) để web nguồn trả về nội dung đầy đủ
-                headers: {
-                  "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,application/json,*/*;q=0.8",
-                },
-                cache: "no-store",
+                headers: { "User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache" },
               });
               clearTimeout(timeoutId);
 
               if (response.ok) {
                 const htmlContent = await response.text();
                 const extractedValue = extractNumberFromContent(htmlContent, item.metricKey);
-                if (extractedValue !== null) {
+                if (extractedValue !== null && Number.isFinite(extractedValue)) {
                   linkData.current_value = extractedValue;
                   fetchedValues[item.metricKey.toLowerCase()] = extractedValue;
-                  // Ghi nhớ theo metric_key GỐC để đồng bộ vào dashboards.metadata (giống set-link)
-                  metaValueUpdates[item.metricKey] = extractedValue;
                 }
               }
             } catch {
@@ -385,76 +471,35 @@ async function scrapeAndSaveForCommune(
     }
 
     if (metricLinksToUpsert.length > 0) {
-      // Ghi an toàn: nếu cột current_value chưa tồn tại trong schema (DB cũ) -> upsert lại không kèm giá trị.
-      // Không có fallback này thì TOÀN BỘ upsert bị từ chối -> mất cả việc re-register link!
+      // Ghi an toan: nÃ©u cot current_value chua ton tai trong schema cu -> loai bo truoc khi upsert
       const { error: linkErr } = await supabase
         .from("metric_links")
         .upsert(metricLinksToUpsert, { onConflict: "dashboard_id,metric_key" });
       if (linkErr && linkErr.message && linkErr.message.toLowerCase().includes("current_value")) {
-        const strippedLinks = metricLinksToUpsert.map(({ current_value: _cv, ...rest }) => rest);
+        const strippedLinks = (metricLinksToUpsert as Array<Record<string, unknown>>).map(
+          ({ current_value: _cv, ...rest }) => rest
+        );
+        console.warn("metric_links chua co cot current_value -> dang ky khong kem gia tri");
         await supabase.from("metric_links").upsert(strippedLinks, { onConflict: "dashboard_id,metric_key" });
       }
     }
 
-    // 🌟 ĐỒNG BỘ VÀO BẢNG DASHBOARDS CỦA XÃ (đối chiếu 1-1 luồng thủ công "THIẾT LẬP ID & ĐỒNG BỘ"):
-    // set-link + scrape-metric ghi giá trị đã cào vào metadata (top-level + metrics + level2_metrics)
-    // và các cột level2..level5 / b3..b9. UI Thẻ KPI ưu tiên đọc nguồn này (override cả bảng KPI),
-    // nên luồng tự động bắt buộc phải ghi ĐỦ để số mới hiển thị sau khi làm mới từ cấp Tỉnh.
-    if (syncEnabled && Object.keys(metaValueUpdates).length > 0) {
-      const dashPatch: JsonRecord = {};
-      const currentMeta: JsonRecord = { ...meta };
-      for (const [rawKey, val] of Object.entries(metaValueUpdates)) {
-        currentMeta[rawKey] = val;
-        currentMeta.metrics = { ...((currentMeta.metrics as JsonRecord) || {}), [rawKey]: val };
-        currentMeta.level2_metrics = { ...((currentMeta.level2_metrics as JsonRecord) || {}), [rawKey]: val };
-
-        const prefix = rawKey.split("_")[0];
-        // Tầng 2..5: ghi vào cột level2..level5 (cả key đầy đủ lẫn key ngắn — giống scrape-metric)
-        if (prefix === "l2" || prefix === "l3" || prefix === "l4" || prefix === "l5") {
-          const col = prefix === "l2" ? "level2" : prefix === "l3" ? "level3" : prefix === "l4" ? "level4" : "level5";
-          const shortField = rawKey.replace(`${prefix}_`, "");
-          const colData: JsonRecord = { ...(((dashInfo as Record<string, unknown> | null)?.[col] as JsonRecord) || {}) };
-          colData[rawKey] = val;
-          colData[shortField] = val;
-          dashPatch[col] = colData;
-        }
-        // Khối B3..B9: ghi vào cột b3..b9
-        else if (["b3", "b4", "b5", "b6", "b7", "b8", "b9"].includes(prefix)) {
-          const fieldName = rawKey.replace(`${prefix}_`, "");
-          const colData: JsonRecord = { ...(((dashInfo as Record<string, unknown> | null)?.[prefix] as JsonRecord) || {}) };
-          colData[fieldName] = val;
-          dashPatch[prefix] = colData;
-        }
-      }
-      currentMeta.last_synced_at = nowIso;
-      dashPatch.metadata = currentMeta;
-      // Chỉ 1 lần update per xã (gom tất cả) để giữ hiệu năng khi quét hàng trăm xã
-      await supabase.from("dashboards").update(dashPatch).eq("id", communeDashboardId);
-    }
-
     if (syncEnabled && (targets.length > 0 || existingB1 || existingB2)) {
       Object.entries(fetchedValues).forEach(([k, val]) => {
-        const lk = k.toLowerCase();
-        if (lk.includes("sme") || lk.includes("doanh_nghiep") || lk.includes("dn")) {
-          if (lk.includes("dx") || lk.includes("cds")) b1Updates.sme_dx = val;
-          else b1Updates.sme_total = val;
-        } else if (lk.includes("hkd") || lk.includes("ho_kinh")) {
-          if (lk.includes("dx") || lk.includes("cds")) b1Updates.hkd_dx = val;
-          else b1Updates.hkd_total = val;
-        } else if (lk.includes("htx") || lk.includes("hop_tac")) {
-          if (lk.includes("dx") || lk.includes("cds")) b1Updates.htx_dx = val;
-          else b1Updates.htx_total = val;
-        } else if (lk.includes("ocop_3") || lk.includes("ocop_3star")) {
-          b2Updates.ocop_3star = val;
-        } else if (lk.includes("ocop_4") || lk.includes("ocop_4star")) {
-          b2Updates.ocop_4star = val;
-        } else if (lk.includes("ocop_5") || lk.includes("ocop_5star")) {
-          b2Updates.ocop_5star = val;
-        } else if (lk.includes("sp_thuong") || lk.includes("thuong")) {
-          b2Updates.sp_thuong = val;
-        } else if (lk.includes("dich_vu") || lk.includes("dv")) {
-          b2Updates.dich_vu = val;
-        }
+        if (k === "b1_sme_total" || k === "sme_total") b1Updates.sme_total = val;
+        else if (k === "b1_hkd_total" || k === "hkd_total") b1Updates.hkd_total = val;
+        else if (k === "b1_htx_total" || k === "htx_total") b1Updates.htx_total = val;
+        else if (k === "b1_sme_dx" || k === "sme_dx") b1Updates.sme_dx = val;
+        else if (k === "b1_hkd_dx" || k === "hkd_dx") b1Updates.hkd_dx = val;
+        else if (k === "b1_htx_dx" || k === "htx_dx") b1Updates.htx_dx = val;
+        else if (k === "b1_sme_cds" || k === "sme_cds") b1Updates.sme_cds = val;
+        else if (k === "b1_hkd_cds" || k === "hkd_cds") b1Updates.hkd_cds = val;
+        else if (k === "b1_htx_cds" || k === "htx_cds") b1Updates.htx_cds = val;
+        else if (k === "b2_ocop_3" || k === "ocop_3star") b2Updates.ocop_3star = val;
+        else if (k === "b2_ocop_4" || k === "ocop_4star") b2Updates.ocop_4star = val;
+        else if (k === "b2_ocop_5" || k === "ocop_5star") b2Updates.ocop_5star = val;
+        else if (k === "b2_sp_thuong" || k === "sp_thuong") b2Updates.sp_thuong = val;
+        else if (k === "b2_dich_vu" || k === "dich_vu") b2Updates.dich_vu = val;
       });
 
       changed = Object.keys(fetchedValues).length;
@@ -475,6 +520,7 @@ async function scrapeAndSaveForCommune(
       if (Object.keys(finalB2).length > 1) await supabase.from("kpi_products").upsert(finalB2, { onConflict: "dashboard_id" });
     }
 
+    // ðŸŒŸ IN LOG XÃƒ/PHÆ¯á»œNG THEO ÄÃšNG Cáº¤U TRÃšC YÃŠU Cáº¦U Má»šI
     const finalSme = toNum(b1Updates.sme_total);
     const finalHkd = toNum(b1Updates.hkd_total);
     const finalHtx = toNum(b1Updates.htx_total);
@@ -485,11 +531,11 @@ async function scrapeAndSaveForCommune(
     const finalHtxDx = toNum(b1Updates.htx_dx || b1Updates.htx_cds);
     const tongDN_HKD_HTX_CDS = finalSmeDx + finalHkdDx + finalHtxDx;
 
-    console.log(`==== ${communeName} ==== [Trạng thái ID: ${trangThaiId}] - [Đã Quét mới: ${daQuetMoi}]`);
-    console.log(`Tổng DN/HKD/HTX: ${tongDN_HKD_HTX} - Tổng DN/HKD/HTX CĐS: ${tongDN_HKD_HTX_CDS}`);
-    console.log(`Tổng DN: ${finalSme} * ID DN: ${idDN} - DNCĐS: ${finalSmeDx} * ID DNCĐS: ${idDNCdS}`);
-    console.log(`Tổng HKD: ${finalHkd} * ID HKD: ${idHKD} - HKD CĐS: ${finalHkdDx} * ID HKD CĐS: ${idHKDCdS}`);
-    console.log(`Tổng HTX: ${finalHtx} * ID HTX: ${idHTX} - HTX CĐS: ${finalHtxDx} * ID HTX CĐS: ${idHTXCdS}`);
+    console.log(`==== ${communeName} ==== [Tráº¡ng thÃ¡i ID: ${trangThaiId}] - [ÄÃ£ QuÃ©t má»›i: ${daQuetMoi}]`);
+    console.log(`Tá»•ng DN/HKD/HTX: ${tongDN_HKD_HTX} - Tá»•ng DN/HKD/HTX CÄS: ${tongDN_HKD_HTX_CDS}`);
+    console.log(`Tá»•ng DN: ${finalSme} * ID DN: ${idDN} - DNCÄS: ${finalSmeDx} * ID DNCÄS: ${idDNCdS}`);
+    console.log(`Tá»•ng HKD: ${finalHkd} * ID HKD: ${idHKD} - HKD CÄS: ${finalHkdDx} * ID HKD CÄS: ${idHKDCdS}`);
+    console.log(`Tá»•ng HTX: ${finalHtx} * ID HTX: ${idHTX} - HTX CÄS: ${finalHtxDx} * ID HTX CÄS: ${idHTXCdS}`);
 
     return { changed, total };
   } catch {
@@ -506,7 +552,7 @@ async function aggregateAndSyncToProvince(provinceDashboardId: string, provinceU
     .select("title")
     .eq("id", provinceDashboardId)
     .maybeSingle();
-  const provinceName = provDashInfo?.title || "Tỉnh";
+  const provinceName = provDashInfo?.title || "Tá»‰nh";
 
   const [{ data: b1Rows }, { data: b2Rows }] = await Promise.all([
     supabase.from("kpi_business_units").select("*").in("dashboard_id", communeDashboardIds),
@@ -540,8 +586,7 @@ async function aggregateAndSyncToProvince(provinceDashboardId: string, provinceU
   ]);
 
   const provinceB1Update: JsonRecord = {
-    ...(provB1 || {}),
-    dashboard_id: provinceDashboardId, updated_at: nowIso,
+    dashboard_id: provinceDashboardId, updated_at: nowIso, ...(provB1 || {}),
     sme_total: totalSme, hkd_total: totalHkd, htx_total: totalHtx,
     sme_dx: totalSmeDx, hkd_dx: totalHkdDx, htx_dx: totalHtxDx,
     sme_cds: totalSmeDx, hkd_cds: totalHkdDx, htx_cds: totalHtxDx,
@@ -549,8 +594,7 @@ async function aggregateAndSyncToProvince(provinceDashboardId: string, provinceU
   delete provinceB1Update.created_at;
 
   const provinceB2Update: JsonRecord = {
-    ...(provB2 || {}),
-    dashboard_id: provinceDashboardId, updated_at: nowIso,
+    dashboard_id: provinceDashboardId, updated_at: nowIso, ...(provB2 || {}),
     ocop_3star: totalOcop3, ocop_4star: totalOcop4, ocop_5star: totalOcop5,
     sp_thuong: totalSpThuong, dich_vu: totalDichVu,
   };
@@ -567,31 +611,85 @@ async function aggregateAndSyncToProvince(provinceDashboardId: string, provinceU
     supabase.from("kpi_products").upsert(finalProvB2, { onConflict: "dashboard_id" }),
   ]);
 
+  // ðŸŒŸ IN LOG Tá»”NG Há»¢P Cáº¤P Tá»ˆNH THEO ÄÃšNG Cáº¤U TRÃšC YÃŠU Cáº¦U
   const tongDN_HKD_HTX = totalSme + totalHkd + totalHtx;
   const tongDN_HKD_HTX_CDS = totalSmeDx + totalHkdDx + totalHtxDx;
 
-  console.log(`==== ${provinceName} ==== Số xã phường trực thuộc: ${communeDashboardIds.length}`);
-  console.log(`Tổng DN/HKD/HTX: ${tongDN_HKD_HTX} - Tổng DN/HKD/HTX CĐS: ${tongDN_HKD_HTX_CDS}`);
-  console.log(`Tổng DN: ${totalSme} - DNCĐS: ${totalSmeDx}`);
-  console.log(`Tổng HKD: ${totalHkd} - HKD CĐS: ${totalHkdDx}`);
-  console.log(`Tổng HTX: ${totalHtx} - HKD CĐS: ${totalHtxDx}`);
+  console.log(`==== ${provinceName} ==== Sá»‘ xÃ£ phÆ°á»ng trá»±c thuá»™c: ${communeDashboardIds.length}`);
+  console.log(`Tá»•ng DN/HKD/HTX: ${tongDN_HKD_HTX} - Tá»•ng DN/HKD/HTX CÄS: ${tongDN_HKD_HTX_CDS}`);
+  console.log(`Tá»•ng DN: ${totalSme} - DNCÄS: ${totalSmeDx}`);
+  console.log(`Tá»•ng HKD: ${totalHkd} - HKD CÄS: ${totalHkdDx}`);
+  console.log(`Tá»•ng HTX: ${totalHtx} - HKD CÄS: ${totalHtxDx}`);
 }
 
-async function syncProvinceDirectly() {
-  // Không dùng is_province/level (cột không tồn tại -> query luôn lỗi -> không bao giờ tổng hợp được).
-  // Tìm dashboard Tỉnh qua unit.type = PROVINCE.
-  const { data: provDashes } = await supabase
-    .from("dashboards")
-    .select("id, unit_id, unit:administrative_units(type)")
-    .limit(2000);
-  const found = (provDashes ?? []).find((d) => {
-    const u = (d as Record<string, unknown>).unit;
-    const t = Array.isArray(u)
-      ? (u as Array<Record<string, unknown>>)[0]?.type
-      : (u as Record<string, unknown> | null)?.type;
-    return t === "PROVINCE";
-  }) as Record<string, unknown> | undefined;
-  if (found) await aggregateAndSyncToProvince(found.id as string, found.unit_id as string);
+/**
+ * ðŸŒŸ Tá»± Ä‘á»™ng Ä‘á»“ng bá»™ (tá»•ng há»£p SUM) lÃªn ÄÃšNG Dashboard Tá»‰nh cha cá»§a xÃ£/phÆ°á»ng,
+ * thay vÃ¬ dá»±a vÃ o `limit(1)` tÃ¹y Ã½ â€” Ä‘áº£m báº£o tá»•ng há»£p chÃ­nh xÃ¡c vá» Ä‘Ãºng Tá»‰nh.
+ *  - (a) Theo quan há»‡ parent_id trá»±c tiáº¿p trÃªn báº£ng dashboards.
+ *  - (b) Theo chuá»—i Ä‘Æ¡n vá»‹ hÃ nh chÃ­nh: unit (xÃ£) -> parent unit (Tá»‰nh) -> dashboard Tá»‰nh.
+ *  - (c) Dá»± phÃ²ng: giá»¯ nguyÃªn hÃ nh vi cÅ© (limit 1 is_province) Ä‘á»ƒ tÆ°Æ¡ng thÃ­ch ngÆ°á»£c.
+ */
+async function syncProvinceDirectly(communeDashboardId?: string) {
+  type PlainRow = Record<string, unknown>;
+  interface ProvinceRef {
+    id: string;
+    unit_id: string | null;
+  }
+
+  let provDash: ProvinceRef | null = null;
+
+  if (communeDashboardId) {
+    // KHONG dung cot dashboards.parent_id (co the chua ton tai): tim qua unit -> parent unit
+    const { data: communeDash } = await supabase
+      .from("dashboards")
+      .select("unit_id, unit:administrative_units(id, name, type, parent_id)")
+      .eq("id", communeDashboardId)
+      .maybeSingle();
+    const cDash = (communeDash ?? {}) as PlainRow;
+    const unitId = cDash.unit_id as string | null | undefined;
+    const parentUnitId = resolveUnitParentId(cDash.unit ?? null);
+
+    // (a) Theo chuoi don vi hanh chinh: unit (xa) -> parent unit (Tinh) -> dashboard Tinh
+    if (!provDash && unitId && parentUnitId) {
+      const { data: provByUnit } = await supabase
+        .from("dashboards")
+        .select("id, unit_id")
+        .eq("unit_id", parentUnitId)
+        .maybeSingle();
+      if (provByUnit) {
+        const uDash = provByUnit as PlainRow;
+        provDash = { id: String(uDash.id ?? ""), unit_id: (uDash.unit_id as string | null) ?? null };
+      }
+    }
+
+    // (b) Fallback: dashboard dau tien co unit.type === PROVINCE
+    if (!provDash) {
+      const { data: provAll } = await supabase
+        .from("dashboards")
+        .select("id, unit_id, unit:administrative_units(type)")
+        .limit(5000);
+      const provRow = (provAll ?? []).find((d) => resolveUnitType((d as PlainRow).unit) === "PROVINCE");
+      if (provRow) {
+        const uDash = provRow as PlainRow;
+        provDash = { id: String(uDash.id ?? ""), unit_id: (uDash.unit_id as string | null) ?? null };
+      }
+    }
+  }
+
+  // (c) Dá»± phÃ²ng lan cuoi (goi khong kem communeDashboardId)
+  if (!provDash) {
+    const { data: fallback } = await supabase
+      .from("dashboards")
+      .select("id, unit_id, unit:administrative_units(type)")
+      .limit(5000);
+    const fRow = (fallback ?? []).find((d) => resolveUnitType((d as PlainRow).unit) === "PROVINCE");
+    if (fRow) {
+      const fDash = fRow as PlainRow;
+      provDash = { id: String(fDash.id ?? ""), unit_id: (fDash.unit_id as string | null) ?? null };
+    }
+  }
+
+  if (provDash && provDash.id) await aggregateAndSyncToProvince(provDash.id, provDash.unit_id || "");
 }
 
 export async function POST(req: NextRequest) {
@@ -607,14 +705,14 @@ export async function POST(req: NextRequest) {
     const isGlobalRefresh = !metricKey && !metricId;
     const syncEnabled = isGlobalRefresh ? true : body.syncEnabled !== false;
 
-    if (!dashboardId) return NextResponse.json({ success: false, error: "Thiếu dashboardId" }, { status: 400 });
+    if (!dashboardId) return NextResponse.json({ success: false, error: "Thiáº¿u dashboardId" }, { status: 400 });
 
     const { data: dash, error: dashErr } = await supabase
       .from("dashboards")
       .select("*, unit:administrative_units(*)")
       .eq("id", dashboardId)
       .single();
-    if (dashErr || !dash) return NextResponse.json({ success: false, error: "Không tìm thấy dashboard" }, { status: 404 });
+    if (dashErr || !dash) return NextResponse.json({ success: false, error: "KhÃ´ng tÃ¬m tháº¥y dashboard" }, { status: 404 });
 
     if (metricKey && metricId) {
       const cleanId = metricId.trim().replace(/^\/+/, "");
@@ -633,34 +731,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Chỉ dựa vào unit.type để xác định cấp (cột is_province/level/parent_id KHÔNG tồn tại trong schema).
-    // Điều kiện cũ `!dash.parent_id && ...` luôn TRUE vì các cột undefined -> XÃ cũng bị coi là TỈNH
-    // -> refresh cấp xã chạy nhánh tỉnh -> lỗi "Không có xã/phường trực thuộc!".
-    const isProvinceLevel = dash.unit?.type === "PROVINCE";
+    // Chi xac dinh cap Tinh dua vao unit.type (truong is_province/level/parent_id co the chua ton tai)
+    const dRow = dash as Record<string, unknown>;
+    const isProvinceLevel = resolveUnitType(dRow.unit ?? null) === "PROVINCE";
     const nowIso = new Date().toISOString();
 
     const isTimeUp = () => Date.now() - startedAt > DEADLINE_MS;
 
     if (!isProvinceLevel) {
       const result = await scrapeAndSaveForCommune(dashboardId, syncEnabled, isTimeUp);
-      if (syncEnabled) await syncProvinceDirectly();
-      // ⚠️ Đọc lại metadata MỚI NHẤT từ DB trước khi gắn last_sync_at:
-      // scrapeAndSaveForCommune vừa ghi số liệu cào được vào metadata của xã này;
-      // nếu dùng snapshot `dash.metadata` cũ (lấy ở đầu request) sẽ GHI ĐÈ MẤT số liệu mới!
-      const { data: freshMetaRow } = await supabase
-        .from("dashboards")
-        .select("metadata")
-        .eq("id", dashboardId)
-        .maybeSingle();
-      const freshMeta = ((freshMetaRow?.metadata ?? {}) as JsonRecord) || {};
+      // ðŸ” Äá»“ng bá»™ tá»•ng há»£p (SUM) lÃªn ÄÃšNG Dashboard Tá»‰nh cha cá»§a xÃ£/phÆ°á»ng nÃ y
+      if (syncEnabled) await syncProvinceDirectly(dashboardId);
       await supabase
         .from("dashboards")
-        .update({ metadata: { ...freshMeta, last_sync_at: nowIso }, updated_at: nowIso })
+        .update({ metadata: { ...(dash.metadata || {}), last_sync_at: nowIso }, updated_at: nowIso })
         .eq("id", dashboardId);
 
       return NextResponse.json({
         success: true,
-        message: syncEnabled ? "Đã đồng bộ!" : "Đã cập nhật link!",
+        message: syncEnabled ? "ÄÃ£ Ä‘á»“ng bá»™!" : "ÄÃ£ cáº­p nháº­t link!",
         changed: result.changed,
         total: result.total,
       });
@@ -669,7 +758,7 @@ export async function POST(req: NextRequest) {
     const provinceUnitId = dash.unit_id;
     const communeDashboardIds = await resolveCommuneDashboardIds(dashboardId, provinceUnitId);
     if (communeDashboardIds.length === 0) {
-      return NextResponse.json({ success: false, error: "Không có xã/phường trực thuộc!" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "KhÃ´ng cÃ³ xÃ£/phÆ°á»ng trá»±c thuá»™c!" }, { status: 400 });
     }
 
     const CHUNK_SIZE = 10;
@@ -693,6 +782,7 @@ export async function POST(req: NextRequest) {
           totalTargets += r.value.total;
         }
       });
+      console.log(`ÄÃ£ quÃ©t lÃ´ ${Math.min(i + chunk.length, communeDashboardIds.length)}/${communeDashboardIds.length} xÃ£/phÆ°á»ng`);
     }
 
     if (syncEnabled) await aggregateAndSyncToProvince(dashboardId, provinceUnitId);
@@ -704,7 +794,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Đã hoàn tất đồng bộ ${communeDashboardIds.length} xã/phường!`,
+      message: `ÄÃ£ hoÃ n táº¥t Ä‘á»“ng bá»™ ${communeDashboardIds.length} xÃ£/phÆ°á»ng!`,
       communeCount: communeDashboardIds.length,
       updatedCards: totalChanged,
       scannedTargets: totalTargets,
@@ -712,8 +802,8 @@ export async function POST(req: NextRequest) {
       durationMs: Date.now() - startedAt,
     });
   } catch (error: unknown) {
-    console.error("Lỗi refresh-all:", error);
-    const msg = error instanceof Error ? error.message : "Lỗi làm mới dữ liệu";
+    console.error("Lá»—i refresh-all:", error);
+    const msg = error instanceof Error ? error.message : "Lá»—i lÃ m má»›i dá»¯ liá»‡u";
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/v1/metrics/cron-sync",
+      "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/v1/metrics/kpi-history/snapshot",
+      "schedule": "30 18 * * *"
+    }
+  ]
+}

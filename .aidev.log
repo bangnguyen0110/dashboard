@@ -1,0 +1,298 @@
+﻿
+> digital-dashboard@0.1.0 dev
+> next dev --port 3111
+
+Γû▓ Next.js 16.3.0 (Turbopack)
+- Local:         http://localhost:3111
+- Network:       http://192.168.88.80:3111
+- Environments: .env.local
+Γ£ô Ready in 668ms
+Γ£ô Running next.config.ts took 63ms
+
+ GET / 200 in 519ms (next.js: 284ms, application-code: 236ms)
+ POST /api/v1/ai/analyze 404 in 1128ms (next.js: 104ms, application-code: 1024ms)
+ POST /api/v1/ai/analyze 404 in 450ms (next.js: 6ms, application-code: 444ms)
+ POST /api/v1/ai/analyze 200 in 887ms (next.js: 4ms, application-code: 883ms)
+ POST /api/v1/ai/analyze 200 in 9.7s (next.js: 4ms, application-code: 9.7s)
+ POST /api/v1/ai/analyze 200 in 6.6s (next.js: 51ms, application-code: 6.6s)
+node.exe : [Server HMR] Update failed, full reload needed: SyntaxError: Identifier 'qNorm' has already been declared
+At C:\Program Files\nodejs\npm.ps1:30 char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([Server HMR] Up...y been declared:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at eval (<anonymous>)
+ GET / 200 in 199ms (next.js: 14ms, application-code: 185ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 746ms (next.js: 701ms, application-code: 45ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.48 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 90ms (next.js: 64ms, application-code: 26ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.60 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 21ms (next.js: 8ms, application-code: 13ms)
+ POST /api/auth/login 401 in 609ms (next.js: 104ms, application-code: 505ms)
+ POST /api/auth/login 401 in 148ms (next.js: 6ms, application-code: 142ms)
+ POST /api/auth/login 401 in 466ms (next.js: 12ms, application-code: 454ms)
+ POST /api/auth/login 200 in 708ms (next.js: 5ms, application-code: 703ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 56ms (next.js: 23ms, application-code: 33ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.44 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 18ms (next.js: 5ms, application-code: 12ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.56 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 17ms (next.js: 5ms, application-code: 13ms)
+ POST /api/v1/ai/analyze 200 in 35.3s (next.js: 53ms, application-code: 35.2s)
+ GET / 200 in 92ms (next.js: 11ms, application-code: 82ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 44ms (next.js: 17ms, application-code: 26ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.38 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 18ms (next.js: 5ms, application-code: 13ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.53 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 17ms (next.js: 7ms, application-code: 10ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/7e60939f-c2d4-4fe6-bf32-5c71512e33cb 200 in 782ms (next.js: 748ms, application-code: 34ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [7e60939f-c2d4-4fe6-bf32-5c71512e33cb]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.42 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 18ms (next.js: 9ms, application-code: 9ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [7e60939f-c2d4-4fe6-bf32-5c71512e33cb]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.53 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 17ms (next.js: 5ms, application-code: 11ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 358ms (next.js: 22ms, application-code: 336ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.31 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 17ms (next.js: 6ms, application-code: 11ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.49 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 18ms (next.js: 5ms, application-code: 13ms)
+Γ£ô Compiled in 121ms
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/7e60939f-c2d4-4fe6-bf32-5c71512e33cb 200 in 91ms (next.js: 23ms, application-code: 69ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 45ms (next.js: 20ms, application-code: 25ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/528dc064-6686-4a02-8d29-40a478814d33 200 in 51ms (next.js: 17ms, application-code: 34ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [528dc064-6686-4a02-8d29-40a478814d33]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.60 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 19ms (next.js: 5ms, application-code: 13ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [528dc064-6686-4a02-8d29-40a478814d33]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.72 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 17ms (next.js: 6ms, application-code: 11ms)
+ POST /api/v1/ai/analyze 200 in 742ms (next.js: 7ms, application-code: 735ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/7e60939f-c2d4-4fe6-bf32-5c71512e33cb 200 in 95ms (next.js: 58ms, application-code: 36ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/528dc064-6686-4a02-8d29-40a478814d33 200 in 96ms (next.js: 30ms, application-code: 66ms)
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/528dc064-6686-4a02-8d29-40a478814d33 200 in 85ms (next.js: 22ms, application-code: 63ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/7e60939f-c2d4-4fe6-bf32-5c71512e33cb 200 in 85ms (next.js: 49ms, application-code: 36ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/7e60939f-c2d4-4fe6-bf32-5c71512e33cb 200 in 87ms (next.js: 23ms, application-code: 64ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/528dc064-6686-4a02-8d29-40a478814d33 200 in 87ms (next.js: 55ms, application-code: 32ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/528dc064-6686-4a02-8d29-40a478814d33 200 in 82ms (next.js: 50ms, application-code: 32ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d/7e60939f-c2d4-4fe6-bf32-5c71512e33cb 200 in 83ms (next.js: 22ms, application-code: 61ms)
+ POST /api/v1/ai/analyze 200 in 1426ms (next.js: 15ms, application-code: 1410ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 53ms (next.js: 21ms, application-code: 31ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.39 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 21ms (next.js: 9ms, application-code: 12ms)
+
+========================================
+ΓÅ▒∩╕Å [PERF LOG] Dashboard ID: [e1dec74a-eefa-4452-b72d-2ef34e43dc9d]
+≡ƒÜÇ Thß╗¥i gian load xong: 0.52 gi├óy
+========================================
+
+ POST /api/v1/metrics/log-perf 200 in 15ms (next.js: 5ms, application-code: 10ms)
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+[browser] ./app/api/v1/ai/analyze/route.ts:572:1
+Error: 'import', and 'export' cannot be used outside of module code
+  570 | return { refused: false, prompt: `${scopeLine}${question}` };
+  571 |
+> 572 | export async function POST(req: NextRequest) {
+      | ^^^^^^
+  573 |   try {
+  574 |     const { dashboardId, level = 0, scope = "all", forceRefresh = false, customPrompt } =...
+  575 |
+
+Parsing ecmascript source code failed 
+ POST /api/v1/ai/analyze 200 in 32.3s (next.js: 15ms, application-code: 32.3s)
+ GET /bang-so-gia 200 in 99ms (next.js: 22ms, application-code: 77ms)
+ GET /bang-so-gia 200 in 76ms (next.js: 20ms, application-code: 56ms)
+ GET /bang-so-gia.txt 200 in 72ms (next.js: 22ms, application-code: 50ms)
+ GET / 200 in 28ms (next.js: 7ms, application-code: 22ms)
+ GET /bang-so-gia 200 in 74ms (next.js: 22ms, application-code: 53ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 42ms (next.js: 17ms, application-code: 25ms)
+  Reload env: .env.local
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 146ms (next.js: 91ms, application-code: 55ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 115ms (next.js: 76ms, application-code: 38ms)
+  Reload env: .env.local
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 106ms (next.js: 73ms, application-code: 32ms)
+  Reload env: .env.local
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 102ms (next.js: 68ms, application-code: 34ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 50ms (next.js: 19ms, application-code: 31ms)
+ GET /e1dec74a-eefa-4452-b72d-2ef34e43dc9d 200 in 40ms (next.js: 16ms, application-code: 24ms)

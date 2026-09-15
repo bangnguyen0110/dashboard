@@ -22,6 +22,7 @@ import {
   Printer,
   Lightbulb,
   SearchCode,
+  SlidersHorizontal,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { DashboardRow, KpiRow } from "@/lib/types";
@@ -30,6 +31,7 @@ import { LevelMenu, LEVELS, useLevelParam } from "./level-menu";
 import { LinkModal } from "./link-modal";
 import { ImportPdfModal } from "./import-pdf-modal";
 import { CommuneDashboardModal } from "./commune-dashboard-modal";
+import { KpiFilterCompareModal } from "./kpi-filter-compare-modal";
 import { CellQuantityModal } from "./blocks/cell-quantity-modal";
 import { MetricIdModal } from "./blocks/metric-id-modal";
 import { B1Section } from "./blocks/b1-section";
@@ -151,7 +153,6 @@ function applyMetricValueToRow(
   return next;
 }
 
-/** 🛠️ Hàm chuẩn hóa và sửa lỗi hiển thị font tiếng Việt cho tiêu đề Dashboard */
 function cleanDashboardTitle(title: string): string {
   if (!title) return "";
   return title
@@ -210,7 +211,7 @@ const reportStyles = `
   .paragraph { font-size: 13pt; text-align: justify; margin-bottom: 4px; padding-left: 24px; line-height: 1.35; }
 `;
 
-/** ================= POPUP MODAL PHÂN TÍCH AI (GIAO DIỆN CHAT ĐỒNG NHẤT) ================= */
+/** ================= POPUP MODAL PHÂN TÍCH AI ================= */
 function AiAdvisorModal({
   dashboard,
   open,
@@ -227,7 +228,6 @@ function AiAdvisorModal({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  // State quản lý danh sách tin nhắn hội thoại chung (Chat history)
   const [userQuery, setUserQuery] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
@@ -305,7 +305,6 @@ function AiAdvisorModal({
     }
   };
 
-  // 🌟 Gửi câu hỏi tùy chỉnh (hoặc từ gợi ý nhanh)
   const handleAskCustomQuestion = async (questionText: string) => {
     const q = questionText.trim();
     if (!q || chatLoading) return;
@@ -366,7 +365,6 @@ function AiAdvisorModal({
     }
   };
 
-  // 🌟 Xử lý khi bôi đen và nhấn "Giải thích" hoặc "Phân tích sâu"
   const handleSubAiAction = async (actionType: "explain" | "deep_analyze") => {
     if (!selectedText) return;
     setSubLoading(true);
@@ -615,7 +613,6 @@ function AiAdvisorModal({
             </div>
           )}
 
-          {/* Hiển thị hội thoại chat */}
           {messages.map((msg, index) => (
             <div key={index} className={`flex w-full my-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               {msg.role === "assistant" ? (
@@ -744,7 +741,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const router = useRouter();
   const { isAdmin } = useAuth();
 
-  // 🌟 Ref lưu thời điểm bắt đầu load dashboard để đo hiệu năng
   const loadStartTimeRef = useRef<number>(performance.now());
 
   useEffect(() => {
@@ -796,6 +792,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   } | null>(null);
 
   const [showCommuneList, setShowCommuneList] = useState(false);
+  const [showFilterCompare, setShowFilterCompare] = useState(false);
   const [communeLinkTarget, setCommuneLinkTarget] = useState<DashboardRow | null>(null);
   const [communeQuantityTarget, setCommuneQuantityTarget] = useState<{
     dashboard: DashboardRow;
@@ -1017,19 +1014,14 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     setLevel4Data(sectionRows.l4);
     setLevel5Data(sectionRows.l5);
 
-    // 🚀 BỎ CHỮ "await" ĐỂ TẢI DỮ LIỆU XÃ/PHƯỜNG NGẦM Ở BACKGROUND
     if (unitType === "PROVINCE") {
+      // ⚡ Chỉ ĐỌC danh sách xã/phường từ Database — TUYỆT ĐỐI KHÔNG tự gọi cào dữ liệu (sync-live)
+      // khi vừa mở trang hoặc chuyển đổi giữa các dashboard để tránh treo/chậm.
       void loadCommunes(row.unit_id);
-      fetch("/api/v1/dashboards/sync-province-metrics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ communeDashboardId: row.id }),
-      }).catch(() => {});
     }
 
     setState("ready");
 
-    // Đo và gửi thời gian tải hoàn tất ra terminal VS Code
     const durationSec = ((performance.now() - loadStartTimeRef.current) / 1000).toFixed(2);
     fetch("/api/v1/metrics/log-perf", {
       method: "POST",
@@ -1045,24 +1037,27 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   const refetchAfterSave = useCallback(() => void fetchAll(), [fetchAll]);
 
+  // 🌟 NÚT LÀM MỚI DỮ LIỆU SIÊU TỐC VỚI THANH TIẾN TRÌNH (PROCESS BAR)
   const handleLiveSync = useCallback(
     async (silent = false) => {
       if (!dashboard?.id) return;
       if (!silent) setIsSyncing(true);
 
       try {
-        const res = await fetch("/api/v1/metrics/sync-live", {
+        const res = await fetch("/api/v1/metrics/refresh-all", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ dashboardId: dashboard.id }),
+          // Giới hạn thời gian chờ → vòng quay/modal không bị treo vô hạn
+          signal: AbortSignal.timeout(60_000),
         });
 
         const data = await res.json().catch(() => null);
 
-        if (res.ok && data?.success) {
+        if (res.ok && (data?.success || data)) {
           await refetchAfterSave();
           if (!silent) {
-            alert(data?.message || "Đã đồng bộ số liệu mới nhất từ website liên kết!");
+            alert(data?.message || "Đã cào mới và cập nhật thành công số liệu mới nhất!");
           }
         } else if (!silent) {
           alert(data?.error || "Không thể đồng bộ số liệu");
@@ -1074,7 +1069,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         if (!silent) setIsSyncing(false);
       }
     },
-    [dashboard?.id, refetchAfterSave]
+    [dashboard, refetchAfterSave]
   );
 
   const handleSaveLevel2SyncId = useCallback(
@@ -1206,10 +1201,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         throw error;
       }
 
-      fetch("/api/v1/dashboards/sync-province-metrics", {
+      fetch("/api/v1/metrics/sync-live", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ communeDashboardId: currentDashId }),
+        body: JSON.stringify({ dashboardId: currentDashId }),
       }).catch(() => {});
     },
     [dashboard]
@@ -1372,7 +1367,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   const headerLink = dashboard?.base_domain ?? dashboard?.metadata?.base_domain ?? dashboard?.domain_link ?? "";
 
-  // 🌟 Lấy thời gian đồng bộ / cập nhật mới nhất cho Header
   const rawSyncTime = dashboard?.metadata?.last_sync_at || dashboard?.updated_at || dashboard?.metadata?.synced_at;
   const syncTimeFormatted = rawSyncTime
     ? new Date(rawSyncTime).toLocaleString("vi-VN", {
@@ -1430,7 +1424,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 <ArrowLeft size={18} />
               </button>
 
-              {/* 🌟 LAYOUT TIÊU ĐỀ & THỜI GIAN ĐỒNG BỘ */}
               <div className="min-w-0 pr-12 md:pr-0">
                 <h1 className="truncate text-sm sm:text-base font-bold font-sans tracking-wide text-foreground">
                   {cleanDashboardTitle(dashboard.title)}
@@ -1492,6 +1485,15 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                         <Link2 size={14} /> Thiết lập Link
                       </button>
                     )}
+                    {/* Nút Bộ lọc — đặt NGAY BÊN TRÁI nút "Danh sách xã/phường" */}
+                    <button
+                      type="button"
+                      onClick={() => setShowFilterCompare(true)}
+                      className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                      title="Bộ lọc và so sánh thông tin"
+                    >
+                      <SlidersHorizontal size={14} /> Bộ lọc
+                    </button>
                     {isProvince && (
                       <button
                         type="button"
@@ -1809,6 +1811,28 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         />
       )}
 
+      {/* 🌟 MODAL TIẾN TRÌNH KHI ĐANG CÀO DỮ LIỆU VÀ ĐỒNG BỘ */}
+      {isSyncing && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="flex flex-col items-center justify-center w-full max-w-md bg-[#071326] border border-cyan-500/40 rounded-3xl p-6 shadow-2xl text-slate-100 space-y-4">
+            <div className="relative grid h-16 w-16 place-items-center rounded-full bg-cyan-500/10 text-cyan-400 animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+              <RefreshCw size={30} className="animate-spin text-cyan-400" />
+            </div>
+            
+            <div className="text-center space-y-1">
+              <h3 className="text-base font-bold text-white uppercase tracking-wide">Đang quét & Cào dữ liệu nguồn</h3>
+              <p className="text-xs text-slate-400 font-mono">Hệ thống đang đồng bộ thông tin mới từ website các xã/phường...</p>
+            </div>
+
+            <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700">
+              <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 animate-pulse rounded-full w-4/5" />
+            </div>
+
+            <span className="text-[11px] font-mono text-cyan-400 font-bold tracking-wider">Vui lòng chờ trong giây lát, không tắt trang...</span>
+          </div>
+        </div>
+      )}
+
       {/* MODALS QUẢN TRỊ */}
       {showLink && (
         <LinkModal
@@ -1868,6 +1892,16 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           }}
           onViewDashboard={(c) => router.push(`/${dashboard.id}/${c.id}`)}
           onClose={() => setShowCommuneList(false)}
+        />
+      )}
+
+      {/* MODAL BỘ LỌC VÀ SO SÁNH THÔNG TIN (chỉ đọc dữ liệu KPI) */}
+      {showFilterCompare && dashboard && (
+        <KpiFilterCompareModal
+          key={dashboard.id}
+          open={showFilterCompare}
+          dashboard={dashboard}
+          onClose={() => setShowFilterCompare(false)}
         />
       )}
 

@@ -17,7 +17,7 @@ export interface MetricIdModalProps {
   initialId?: string;
   baseDomain?: string;
   onClose: () => void;
-  onSave?: (metricKey: string, id: string, fullUrl?: string, autoScrapedValue?: number) => Promise<void | any>;
+  onSave?: (metricKey: string, id: string, fullUrl?: string, autoScrapedValue?: number, syncEnabled?: boolean) => Promise<void | any>;
   onSaved?: () => void;
 }
 
@@ -49,11 +49,13 @@ export function MetricIdModal({
   ).trim().replace(/\/+$/, "");
 
   const [idInput, setIdInput] = useState(defaultId);
+  const [syncEnabled, setSyncEnabled] = useState(true); // 👈 Trạng thái checkbox đồng bộ dữ liệu
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     setIdInput(defaultId);
+    setSyncEnabled(true);
     setStatusMsg(null);
   }, [defaultId, metricKey]);
 
@@ -82,7 +84,7 @@ export function MetricIdModal({
 
     try {
       if (onSave) {
-        await onSave(metricKey, cleanId, fullPreviewUrl);
+        await onSave(metricKey, cleanId, fullPreviewUrl, undefined, syncEnabled);
       }
       if (onSaved) {
         onSaved();
@@ -90,7 +92,7 @@ export function MetricIdModal({
 
       setStatusMsg({
         type: "success",
-        text: "Đã lưu ID & đồng bộ số liệu thành công!",
+        text: syncEnabled ? "Đã lưu ID & đồng bộ số liệu thành công!" : "Đã cập nhật liên kết thẻ thành công!",
       });
 
       // 👉 Tự động làm mới dữ liệu của Dashboard
@@ -164,6 +166,23 @@ export function MetricIdModal({
             </div>
           </div>
 
+          {/* 🌟 Thêm lựa chọn: Bạn có muốn đồng bộ dữ liệu không? */}
+          <div className="flex items-start space-x-3 p-3.5 bg-[#061121] rounded-xl border border-[#1d293d]">
+            <input
+              type="checkbox"
+              id="syncCheckbox"
+              checked={syncEnabled}
+              onChange={(e) => setSyncEnabled(e.target.checked)}
+              className="mt-0.5 w-4 h-4 text-cyan-600 border-slate-700 rounded bg-[#0a1124] focus:ring-cyan-500 focus:ring-offset-[#0a1124] cursor-pointer"
+            />
+            <label htmlFor="syncCheckbox" className="text-xs text-slate-300 cursor-pointer select-none">
+              <span className="font-semibold text-slate-200 block mb-0.5">Đồng bộ dữ liệu từ web nguồn</span>
+              <span className="text-slate-400 text-[11px] leading-relaxed block">
+                Nếu không tick, thẻ sẽ chỉ liên kết trực tiếp tới đường dẫn tự động mà không tiến hành cào/đồng bộ số liệu.
+              </span>
+            </label>
+          </div>
+
           {/* Đường dẫn tự động ghép */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-400">Đường dẫn tự động tạo</label>
@@ -190,10 +209,10 @@ export function MetricIdModal({
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-3 py-3 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/30 disabled:opacity-50"
+            className="w-full mt-3 py-3 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/30 disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-            <span>{loading ? "Đang đồng bộ..." : "Lưu & Đồng bộ số liệu"}</span>
+            <span>{loading ? "Đang xử lý..." : "Lưu cấu hình"}</span>
           </button>
         </form>
       </div>

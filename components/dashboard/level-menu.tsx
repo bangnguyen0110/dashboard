@@ -274,32 +274,41 @@ export function LevelMenu({
   // Hàm xử lý Làm mới dữ liệu chung
   const handleSmartRefresh = async () => {
     if (!resolvedDashboardId) {
-      if (onSyncLive) onSyncLive();
+      if (onChanged) onChanged();
       return;
     }
 
     try {
       setRefreshing(true);
+
+      // 💠 Nếu có luồng từ DashboardDetail (onSyncLive) -> ủy quyền để Modal Process Bar
+      // được giữ nguyên, refresh-all chỉ chạy MỘT lần và có timeout chống treo.
+      if (onSyncLive) {
+        onSyncLive();
+        return;
+      }
+
+      // 🔁 Fallback khi LevelMenu dùng độc lập: gọi trực tiếp API refresh-all
       const res = await fetch("/api/v1/metrics/refresh-all", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dashboardId: resolvedDashboardId }),
+        // Giới hạn thời gian chờ để vòng quay KHÔNG bị treo vô hạn khi server quá lâu
+        signal: AbortSignal.timeout(60_000),
       });
 
-      const result = await res.json();
-      if (result.success) {
+      const result = await res.json().catch(() => null);
+
+      if (result && result.success) {
         alert(result.message || "Đã làm mới dữ liệu thành công!");
-        if (onSyncLive) onSyncLive();
+        // Tải lại dữ liệu mượt mà trên trang (không gọi refresh lần 2, không reload cả trang)
         if (onChanged) onChanged();
-        window.location.reload();
       } else {
-        if (onSyncLive) onSyncLive();
-        else alert("Lỗi: " + (result.error || "Không thể làm mới dữ liệu"));
+        alert("Lỗi: " + ((result && result.error) || "Không thể làm mới dữ liệu"));
       }
     } catch (err) {
       console.error("Lỗi làm mới dữ liệu:", err);
-      if (onSyncLive) onSyncLive();
-      else alert("Đã xảy ra lỗi kết nối.");
+      if (!onSyncLive) alert("Đã xảy ra lỗi kết nối hoặc quá thời gian chờ khi làm mới dữ liệu.");
     } finally {
       setRefreshing(false);
     }

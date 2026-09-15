@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -27,7 +30,6 @@ function extractNumberFromContent(content: string): number | null {
     // Không phải JSON, xử lý HTML
   }
 
-  // Quét các thẻ HTML chứa số
   const regexPatterns = [
     /<(?:span|div|b|strong|p|h\d)[^>]*class="[^"]*(?:count|total|stat|number|value|qty|badge|highlight)[^"]*"[^>]*>\s*([\d.,]+)\s*<\//i,
     /<(?:span|div|b|strong|p|h\d)[^>]*id="[^"]*(?:count|total|stat|number|value|qty)[^"]*"[^>]*>\s*([\d.,]+)\s*<\//i,
@@ -44,7 +46,6 @@ function extractNumberFromContent(content: string): number | null {
     }
   }
 
-  // Quét số đầu tiên tìm thấy
   const strippedText = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
   const fallbackMatch = strippedText.match(/(\b\d{1,3}(?:[.,]\d{3})*(?:\.\d+)?\b|\b\d+\b)/);
   if (fallbackMatch && fallbackMatch[1]) {
@@ -71,10 +72,11 @@ export async function POST(req: NextRequest) {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,application/json,*/*;q=0.8",
       },
-      next: { revalidate: 0 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
+      console.error(`[SCRAPE ERROR] Không thể kết nối URL: ${finalUrl} (Status: ${response.status})`);
       return NextResponse.json(
         { success: false, error: `Không thể kết nối đến URL (${response.status})` },
         { status: 502 }
@@ -84,6 +86,12 @@ export async function POST(req: NextRequest) {
     const htmlContent = await response.text();
     const extractedValue = extractNumberFromContent(htmlContent);
 
+    console.log(`\n--- [SCRAPE LOG] ---`);
+    console.log(`🔗 URL: ${finalUrl}`);
+    console.log(`🔑 MetricKey: ${metricKey} | DashboardId: ${dashboardId}`);
+    console.log(`📊 Giá trị bóc tách được:`, extractedValue);
+    console.log(`--------------------\n`);
+
     if (extractedValue === null) {
       return NextResponse.json({
         success: false,
@@ -92,20 +100,15 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // GHI TRỰC TIẾP VÀO DATABASE CHO CẢ TẦNG 1 -> TẦNG 5
+    // GHI HOẶC CẬP NHẬT VÀO DATABASE BẰNG UPSERT
     if (dashboardId && metricKey) {
       const prefix = metricKey.split("_")[0];
+      const nowIso = new Date().toISOString();
 
-      // TẦNG 2, 3, 4, 5 (l2, l3, l4, l5)
+      // TẦNG 2, 3, 4, 5
       if (prefix === "l2" || prefix === "l3" || prefix === "l4" || prefix === "l5") {
         const col =
-          prefix === "l2"
-            ? "level2"
-            : prefix === "l3"
-            ? "level3"
-            : prefix === "l4"
-            ? "level4"
-            : "level5";
+          prefix === "l2" ? "level2" : prefix === "l3" ? "level3" : prefix === "l4" ? "level4" : "level5";
         const shortField = metricKey.replace(`${prefix}_`, "");
 
         const { data: dash } = await supabase
@@ -118,20 +121,18 @@ export async function POST(req: NextRequest) {
         currentData[metricKey] = extractedValue;
         currentData[shortField] = extractedValue;
 
-        // Thử cập nhật vào cột riêng
         const { error: updateColErr } = await supabase
           .from("dashboards")
           .update({ [col]: currentData })
           .eq("id", dashboardId);
 
-        // Fallback vào metadata nếu cột chưa tồn tại
         if (updateColErr) {
           const meta = (dash as any)?.metadata || {};
           meta[col] = currentData;
           await supabase.from("dashboards").update({ metadata: meta }).eq("id", dashboardId);
         }
       }
-      // KHỐI B3 -> B9 TẦNG 1
+      // KHỐI B3 -> B9
       else if (["b3", "b4", "b5", "b6", "b7", "b8", "b9"].includes(prefix)) {
         const fieldName = metricKey.replace(`${prefix}_`, "");
         const { data: dash } = await supabase.from("dashboards").select(prefix).eq("id", dashboardId).single();
@@ -140,7 +141,7 @@ export async function POST(req: NextRequest) {
 
         await supabase.from("dashboards").update({ [prefix]: currentData }).eq("id", dashboardId);
       }
-      // KHỐI B1
+      // KHỐI B1 (Sử dụng upsert để đảm bảo tạo mới nếu chưa có dòng dữ liệu)
       else if (prefix === "b1") {
         const b1FieldMap: Record<string, string[]> = {
           b1_sme_total: ["sme_total"],
@@ -152,12 +153,13 @@ export async function POST(req: NextRequest) {
         };
         const fields = b1FieldMap[metricKey] || [];
         if (fields.length > 0) {
-          const updateObj: Record<string, number> = {};
+          const updateObj: Record<string, any> = { dashboard_id: dashboardId, updated_at: nowIso };
           fields.forEach((f) => (updateObj[f] = extractedValue));
-          await supabase.from("kpi_business_units").update(updateObj).eq("dashboard_id", dashboardId);
+          
+          await supabase.from("kpi_business_units").upsert(updateObj, { onConflict: "dashboard_id" });
         }
       }
-      // KHỐI B2
+      // KHỐI B2 (Sử dụng upsert)
       else if (prefix === "b2") {
         const b2FieldMap: Record<string, string> = {
           b2_ocop_3: "ocop_3star",
@@ -168,7 +170,11 @@ export async function POST(req: NextRequest) {
         };
         const field = b2FieldMap[metricKey];
         if (field) {
-          await supabase.from("kpi_products").update({ [field]: extractedValue }).eq("dashboard_id", dashboardId);
+          await supabase.from("kpi_products").upsert({
+            dashboard_id: dashboardId,
+            [field]: extractedValue,
+            updated_at: nowIso,
+          }, { onConflict: "dashboard_id" });
         }
       }
     }
@@ -179,6 +185,7 @@ export async function POST(req: NextRequest) {
       url: finalUrl,
     });
   } catch (error: any) {
+    console.error(`[SCRAPE CRITICAL ERROR]:`, error.message);
     return NextResponse.json(
       { success: false, error: error.message || "Lỗi xử lý bóc tách số liệu" },
       { status: 500 }

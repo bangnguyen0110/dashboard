@@ -12,5 +12,12 @@
   },
   "observability": {
     "enabled": true
+  },
+  // 🌟 Tác vụ tự động lúc 18:00 hằng ngày (Cloudflare Cron Trigger).
+  // Khi Cron Trigger kích hoạt, worker sẽ nhận sự kiện `scheduled`,
+  // cần được dispatch (hoặc một lịch trình ngoài) gọi tới GET /api/v1/metrics/cron-sync
+  // để hệ thống tự quét toàn bộ số liệu nguồn xã/phường và đồng bộ lên các Dashboard Tỉnh.
+  "triggers": {
+    "crons": ["0 18 * * *"]
   }
 }

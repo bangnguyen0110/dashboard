@@ -139,7 +139,6 @@
         });
 
         var message = "🔔 YÊU CẦU TƯ VẤN & ĐĂNG KÝ GÓI MỚI!\n\n" +
-            "KHÁCH HÀNG TỰ CHỌN GÓI: " + "\n" +
             "🏢 Tên công ty: " + company + "\n" +
             "📞 Số điện thoại: " + phone + "\n\n" +
             "🛒 Chi tiết các gói đã chọn:\n" + itemsList.join('\n') + "\n\n" +

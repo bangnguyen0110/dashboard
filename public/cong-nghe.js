@@ -51,7 +51,6 @@
         if (target) {
             var html = '<div class="z-tech-wrapper">' +
                 '<div class="z-tech-header">' +
-                    '<span class="z-tech-eyebrow">ĐỈNH CAO CÔNG NGHỆ B2B</span>' +
                     '<h2 class="z-tech-title">Nền Tảng Lõi Z+ & Hệ Thống NetID AI Native</h2>' +
                     '<p class="z-tech-desc">Được nghiên cứu và làm chủ từ năm 2011, hệ sinh thái sở hữu kiến trúc công nghệ độc bản, vượt trội hoàn toàn so với các phần mềm rời rạc trên thị trường.</p>' +
                 '</div>' +

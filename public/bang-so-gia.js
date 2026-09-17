@@ -139,7 +139,7 @@
         });
 
         var message = "🔔 YÊU CẦU TƯ VẤN & ĐĂNG KÝ GÓI MỚI!\n\n" +
-            "KHÁCH HÀNG TỰ CHỌN GÓI"+ "\n"    
+            "KHÁCH HÀNG TỰ CHỌN GÓI: " + "\n" +
             "🏢 Tên công ty: " + company + "\n" +
             "📞 Số điện thoại: " + phone + "\n\n" +
             "🛒 Chi tiết các gói đã chọn:\n" + itemsList.join('\n') + "\n\n" +
@@ -147,27 +147,25 @@
             "💰 Tổng thanh toán: " + totalVal.toLocaleString('vi-VN') + "đ";
 
         var botToken = "8010796365:AAEe85waz1xrjJWv9ilnRJBIVVxz53HKKms";
-        var chatId = "1088364004";
-        var url = "https://api.telegram.org/bot" + botToken + "/sendMessage";
+        var chatId = "-5585739071";
+        
+        // Sử dụng encodeURIComponent để truyền tải toàn bộ nội dung message đầy đủ, tránh lỗi ngắt đoạn dòng
+        var url = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatId + "&text=" + encodeURIComponent(message);
 
         var submitBtn = document.querySelector('.z-modal-btn');
         submitBtn.innerText = "Đang gửi yêu cầu...";
         submitBtn.disabled = true;
 
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: message
-            })
-        })
+        fetch(url)
         .then(function(response) {
-            if(response.ok) {
+            return response.json();
+        })
+        .then(function(data) {
+            if(data.ok) {
                 alert('Gửi yêu cầu thành công! Đội ngũ tư vấn sẽ liên hệ lại với bạn trong thời gian sớm nhất.');
                 zCloseCheckoutModal();
             } else {
-                alert('Có lỗi xảy ra khi gửi thông báo. Vui lòng thử lại sau!');
+                alert('Có lỗi: ' + (data.description || 'Không thể gửi tin nhắn'));
             }
         })
         .catch(function(error) {

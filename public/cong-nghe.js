@@ -6,7 +6,7 @@
             .z-tech-wrapper { max-width: 1200px; margin: 50px auto; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; box-sizing: border-box; }
             .z-tech-wrapper * { box-sizing: border-box; }
             
-            .z-tech-container { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: center; background: #ffffff;  border-radius: 24px; }
+            .z-tech-container { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: center; background: #f9f9f9;  border-radius: 24px; }
             
             /* Left Side: 3D Image with Motion Effect */
             .z-tech-left { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 20px; padding: 35px 25px; text-align: center; height: 100%; position: relative; overflow: hidden; }

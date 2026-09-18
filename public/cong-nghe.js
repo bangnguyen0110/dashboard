@@ -6,13 +6,13 @@
             .z-tech-wrapper { max-width: 1200px; margin: 50px auto; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; box-sizing: border-box; }
             .z-tech-wrapper * { box-sizing: border-box; }
             
-            .z-tech-container { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); }
+            .z-tech-container { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: center; background: #ffffff;  border-radius: 24px; }
             
             /* Left Side: 3D Image with Motion Effect */
-            .z-tech-left { display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #f5fff0 0%, #e0fef7 100%); border-radius: 20px; padding: 35px 25px; text-align: center; height: 100%; border: 1px solid #bae6fd; position: relative; overflow: hidden; }
+            .z-tech-left { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 20px; padding: 35px 25px; text-align: center; height: 100%; position: relative; overflow: hidden; }
             
             .z-robot-img { 
-                max-width: 280px; 
+                max-width: 330px; 
                 width: 100%; 
                 height: auto; 
                 filter: drop-shadow(0 20px 30px rgba(2, 132, 199, 0.3)); 
@@ -37,7 +37,7 @@
             .z-tech-right::-webkit-scrollbar { width: 4px; }
             .z-tech-right::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-            .z-tech-item { display: flex; align-items: flex-start; gap: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; transition: all 0.25s ease; }
+            .z-tech-item { display: flex; align-items: flex-start; gap: 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; transition: all 0.25s ease; }
             .z-tech-item:hover { background: #fff; border-color: #0a6c0a; box-shadow: 0 6px 15px -4px rgb(2 199 20 / 10%); transform: translateX(4px); }
 
             .z-tech-icon-box { width: 42px; height: 42px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }

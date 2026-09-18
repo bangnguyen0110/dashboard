@@ -1,31 +1,58 @@
 (function() {
-    if (!document.getElementById('z-tech-style')) {
+    if (!document.getElementById('z-tech-custom-style')) {
         var style = document.createElement('style');
-        style.id = 'z-tech-style';
+        style.id = 'z-tech-custom-style';
         style.innerHTML = `
-            .z-tech-wrapper { max-width: 1200px; margin: 40px auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; box-sizing: border-box; }
+            .z-tech-wrapper { max-width: 1200px; margin: 50px auto; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; box-sizing: border-box; }
             .z-tech-wrapper * { box-sizing: border-box; }
-            .z-tech-header { text-align: center; max-width: 800px; margin: 0 auto 30px auto; }
-            .z-tech-eyebrow { font-size: 12px; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
-            .z-tech-title { font-size: 28px; font-weight: 900; color: #0f172a; letter-spacing: -0.5px; margin-bottom: 12px; }
-            .z-tech-desc { font-size: 15px; color: #475569; line-height: 1.6; }
-            .z-tech-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
-            .z-tech-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); transition: transform 0.2s ease; }
-            .z-tech-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-            .z-tech-card-title { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
-            .z-tech-card-sub { font-size: 12px; font-weight: 700; color: #0284c7; display: block; margin-bottom: 12px; text-transform: uppercase; }
-            .z-tech-card p { font-size: 14px; color: #475569; line-height: 1.5; margin-bottom: 14px; }
-            .z-tech-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: #1e293b; }
-            .z-tech-list li { display: flex; align-items: flex-start; gap: 8px; }
-            .z-tech-specs { background: #0f172a; color: #fff; border-radius: 12px; padding: 25px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; text-align: center; }
-            .z-spec-val { font-size: 22px; font-weight: 900; color: #38bdf8; }
-            .z-spec-lbl { font-size: 11.5px; color: #94a3b8; margin-top: 4px; }
-            @media (max-width: 900px) { .z-tech-grid { grid-template-columns: 1fr; } .z-tech-specs { grid-template-columns: repeat(2, 1fr); } }
+            
+            .z-tech-container { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); }
+            
+            /* Left Side: 3D Image with Motion Effect */
+            .z-tech-left { display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #f0f9ff 0%, #e0f2fe 100%); border-radius: 20px; padding: 35px 25px; text-align: center; height: 100%; border: 1px solid #bae6fd; position: relative; overflow: hidden; }
+            
+            .z-robot-img { 
+                max-width: 280px; 
+                width: 100%; 
+                height: auto; 
+                filter: drop-shadow(0 20px 30px rgba(2, 132, 199, 0.3)); 
+                animation: imageFloat 4s ease-in-out infinite alternate; 
+                transition: transform 0.3s ease;
+            }
+            .z-robot-img:hover {
+                transform: scale(1.03);
+            }
+            
+            .z-tech-left h3 { font-size: 20px; font-weight: 900; color: #0f172a; margin-top: 18px; }
+            .z-tech-left p { font-size: 13.5px; color: #475569; margin-top: 6px; line-height: 1.5; }
+
+            @keyframes imageFloat {
+                0% { transform: translateY(0px) rotate(0deg); }
+                50% { transform: translateY(-10px) rotate(1deg); }
+                100% { transform: translateY(0px) rotate(0deg); }
+            }
+
+            /* Right Side: 7 Core Technologies Grid */
+            .z-tech-right { display: grid; grid-template-columns: repeat(1, 1fr); gap: 12px; max-height: 640px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+            .z-tech-right::-webkit-scrollbar { width: 4px; }
+            .z-tech-right::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+            .z-tech-item { display: flex; align-items: flex-start; gap: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; transition: all 0.25s ease; }
+            .z-tech-item:hover { background: #fff; border-color: #0284c7; box-shadow: 0 6px 15px -4px rgba(2, 132, 199, 0.1); transform: translateX(4px); }
+
+            .z-tech-icon-box { width: 42px; height: 42px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+            
+            .z-tech-content h4 { font-size: 14.5px; font-weight: 800; color: #0f172a; margin-bottom: 3px; }
+            .z-tech-content p { font-size: 13px; color: #475569; line-height: 1.4; margin: 0; }
+
+            @media (max-width: 992px) {
+                .z-tech-container { grid-template-columns: 1fr; padding: 20px; }
+            }
         `;
         document.head.appendChild(style);
     }
 
-    function injectTech() {
+    function injectTechVisual() {
         if (document.querySelector('.z-tech-wrapper')) return true;
 
         var target = document.querySelector('.congnghe_h3_7517');
@@ -49,58 +76,86 @@
         }
 
         if (target) {
+            var customImageUrl = "https://doanhnghiep360.net/datafiles/1/2026-09/72876745-cong-nghe-hay.png";
+
             var html = '<div class="z-tech-wrapper">' +
-                '<div class="z-tech-header">' +
-                    '<h2 class="z-tech-title">Nền Tảng Lõi Z+ & Hệ Thống NetID AI Native</h2>' +
-                    '<p class="z-tech-desc">Được nghiên cứu và làm chủ từ năm 2011, hệ sinh thái sở hữu kiến trúc công nghệ độc bản, vượt trội hoàn toàn so với các phần mềm rời rạc trên thị trường.</p>' +
-                '</div>' +
-                '<div class="z-tech-grid">' +
-                    '<div class="z-tech-card" style="border-top: 4px solid #0284c7;">' +
-                        '<div class="z-tech-card-title">Zcore Engine & Lõi Công Nghệ Z+</div>' +
-                        '<span class="z-tech-card-sub">Kiến Trúc Vĩ Mô & Quy Mô Quốc Gia</span>' +
-                        '<p>Nền tảng Cloud Native, PaaS & SaaS với cơ sở dữ liệu phân tán (DB Cluster) và chiến lược Backup tự động 3-2-1 đảm bảo an toàn tuyệt đối.</p>' +
-                        '<ul class="z-tech-list">' +
-                            '<li>⚡ <strong>Chịu tải siêu khủng:</strong> Hơn 10 triệu request/ngày, xử lý Big Data với độ trễ tính bằng mili-giây.</li>' +
-                            '<li>⚡ <strong>Nhân bản siêu tốc:</strong> Thiết lập và nhân bản website, sàn TMĐT, LMS chỉ trong 10 phút.</li>' +
-                            '<li>⚡ <strong>Chuyển giao mã nguồn:</strong> Độc bản cho phép đối tác làm chủ hoàn toàn dữ liệu.</li>' +
-                        '</ul>' +
+                '<div class="z-tech-container">' +
+                    
+                    /* Left Column: 3D Illustration with Animation */
+                    '<div class="z-tech-left">' +
+                        '<img src="' + customImageUrl + '" alt="3D Robot AI Analytics" class="z-robot-img">' +
+                        '<h3>Trợ Lý Robot AI Phân Tích Số Liệu</h3>' +
+                        '<p>Tích hợp công nghệ trí tuệ nhân tạo hiện đại, trực quan hóa dữ liệu và tự động hóa toàn diện cho doanh nghiệp.</p>' +
                     '</div>' +
-                    '<div class="z-tech-card" style="border-top: 4px solid #ea580c;">' +
-                        '<div class="z-tech-card-title">NetID AI Native & AI Writer</div>' +
-                        '<span class="z-tech-card-sub" style="color: #ea580c;">Trợ Lý Ảo Sáng Tạo Dựa Trên Dữ Liệu Thực</span>' +
-                        '<p>Hệ thống AI Writer đa tác tử phối hợp hơn 20 lớp công nghệ (RAG, LLM, NLP, Vector DB) khai thác trực tiếp tri thức riêng của doanh nghiệp.</p>' +
-                        '<ul class="z-tech-list">' +
-                            '<li>🤖 <strong>Viết bài chuẩn E.E.A.T:</strong> Tự động sản xuất hàng ngàn bài viết SEO gắn liền sản phẩm.</li>' +
-                            '<li>🤖 <strong>Nhất quán thương hiệu:</strong> Kiểm soát ngữ nghĩa, giọng văn và thông điệp độc quyền.</li>' +
-                            '<li>🤖 <strong>Tích lũy tài sản số:</strong> Biến tài liệu nội bộ thành kho tri thức vĩnh viễn.</li>' +
-                        '</ul>' +
+
+                    /* Right Column: 7 Core Technologies Grid */
+                    '<div class="z-tech-right">' +
+                        
+                        /* Item 1 */
+                        '<div class="z-tech-item">' +
+                            '<div class="z-tech-icon-box">🧠</div>' +
+                            '<div class="z-tech-content">' +
+                                '<h4>AI Native</h4>' +
+                                '<p>Trí tuệ nhân tạo được tích hợp thông minh ngay trong lõi hệ thống.</p>' +
+                            '</div>' +
+                        '</div>' +
+
+                        /* Item 2 */
+                        '<div class="z-tech-item">' +
+                            '<div class="z-tech-icon-box">🚀</div>' +
+                            '<div class="z-tech-content">' +
+                                '<h4>Công nghệ lõi Z+</h4>' +
+                                '<p>Mô phỏng khả năng nhân bản hệ thống và mở rộng quy mô doanh nghiệp.</p>' +
+                            '</div>' +
+                        '</div>' +
+
+                        /* Item 3 */
+                        '<div class="z-tech-item">' +
+                            '<div class="z-tech-icon-box">☁️</div>' +
+                            '<div class="z-tech-content">' +
+                                '<h4>Kiến trúc Cloud – SaaS – PaaS</h4>' +
+                                '<p>Phân định rõ ràng các mô hình dịch vụ đám mây và khả năng mở rộng linh hoạt.</p>' +
+                            '</div>' +
+                        '</div>' +
+
+                        /* Item 4 */
+                        '<div class="z-tech-item">' +
+                            '<div class="z-tech-icon-box">📱</div>' +
+                            '<div class="z-tech-content">' +
+                                '<h4>Công nghệ WebApp – PWA</h4>' +
+                                '<p>Trải nghiệm mượt mà trên đa thiết bị, hỗ trợ cả khi mạng không ổn định.</p>' +
+                            '</div>' +
+                        '</div>' +
+
+                        /* Item 5 */
+                        '<div class="z-tech-item">' +
+                            '<div class="z-tech-icon-box">📊</div>' +
+                            '<div class="z-tech-content">' +
+                                '<h4>Big Data & Dữ liệu tập trung</h4>' +
+                                '<p>Quy trình thu thập, xử lý và biến dữ liệu thành tài sản số chiến lược.</p>' +
+                            '</div>' +
+                        '</div>' +
+
+                        /* Item 6 */
+                        '<div class="z-tech-item">' +
+                            '<div class="z-tech-icon-box">⚡</div>' +
+                            '<div class="z-tech-content">' +
+                                '<h4>CDN & Tối ưu hiệu năng</h4>' +
+                                '<p>Tăng tốc độ tải trang và hỗ trợ lượng truy cập lớn nhờ phân phối nội dung thông minh.</p>' +
+                            '</div>' +
+                        '</div>' +
+
+                        /* Item 7 */
+                        '<div class="z-tech-item">' +
+                            '<div class="z-tech-icon-box">🛡️</div>' +
+                            '<div class="z-tech-content">' +
+                                '<h4>Bảo mật đa lớp</h4>' +
+                                '<p>Quy trình bảo mật toàn diện với cam kết đánh giá mức chuẩn A+.</p>' +
+                            '</div>' +
+                        '</div>' +
+
                     '</div>' +
-                    '<div class="z-tech-card" style="border-top: 4px solid #7e22ce;">' +
-                        '<div class="z-tech-card-title">AI War Room - Phòng Hội Ý Chiến Lược</div>' +
-                        '<span class="z-tech-card-sub" style="color: #7e22ce;">Cơ Chế Mixture of Agents (MoA) & Debate (MAD)</span>' +
-                        '<p>Tổ chức phòng hội ý số với 7 AI Agent chuyên biệt (Tìm kiếm, Tài chính, Đơn giản, Phản biện, Suy luận, Biểu đồ, Toàn năng) phản biện chéo trước khi ra quyết định.</p>' +
-                        '<ul class="z-tech-list">' +
-                            '<li>🎯 <strong>Phân tích đa chiều:</strong> Đánh giá rủi ro, tài chính, thị trường và kịch bản thay thế khách quan.</li>' +
-                            '<li>🎯 <strong>Loại bỏ cảm tính:</strong> Tránh tư duy một chiều nhờ AI Phản biện chủ động tìm lỗ hổng.</li>' +
-                            '<li>🎯 <strong>Ra quyết định có cơ sở:</strong> Tổng hợp báo cáo, ma trận và bản đồ rủi ro minh bạch.</li>' +
-                        '</ul>' +
-                    '</div>' +
-                    '<div class="z-tech-card" style="border-top: 4px solid #16a34a;">' +
-                        '<div class="z-tech-card-title">AI Workspace & One Data Flow</div>' +
-                        '<span class="z-tech-card-sub" style="color: #16a34a;">Bản Thể Số & Dòng Chảy Trí Tuệ Đồng Nhất</span>' +
-                        '<p>Không gian làm việc số hợp nhất toàn bộ Datafiles, Knowledge Graph, Timelines và công nghệ quét ý nghĩa (vô ngôn ngữ) tăng năng suất x10 lần.</p>' +
-                        '<ul class="z-tech-list">' +
-                            '<li>🌐 <strong>Đa ngôn ngữ thông minh:</strong> Máy quét ý nghĩa thấu cảm "Nghĩ" và "Làm" không cần thông dịch viên.</li>' +
-                            '<li>🌐 <strong>Quản trị real-time:</strong> Streaming Organization đánh giá và phản hồi liên tục.</li>' +
-                            '<li>🌐 <strong>Giải phóng lãnh đạo:</strong> Doanh nghiệp vận hành như một "siêu sinh vật" tự tiến hóa.</li>' +
-                        '</ul>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="z-tech-specs">' +
-                    '<div><div class="z-spec-val">Epyc 7513</div><div class="z-spec-lbl">40 Cores CPU Siêu Mạnh</div></div>' +
-                    '<div><div class="z-spec-val">99.99%</div><div class="z-spec-lbl">Độ Sẵn Sàng Mục Tiêu</div></div>' +
-                    '<div><div class="z-spec-val">Chuẩn A+</div><div class="z-spec-lbl">Bảo Mật Security Headers</div></div>' +
-                    '<div><div class="z-spec-val">Auto 100%</div><div class="z-spec-lbl">Backup liên tục (1s/lần)</div></div>' +
+
                 '</div>' +
             '</div>';
 
@@ -112,7 +167,7 @@
 
     var attempts = 0;
     var interval = setInterval(function() {
-        if (injectTech() || attempts >= 40) {
+        if (injectTechVisual() || attempts >= 40) {
             clearInterval(interval);
         }
         attempts++;

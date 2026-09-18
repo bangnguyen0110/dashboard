@@ -9,7 +9,7 @@
             .z-tech-container { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 40px; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05); }
             
             /* Left Side: 3D Image with Motion Effect */
-            .z-tech-left { display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #f0f9ff 0%, #e0f2fe 100%); border-radius: 20px; padding: 35px 25px; text-align: center; height: 100%; border: 1px solid #bae6fd; position: relative; overflow: hidden; }
+            .z-tech-left { display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #f5fff0 0%, #e0fef7 100%); border-radius: 20px; padding: 35px 25px; text-align: center; height: 100%; border: 1px solid #bae6fd; position: relative; overflow: hidden; }
             
             .z-robot-img { 
                 max-width: 280px; 
@@ -38,7 +38,7 @@
             .z-tech-right::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
             .z-tech-item { display: flex; align-items: flex-start; gap: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; transition: all 0.25s ease; }
-            .z-tech-item:hover { background: #fff; border-color: #0284c7; box-shadow: 0 6px 15px -4px rgba(2, 132, 199, 0.1); transform: translateX(4px); }
+            .z-tech-item:hover { background: #fff; border-color: #0a6c0a; box-shadow: 0 6px 15px -4px rgb(2 199 20 / 10%); transform: translateX(4px); }
 
             .z-tech-icon-box { width: 42px; height: 42px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
             
@@ -84,8 +84,8 @@
                     /* Left Column: 3D Illustration with Animation */
                     '<div class="z-tech-left">' +
                         '<img src="' + customImageUrl + '" alt="3D Robot AI Analytics" class="z-robot-img">' +
-                        '<h3>Trợ Lý Robot AI Phân Tích Số Liệu</h3>' +
-                        '<p>Tích hợp công nghệ trí tuệ nhân tạo hiện đại, trực quan hóa dữ liệu và tự động hóa toàn diện cho doanh nghiệp.</p>' +
+                        '<h3>AI NATIVE</h3>' +
+                        '<p>Chúng tôi không chỉ ứng dụng AI, chúng tôi là AI Native – nền tảng được xây dựng từ gốc để khai thác sức mạnh AI.</p>' +
                     '</div>' +
 
                     /* Right Column: 7 Core Technologies Grid */

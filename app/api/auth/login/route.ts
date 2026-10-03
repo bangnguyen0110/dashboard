@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { ADMIN_SESSION_COOKIE, createAdminToken } from "@/lib/admin-session";
 
 /**
  * Xác thực đăng nhập dựa trên bảng `app_users` theo `username` + `password`
@@ -41,7 +42,23 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, user: data });
+    // Cấp cookie phiên Admin (httpOnly, ký HMAC) để các API nhạy cảm kiểm tra
+    // được phía server. Response body giữ nguyên -> client không phải đổi gì.
+    const isAdminUser = data.role === "admin" || data.username === "quanlykinhteso";
+    const response = NextResponse.json({ success: true, user: data });
+
+    if (isAdminUser) {
+      const { token, maxAge } = createAdminToken(String(data.username), data.role);
+      response.cookies.set(ADMIN_SESSION_COOKIE, token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge,
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error("Lỗi đăng nhập:", error);
     return NextResponse.json({ error: "Lỗi đăng nhập" }, { status: 500 });

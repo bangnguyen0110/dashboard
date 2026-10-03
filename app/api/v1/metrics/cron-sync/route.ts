@@ -9,8 +9,6 @@ const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Nếu đặt CRON_SECRET trong biến môi trường thì endpoint buộc phải gửi header x-cron-secret khớp.
-// Nếu không đặt thì cho phép gọi tự do (vẫn nên đặt CRON_SECRET trên production để tránh gọi trái phép).
 const CRON_SECRET = process.env.CRON_SECRET || process.env.CRON_JOB_SECRET || "";
 
 const nowISO = () => new Date().toISOString();

@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  applyB3Revenue,
+  buildB3MetadataMirror,
+  B3_FIELDS,
+  type B3Field,
+} from "@/lib/b3-revenue";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
@@ -135,11 +141,55 @@ export async function POST(req: NextRequest) {
       // KHỐI B3 -> B9
       else if (["b3", "b4", "b5", "b6", "b7", "b8", "b9"].includes(prefix)) {
         const fieldName = metricKey.replace(`${prefix}_`, "");
-        const { data: dash } = await supabase.from("dashboards").select(prefix).eq("id", dashboardId).single();
-        const currentData = (dash as any)?.[prefix] || {};
-        currentData[fieldName] = extractedValue;
 
-        await supabase.from("dashboards").update({ [prefix]: currentData }).eq("id", dashboardId);
+        if (prefix === "b3" && B3_FIELDS.includes(fieldName as B3Field)) {
+          // ===== KHỐI B3: CỘNG DỒN LŨY KẾ =====
+          // Web nguồn chỉ cho "tổng trong ngày"; hàm applyB3Revenue tự reset
+          // theo kỳ và rót delta sang Tuần/Tháng/Quý/Năm.
+          const { data: dash } = await supabase
+            .from("dashboards")
+            .select("b3, metadata")
+            .eq("id", dashboardId)
+            .single();
+
+            const dashRow = (dash ?? {}) as {
+              b3?: Record<string, unknown> | null;
+              metadata?: Record<string, unknown> | null;
+            };
+
+            const applied = applyB3Revenue(
+              dashRow.b3,
+              fieldName as B3Field,
+              extractedValue
+            );
+
+            await supabase
+              .from("dashboards")
+              .update({
+                b3: applied.b3,
+                // Đồng bộ metadata cả 5 mốc để UI không bị số cũ ghi đè.
+                metadata: buildB3MetadataMirror(dashRow.metadata, applied.b3),
+                updated_at: nowIso,
+              })
+              .eq("id", dashboardId);
+
+            console.log(
+              `📊 [B3] ${metricKey}: value=${extractedValue} delta=${applied.delta} ` +
+                `-> daily=${applied.b3.daily} weekly=${applied.b3.weekly} ` +
+                `monthly=${applied.b3.monthly} quarterly=${applied.b3.quarterly} ` +
+                `yearly=${applied.b3.yearly}`
+            );
+        } else {
+          const { data: dash } = await supabase
+            .from("dashboards")
+            .select(prefix)
+            .eq("id", dashboardId)
+            .single();
+          const currentData = (dash as any)?.[prefix] || {};
+          currentData[fieldName] = extractedValue;
+
+          await supabase.from("dashboards").update({ [prefix]: currentData }).eq("id", dashboardId);
+        }
       }
       // KHỐI B1 (Sử dụng upsert để đảm bảo tạo mới nếu chưa có dòng dữ liệu)
       else if (prefix === "b1") {

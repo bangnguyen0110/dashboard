@@ -11,24 +11,16 @@ const supabase = createClient(
 
 /* ====================================================================
  * QUẢN LÝ 2 GEMINI API KEY (Failover Rotation) — chống lỗi 503 (High Demand)
- * --------------------------------------------------------------------
- * - Key 1: GEMINI_API_KEY hoặc GOOGLE_API_KEY
- * - Key 2: GEMINI_API_KEY_2 (lấy từ biến môi trường để tránh bị GitHub chặn push)
- * - Khi gặp lỗi 503 / UNAVAILABLE / "high demand": chờ ~1.5s rồi tự động
- *   thử lại bằng key còn lại. Cả 2 key cùng quá tải mới trả lỗi về client.
  * ==================================================================== */
 const GEMINI_API_KEY_1 = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
 const GEMINI_API_KEY_2 = process.env.GEMINI_API_KEY_2 || "";
 
-// Danh sách key hợp lệ (loại bỏ key rỗng để không gọi API với key trống).
 const GEMINI_KEYS: string[] = [GEMINI_API_KEY_1, GEMINI_API_KEY_2].filter(Boolean);
 
-/** Chờ đơn giản bằng setTimeout (async). */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Phát hiện lỗi quá tải / dịch vụ tạm thời không khả dụng (503 High Demand). */
 function isOverloadedError(status: number, errText: string): boolean {
   if (status === 503 || status === 429) return true;
   const lower = (errText || "").toLowerCase();
@@ -46,9 +38,6 @@ interface GeminiResponse {
   candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
 }
 
-/**
- * Gọi Gemini generateContent với 1 key cụ thể.
- */
 async function callGeminiWithKey(
   key: string,
   modelName: string,
@@ -78,9 +67,6 @@ async function callGeminiWithKey(
   return { ok: true, data };
 }
 
-/**
- * Wrapper chính: thử lần lượt các key với cơ chế Failover.
- */
 async function callGeminiWithFailover(
   modelName: string,
   prompt: string
@@ -328,10 +314,10 @@ function findMentionedCommunes(qNorm: string, rows: CommuneKpiRow[]): CommuneKpi
 
 function formatCommuneLine(r: CommuneKpiRow): string {
   return (
-    `- ${r.name}: SME ${r.sme} (CDS ${r.smeDx}) | ` +
-    `HKD ${r.hkd} (CDS ${r.hkdDx}) | HTX ${r.htx} (CDS ${r.htxDx}) | ` +
-    `Tong CDS ${r.dxTotal} (ty le ${r.dxRate}%) | ` +
-    `OCOP 3s/4s/5s: ${r.ocop3}/${r.ocop4}/${r.ocop5} (tong ${r.ocopTotal})`
+    `- ${r.name}: SME ${r.sme} (CĐS ${r.smeDx}) | ` +
+    `HKD ${r.hkd} (CĐS ${r.hkdDx}) | HTX ${r.htx} (CĐS ${r.htxDx}) | ` +
+    `Tổng CĐS ${r.dxTotal} (tỷ lệ ${r.dxRate}%) | ` +
+    `OCOP 3s/4s/5s: ${r.ocop3}/${r.ocop4}/${r.ocop5} (tổng ${r.ocopTotal})`
   );
 }
 
@@ -347,31 +333,31 @@ function buildProvinceQaPrompt(
   const byRate = [...rows].sort((a, b) => parseFloat(b.dxRate) - parseFloat(a.dxRate));
   const byOcop = [...rows].sort((a, b) => b.ocopTotal - a.ocopTotal);
   const topList = (list: CommuneKpiRow[], pick: (r: CommuneKpiRow) => string): string =>
-    list.slice(0, 5).map((r, i) => `${i + 1}. ${r.name} (${pick(r)})`).join("; ") || "Chua co du lieu.";
+    list.slice(0, 5).map((r, i) => `${i + 1}. ${r.name} (${pick(r)})`).join("; ") || "Chưa có dữ liệu.";
   const bottomList = (list: CommuneKpiRow[], pick: (r: CommuneKpiRow) => string): string =>
-    list.slice(-5).reverse().map((r, i) => `${i + 1}. ${r.name} (${pick(r)})`).join("; ") || "Chua co du lieu.";
+    list.slice(-5).reverse().map((r, i) => `${i + 1}. ${r.name} (${pick(r)})`).join("; ") || "Chưa có dữ liệu.";
   const focus =
     mentioned.length > 0
-      ? `\n[XA DUOC HOI TRUC TIEP]\n${mentioned.map(formatCommuneLine).join("\n")}\n`
+      ? `\n[XÃ ĐƯỢC HỎI TRỰC TIẾP]\n${mentioned.map(formatCommuneLine).join("\n")}\n`
       : "";
-  return `Ban la Co van Cap cao ve Chuyen doi so va Kinh te so dia phuong tai Viet Nam.
-PHAM VI DU LIEU: Ban dang ho tro o cap Tinh (${provinceName}). Ban co quyen truy xuat, tong hop va phan tich du lieu cua toan bo ${rows.length} xa/phuong truc thuoc duoi day.
+  return `Bạn là Cố vấn Cấp cao về Chuyển đổi số và Kinh tế số địa phương tại Việt Nam. Bắt buộc phải trả lời bằng TIẾNG VIỆT CÓ DẤU ĐẦY ĐỦ.
+PHẠM VI DỮ LIỆU: Bạn đang hỗ trợ ở cấp Tỉnh (${provinceName}). Bạn có quyền truy xuất, tổng hợp và phân tích dữ liệu của toàn bộ ${rows.length} xã/phường trực thuộc dưới đây.
 
-BANG SO LIEU THUC TE CAC XA/PHUONG TRUC THUOC (nguon duy nhat duoc phep dung):
-[TONG HOP TOAN TINH] SME: ${sum((r) => r.sme)} (CDS ${sum((r) => r.smeDx)}) | HKD: ${sum((r) => r.hkd)} (CDS ${sum((r) => r.hkdDx)}) | HTX: ${sum((r) => r.htx)} (CDS ${sum((r) => r.htxDx)}) | Tong CDS: ${sum((r) => r.dxTotal)} | OCOP 3s/4s/5s: ${sum((r) => r.ocop3)}/${sum((r) => r.ocop4)}/${sum((r) => r.ocop5)}.
-${focus}[XEP HANG SME CDS] Top 5: ${topList(bySmeDx, (r) => `${r.smeDx} DN`)} | Cuoi 5: ${bottomList(bySmeDx, (r) => `${r.smeDx} DN`)}.
-[XEP HANG TY LE CDS] Top 5: ${topList(byRate, (r) => `${r.dxRate}%`)} | Cuoi 5 (yeu nhat): ${bottomList(byRate, (r) => `${r.dxRate}%`)}.
-[XEP HANG OCOP] Top 5: ${topList(byOcop, (r) => `${r.ocopTotal} SP`)} | Cuoi 5: ${bottomList(byOcop, (r) => `${r.ocopTotal} SP`)}.
-[CHI TIET TUNG XA]
+BẢNG SỐ LIỆU THỰC TẾ CÁC XÃ/PHƯỜNG TRỰC THUỘC (nguồn duy nhất được phép dùng):
+[TỔNG HỢP TOÀN TỈNH] SME: ${sum((r) => r.sme)} (CĐS ${sum((r) => r.smeDx)}) | HKD: ${sum((r) => r.hkd)} (CĐS ${sum((r) => r.hkdDx)}) | HTX: ${sum((r) => r.htx)} (CĐS ${sum((r) => r.htxDx)}) | Tổng CĐS: ${sum((r) => r.dxTotal)} | OCOP 3s/4s/5s: ${sum((r) => r.ocop3)}/${sum((r) => r.ocop4)}/${sum((r) => r.ocop5)}.
+${focus}[XẾP HẠNG SME CĐS] Top 5: ${topList(bySmeDx, (r) => `${r.smeDx} DN`)} | Cuối 5: ${bottomList(bySmeDx, (r) => `${r.smeDx} DN`)}.
+[XẾP HẠNG TỶ LỆ CĐS] Top 5: ${topList(byRate, (r) => `${r.dxRate}%`)} | Cuối 5: ${bottomList(byRate, (r) => `${r.dxRate}%`)}.
+[XẾP HẠNG OCOP] Top 5: ${topList(byOcop, (r) => `${r.ocopTotal} SP`)} | Cuối 5: ${bottomList(byOcop, (r) => `${r.ocopTotal} SP`)}.
+[CHI TIẾT TỪNG XÃ]
 ${rows.map(formatCommuneLine).join("\n")}
 
-CAU HOI CUA NGUOI DUNG:
+CÂU HỎI CỦA NGƯỜI DÙNG:
 "${question}"
 
-YEU CAU TRA LOI:
-1. Chi dung so lieu trong bang tren; tuyet doi khong tu bia so lieu. Neu cau hoi nhac xa khog co trong bang, hay noi ro khong co du lieu.
-2. Voi cau hoi top/cuoi/so sanh/xa yeu: dua dung thu hang da cho, neu ten va con so cu the tung xa.
-3. KHONG DUNG BAT KY KY TU MARKDOWN NAO (Khong dung *, **, #, _, >).`;
+YÊU CẦU TRẢ LỜI:
+1. Trả lời hoàn toàn bằng TIẾNG VIỆT CÓ DẤU CHUẨN MỰC.
+2. Chỉ dùng số liệu trong bảng trên; tuyệt đối không tự bịa số liệu.
+3. Không dùng các ký tự markdown như *, **, #, _, >.`;
 }
 
 async function fetchOwnCommuneLine(
@@ -469,8 +455,8 @@ async function resolveScopedQa(
       return {
         refused: false,
         prompt:
-          `${scopeLine}CAU HOI: ${question}\n` +
-          `(Lưu ý: Hiện chưa truy xuất được bảng xã/phường trực thuộc, hãy trả lời dựa trên số liệu tổng đã biết và nêu rõ hạn chế dữ liệu.)`,
+          `${scopeLine}CÂU HỎI: ${question}\n` +
+          `(Lưu ý: Hiện chưa truy xuất được bảng xã/phường trực thuộc, hãy trả lời bằng tiếng Việt có dấu dựa trên số liệu tổng đã biết.)`,
       };
     }
     const mentioned = findMentionedCommunes(qNorm, rows);
@@ -486,8 +472,7 @@ async function resolveScopedQa(
       message:
         `Tôi đang hỗ trợ ở Dashboard của xã ${communeName}. Theo quy định phân quyền dữ liệu, ` +
         `tôi chỉ được phép phân tích dữ liệu của riêng xã này nên không thể cung cấp hay so sánh số liệu của các xã/phường khác.\n` +
-        `Để xem bức tranh toàn tỉnh (xếp hạng, top/cuối, so sánh OCOP giữa các xã), vui lòng mở Dashboard cấp Tỉnh và hỏi Trợ lý AI tại đó. ` +
-        `Nếu cần, bạn có thể đặt câu hỏi về số liệu chuyển đổi số, SME, HKD, HTX hoặc OCOP của riêng xã ${communeName}.`,
+        `Để xem bức tranh toàn tỉnh, vui lòng mở Dashboard cấp Tỉnh và hỏi Trợ lý AI tại đó.`,
     };
   }
 
@@ -498,13 +483,10 @@ async function resolveScopedQa(
   
   const scopeLine =
     `PHẠM VI DỮ LIỆU (TUYỆT ĐỐI): Bạn đang hỗ trợ ở Dashboard của xã ${communeName}. ` +
-    `Bạn chỉ được phép thảo luận và phân tích dữ liệu của riêng xã này${own ? ` theo SỐ LIỆU THỰC TẾ dưới đây` : ``}. ` +
-    `Tuyệt đối không cung cấp, so sánh hay suy đoán số liệu của bất kỳ xã/phường nào khác; ` +
-    `nếu bị hỏi, hãy từ chối và hướng người dùng lên Dashboard cấp Tỉnh.\n` +
+    `Bạn chỉ được phép thảo luận và phân tích dữ liệu của riêng xã này${own ? ` theo SỐ LIỆU THỰC TẾ dưới đây` : ``}.\n` +
     (own
-      ? `SỐ LIỆU THỰC TẾ CỦA XÃ ${communeName} (nguồn duy nhất được phép dùng):\n${own}\n`
-      : `(Lưu ý: hiện chưa truy xuất được số liệu KPI của xã này; hãy nêu rõ hạn chế, không tự bịa số liệu.)\n`) +
-    `QUY TẮC SỐ LIỆU: Chỉ sử dụng số liệu thực tế của xã ${communeName} vừa cho; tuyệt đối không tự bịa số liệu.\n\n`;
+      ? `SỐ LIỆU THỰC TẾ CỦA XÃ ${communeName}:\n${own}\n`
+      : `(Lưu ý: chưa truy xuất được số liệu KPI của xã này; hãy nêu rõ hạn chế.)\n`);
 
   return { refused: false, prompt: `${scopeLine}${question}` };
 }
@@ -534,7 +516,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const [b1Res, b2Res] = await Promise.all([
+    const [b1Res, b2Res, macroRes] = await Promise.all([
       supabase
         .from("kpi_business_units")
         .select("*")
@@ -548,6 +530,11 @@ export async function POST(req: NextRequest) {
         .eq("dashboard_id", dashboardId)
         .order("created_at", { ascending: false })
         .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("kpi_macro_metrics")
+        .select("*")
+        .eq("dashboard_id", dashboardId)
         .maybeSingle(),
     ]);
 
@@ -569,8 +556,9 @@ export async function POST(req: NextRequest) {
     type DashCast = DashAny & { title?: string; unit_id?: string };
 
     const dashAny = dash as unknown as DashCast;
-    const b1 = b1Res.data || dashAny.b1 || dashAny.metadata?.b1 || {};
-    const b2 = b2Res.data || dashAny.b2 || dashAny.metadata?.b2 || {};
+    let b1 = b1Res.data || dashAny.b1 || dashAny.metadata?.b1 || {};
+    let b2 = b2Res.data || dashAny.b2 || dashAny.metadata?.b2 || {};
+    const macroData = macroRes.data || {};
 
     let promptToRun = customPrompt;
 
@@ -578,6 +566,41 @@ export async function POST(req: NextRequest) {
     const isProvince = dashUnit?.type === "PROVINCE";
     const scopeName: string = dashUnit?.name || dash.title || "Địa phương";
     const scopeUnitId: string | null = dashUnit?.id || dash.unit_id || null;
+
+    if (isProvince && scopeUnitId) {
+      const provinceRows = await fetchProvinceCommuneDataset(String(scopeUnitId));
+      if (provinceRows && provinceRows.length > 0) {
+        const sumSme = provinceRows.reduce((acc, r) => acc + r.sme, 0);
+        const sumHkd = provinceRows.reduce((acc, r) => acc + r.hkd, 0);
+        const sumHtx = provinceRows.reduce((acc, r) => acc + r.htx, 0);
+        const sumSmeDx = provinceRows.reduce((acc, r) => acc + r.smeDx, 0);
+        const sumHkdDx = provinceRows.reduce((acc, r) => acc + r.hkdDx, 0);
+        const sumHtxDx = provinceRows.reduce((acc, r) => acc + r.htxDx, 0);
+        const sumOcop3 = provinceRows.reduce((acc, r) => acc + r.ocop3, 0);
+        const sumOcop4 = provinceRows.reduce((acc, r) => acc + r.ocop4, 0);
+        const sumOcop5 = provinceRows.reduce((acc, r) => acc + r.ocop5, 0);
+
+        if (Number(b1.sme_total || 0) === 0 && sumSme > 0) {
+          b1 = {
+            ...b1,
+            sme_total: sumSme,
+            hkd_total: sumHkd,
+            htx_total: sumHtx,
+            sme_dx: sumSmeDx,
+            hkd_dx: sumHkdDx,
+            htx_dx: sumHtxDx,
+          };
+        }
+        if (Number(b2.ocop_3star || b2.ocop_3 || 0) === 0 && (sumOcop3 + sumOcop4 + sumOcop5) > 0) {
+          b2 = {
+            ...b2,
+            ocop_3star: sumOcop3,
+            ocop_4star: sumOcop4,
+            ocop_5star: sumOcop5,
+          };
+        }
+      }
+    }
 
     if (promptToRun) {
       const resolved = await resolveScopedQa({
@@ -626,24 +649,56 @@ export async function POST(req: NextRequest) {
           const byRate = [...rows].sort((a, b) => parseFloat(b.dxRate) - parseFloat(a.dxRate));
           const byOcop = [...rows].sort((a, b) => b.ocopTotal - a.ocopTotal);
           const pick = (list: CommuneKpiRow[], k: (r: CommuneKpiRow) => string): string =>
-            list.slice(0, 5).map((r, i) => `${i + 1}. ${r.name} (${k(r)})`).join("; ") || "Chua co.";
+            list.slice(0, 5).map((r, i) => `${i + 1}. ${r.name} (${k(r)})`).join("; ") || "Chưa có.";
           scopeExtra =
-            `\n[3. BUC TRANH XA/PHUONG TRUC THUOC - ${rows.length} XA ` +
-            `(chi dung so lieu duoi day, khong tu bia)]\n` +
-            `- Xep hang SME CDS: Top 5: ${pick(bySmeDx, (r) => `${r.smeDx} DN`)} | ` +
-            `Cuoi 5: ${pick([...bySmeDx].reverse(), (r) => `${r.smeDx} DN`)}.\n` +
-            `- Xep hang ty le CDS: Top 5: ${pick(byRate, (r) => `${r.dxRate}%`)} | ` +
-            `Yeu nhat: ${pick([...byRate].reverse(), (r) => `${r.dxRate}%`)}.\n` +
-            `- Xep hang OCOP: Top 5: ${pick(byOcop, (r) => `${r.ocopTotal} SP`)}.\n` +
-            `- Quyen phan tich: cap Tinh duoc phep so sanh, xep hang, danh gia chi tiet tung xa/phuong trong bang duoi day.\n` +
+            `\n[3. BỨC TRANH XÃ/PHƯỜNG TRỰC THUỘC - ${rows.length} XÃ]\n` +
+            `- Xếp hạng SME CĐS: Top 5: ${pick(bySmeDx, (r) => `${r.smeDx} DN`)}.\n` +
+            `- Xếp hạng tỷ lệ CĐS: Top 5: ${pick(byRate, (r) => `${r.dxRate}%`)}.\n` +
             rows.map(formatCommuneLine).join("\n") + "\n";
         }
-      } else if (!isProvince) {
-        scopeExtra =
-          `\n[3. PHAM VI XA/PHUONG - ${scopeName}] ` +
-          `Chi duoc phep phan tich du lieu cua rieng xa nay, ` +
-          `tuyet doi khong so sanh hay suy doan so lieu cac xa/phuong khac, khong tu bia so lieu.\n`;
       }
+
+      // 🌟 KHUNG ĐÁNH GIÁ NỀN KINH TẾ 02 CON SỐ (BẢNG SO SÁNH TRỰC QUAN + TIẾNG VIỆT CÓ DẤU CHUẨN MỰC)
+      const economicTwoDigitsFramework = `
+[CHUYÊN ĐO LƯỜNG & KIỂM TRA CHUYÊN SÂU: NỀN KINH TẾ 02 CON SỐ - MỤC TIÊU 10,71%]
+BẠN BẮT BUỘC PHẢI VIẾT TOÀN BỘ BÁO CÁO BẰNG TIẾNG VIỆT CÓ DẤU ĐẦY ĐỦ, CHUẨN VĂN PHONG HÀNH CHÍNH VÀ CHIẾN LƯỢC. KHÔNG ĐƯỢC DÙNG TIẾNG VIỆT KHÔNG DẤU.
+
+Báo cáo phân tích phải cực kỳ sâu sắc, thực chiến và bao gồm cấu trúc 5 phần sau:
+
+I. BẢNG SO SÁNH ĐỐI CHIẾU TRỰC QUAN (ĐỘNG LỰC TẦNG B & MỤC TIÊU 2030):
+Hãy vẽ một bảng dạng lưới thẳng hàng bằng văn bản (không dùng markdown table phức tạp để tránh lỗi font) so sánh 3 cột: [Tiêu chí Động lực Tầng B] | [Mục tiêu Cốt lõi 2030] | [Thực tế Địa bàn hiện tại] | [Đánh giá & Khoảng cách (Gap)].
+Các chỉ số cần đưa vào bảng so sánh:
+1. Chủ thể AI First (Mục tiêu: 10.000 chủ thể, bình quân 250 triệu VNĐ/năm).
+2. Doanh thu TMĐT / Kinh tế ngày-đêm GMV (Mục tiêu đóng góp 1.508 tỷ VNĐ).
+3. Thời gian kinh tế đêm (Mục tiêu nâng từ 8h lên 16-18h/ngày).
+4. Thời gian lưu trú du lịch (Mục tiêu nâng từ 1.2 lên 2.2 ngày).
+5. Nông sản truy xuất & ESG (Mục tiêu chuẩn hóa chuỗi giá trị nông nghiệp).
+
+II. PHÂN TÍCH CHI TIẾT 6 ĐỘNG LỰC TĂNG TRƯỞNG MỚI (TẦNG B - ĐÓNG GÓP 3.0 ĐIỂM % GRDP / ~10.050 TỶ VNĐ):
+- Phân tích chi tiết mức độ đóng góp thực tế hiện tại so với kịch bản khả thi.
+- Chỉ rõ các vùng trũng, điểm nghẽn khiến địa bàn chưa khai thác hết dư địa.
+
+III. BẢNG KIỂM TRA ĐIỂM MÙ DỮ LIỆU & GIẢI PHÁP THU THẬP:
+- Liệt kê các thông số tài chính dòng chảy còn thiếu hụt trên dashboard.
+- Hướng dẫn rõ cách thu thập từng con số (Ví dụ: liên kết dữ liệu hóa đơn điện tử cơ quan thuế với sàn TMĐT địa phương; áp dụng mã QR định danh nông sản tại vùng trồng).
+
+IV. LỘ TRÌNH HÀNH ĐỘNG THỰC CHIẾN (CẦN LÀM GÌ TRƯỚC - LÀM NHƯ THẾ NÀO?):
+- Giai đoạn 1 (30 ngày cấp bách): Các việc cần ưu tiên triển khai ngay (Ai chủ trì, quy trình thực hiện bước 1, bước 2).
+- Giai đoạn 2 (Trung hạn trong năm): Kết nối dòng chảy dữ liệu (Data Flow) và nhân rộng mô hình kinh tế số cơ sở.
+
+V. KẾT LUẬN & XẾP LOẠI GIAI ĐOẠN LỘ TRÌNH (2026-2030):
+- Xác định rõ địa bàn đang ở giai đoạn nào trong 5 giai đoạn (Kích hoạt -> Kết nối -> Dữ liệu & AI -> Tăng tốc -> Hiệu ứng mạng lưới).
+`;
+
+      const macroContext = `
+[3. DỮ LIỆU VĨ MÔ & ĐỘNG LỰC TĂNG TRƯỞNG MỚI (TẦNG B)]
+- Số chủ thể AI First hoạt động thực chất: ${macroData.active_ai_entities || 0} chủ thể.
+- Tổng doanh thu TMĐT / Kinh tế ngày-đêm (GMV): ${macroData.annual_gmv_billion || 0} tỷ VNĐ.
+- Thời gian khai thác kinh tế đêm: ${macroData.night_economy_hours || 8.0} giờ/ngày.
+- Thời gian lưu trú du lịch trung bình: ${macroData.avg_tourist_stay_days || 1.2} ngày.
+- Tỷ lệ nông sản truy xuất số & chuẩn ESG: ${macroData.traceable_agri_pct || 0}%.
+- Số lượng Hub Xanh / Startup thực chiến: ${macroData.startup_hub_count || 0} dự án.
+`;
 
       const contextData = `
 BÁO CÁO CƠ SỞ DỮ LIỆU ĐỊA BÀN: ${unitName.toUpperCase()} (${unitType.toUpperCase()})
@@ -654,36 +709,31 @@ BÁO CÁO CƠ SỞ DỮ LIỆU ĐỊA BÀN: ${unitName.toUpperCase()} (${unitTyp
   + Hộ kinh doanh cá thể: ${b1.hkd_total || 0} hộ (Đã CĐS: ${b1.hkd_dx || b1.hkd_cds || 0} hộ).
   + Hợp tác xã (HTX): ${b1.htx_total || 0} HTX (Đã CĐS: ${b1.htx_dx || b1.htx_cds || 0} HTX).
 - Tỷ lệ chuyển đổi số chung: ${dxRate}%.
-- Sản phẩm OCOP & Đặc sản địa phương: 
-  + OCOP 3 sao: ${b2.ocop_3star || b2.ocop_3 || 0} SP
-  + OCOP 4 sao: ${b2.ocop_4star || b2.ocop_4 || 0} SP
-  + OCOP 5 sao: ${b2.ocop_5star || b2.ocop_5 || 0} SP
+- Sản phẩm OCOP: 3 sao (${b2.ocop_3star || b2.ocop_3 || 0}), 4 sao (${b2.ocop_4star || b2.ocop_4 || 0}), 5 sao (${b2.ocop_5star || b2.ocop_5 || 0}).
 - Doanh thu ghi nhận: ${b3.doanh_thu || 0} triệu VNĐ.
 
 [2. DỮ LIỆU TẦNG 2 - BỘ TIÊU CHÍ HỆ SINH THÁI SỐ (NHÓM A - E)]
-- Nhóm A (Hạ tầng số): DN số hóa=${l2.l2_a_dn_cds_year || l2.l2_a_dn_cds || 0}, Cloud=${l2.l2_a_cloud_year || l2.l2_a_cloud || 0}.
-- Nhóm B (TMĐT): Website=${l2.l2_b_web_year || l2.l2_b_web_ecom || 0}, Đơn hàng=${l2.l2_b_don_hang_year || l2.l2_b_don_hang || 0}.
-- Nhóm C (Vận hành): ERP=${l2.l2_c_erp_year || l2.l2_c_erp || 0}.
-- Nhóm D (Thị trường): Lượt xem=${l2.l2_d_trang_xem_year || l2.l2_d_trang_xem || 0}.
-- Nhóm E (Bóc tách hệ sinh thái):
-${dynamicE.length > 0 ? dynamicE.map((i: DynEItem) => `  - ${i.title}: ${i.value}`).join("\n") : "  - Không có mục bổ sung."}
-${scopeExtra}`;
+- Nhóm A (Hạ tầng): ${l2.l2_a_dn_cds_year || l2.l2_a_dn_cds || 0} DN CĐS, ${l2.l2_a_cloud_year || l2.l2_a_cloud || 0} Cloud.
+- Nhóm B (TMĐT): ${l2.l2_b_web_year || l2.l2_b_web_ecom || 0} Web, ${l2.l2_b_don_hang_year || l2.l2_b_don_hang || 0} đơn hàng.
+- Nhóm C (Vận hành): ${l2.l2_c_erp_year || l2.l2_c_erp || 0} ERP.
+- Nhóm D (Thị trường): ${l2.l2_d_trang_xem_year || l2.l2_d_trang_xem || 0} lượt xem.
+${scopeExtra}
+
+${macroContext}
+
+${economicTwoDigitsFramework}`;
 
       promptToRun = `
-Bạn là Cố vấn Cấp cao về Chiến lược Chuyển đổi số Quốc gia và Phát triển Kinh tế số Địa phương tại Việt Nam.
-Hãy nghiên cứu kỹ các số liệu thực tế dưới đây của ${unitName} (${unitType}) và lập BÁO CÁO PHÂN TÍCH HIỆN TRẠNG & TƯ VẤN HÀNH ĐỘNG ĐIỀU HÀNH.
+Bạn là Cố vấn Cấp cao về Chiến lược Chuyển đổi số Quốc gia và Phát triển Kinh tế số Địa phương tại Việt Nam. 
+BẮT BUỘC TRẢ LỜI TOÀN BỘ BẰNG TIẾNG VIỆT CÓ DẤU CHUẨN MỰC, SẮC SẢO VÀ THỰC CHIẾN.
+
+Hãy nghiên cứu kỹ các dữ liệu thực tế của ${unitName} (${unitType}) và lập BÁO CÁO PHÂN TÍCH CHIẾN LƯỢC & ĐÁNH GIÁ MỤC TIÊU KINH TẾ 02 CON SỐ (10,71%).
 
 DỮ LIỆU ĐẦU VÀO:
 ${contextData}
 
-YÊU CẦU NỘI DUNG VÀ CHIỀU SÂU:
-1. Đánh giá tính cân đối giữa các chủ thể (SME, Hộ kinh doanh, HTX). Chỉ rõ "vùng trũng".
-2. Phân tích chiều sâu công nghệ (Bề nổi vs Vận hành thực chất).
-3. Đánh giá hệ sinh thái sản phẩm và nguồn lực bản địa.
-4. Đưa ra khuyến nghị hành động cấp bách (30 ngày) và trung hạn (trong năm).
-5. Đưa ra 3 chỉ số mục tiêu định lượng cụ thể.
-
 QUY CÁCH TRÌNH BÀY:
+- SỬ DỤNG HOÀN TOÀN TIẾNG VIỆT CÓ DẤU.
 - KHÔNG DÙNG BẤT KỲ KÝ TỰ MARKDOWN NÀO (Không dùng *, **, #, _, >).
 - Định dạng báo cáo chuẩn mực hành chính:
   + Các phần lớn đánh số La Mã: I., II., III., IV., V.
@@ -692,8 +742,7 @@ QUY CÁCH TRÌNH BÀY:
 `;
     }
 
-    // Sửa đoạn này trong file app/api/v1/ai/analyze/route.ts:
-    const MODEL_NAME = "gemini-3.6-flash"; // Cập nhật model ổn định
+    const MODEL_NAME = "gemini-3.6-flash";
     const geminiData = await callGeminiWithFailover(MODEL_NAME, promptToRun);
 
     const candidate = geminiData?.candidates?.[0];

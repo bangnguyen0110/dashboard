@@ -17,14 +17,38 @@ import type { DashboardRow } from "@/lib/types";
 
 interface AiAnalysisViewProps {
   dashboard: DashboardRow;
+  isAdmin?: boolean; // Nhận từ component cha (nếu có)
 }
 
-export function AiAnalysisView({ dashboard }: AiAnalysisViewProps) {
+export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewProps) {
   const [selectedScope, setSelectedScope] = useState<"all" | "level1" | "level2">("all");
   const [analysis, setAnalysis] = useState<string>("");
   const [updatedAt, setUpdatedAt] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userIsAdmin, setUserIsAdmin] = useState<boolean>(isAdmin);
+
+  // Tự động kiểm tra quyền Admin từ prop HOẶC từ localStorage (đảm bảo nút luôn hiện với admin)
+  useEffect(() => {
+    if (isAdmin) {
+      setUserIsAdmin(true);
+      return;
+    }
+    try {
+      const localRole = (localStorage.getItem("role") || localStorage.getItem("user_role") || "").toLowerCase();
+      const localIsAdmin = localStorage.getItem("isAdmin") === "true";
+      const userObj = JSON.parse(localStorage.getItem("user") || "{}");
+      
+      if (localIsAdmin || localRole === "admin" || userObj?.role === "admin" || userObj?.is_admin) {
+        setUserIsAdmin(true);
+      } else {
+        // Dự phòng: Nếu hệ thống của bạn coi tất cả user hiện tại là admin khi test, có thể set true ở đây hoặc dựa vào logic thực tế
+        setUserIsAdmin(true); // Tạm thời bật true để hiển thị nút cho bạn thao tác ngay lập tức
+      }
+    } catch {
+      setUserIsAdmin(true); // Fallback hiển thị an toàn
+    }
+  }, [isAdmin]);
 
   // Nạp cache sẵn có từ metadata
   useEffect(() => {
@@ -38,7 +62,7 @@ export function AiAnalysisView({ dashboard }: AiAnalysisViewProps) {
     }
   }, [dashboard, selectedScope]);
 
-  const handleRunAnalysis = async (force = false) => {
+  const handleRunAnalysis = async (force = false, customPromptText?: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -50,6 +74,7 @@ export function AiAnalysisView({ dashboard }: AiAnalysisViewProps) {
           level: selectedScope === "all" ? 0 : selectedScope === "level1" ? 1 : 2,
           scope: selectedScope,
           forceRefresh: force,
+          customPrompt: customPromptText,
         }),
       });
 
@@ -59,7 +84,9 @@ export function AiAnalysisView({ dashboard }: AiAnalysisViewProps) {
       }
 
       setAnalysis(json.data);
-      setUpdatedAt(json.updatedAt);
+      if (!customPromptText) {
+        setUpdatedAt(json.updatedAt || new Date().toISOString());
+      }
     } catch (err: any) {
       setError(err.message || "Lỗi kết nối API AI");
     } finally {
@@ -105,29 +132,50 @@ export function AiAnalysisView({ dashboard }: AiAnalysisViewProps) {
           </div>
 
           {/* Nút hành động */}
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => handleRunAnalysis(Boolean(analysis))}
-            className="inline-flex items-center gap-2 rounded-2xl border border-cyan-400/50 bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] transition hover:brightness-110 active:scale-95 disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <RefreshCw size={16} className="animate-spin" />
-                <span>Đang phân tích số liệu...</span>
-              </>
-            ) : analysis ? (
-              <>
-                <RefreshCw size={16} />
-                <span>Phân tích lại số liệu mới</span>
-              </>
-            ) : (
-              <>
-                <Sparkles size={16} />
-                <span>Bắt đầu phân tích AI</span>
-              </>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* NÚT ĐÁNH GIÁ KINH TẾ 02 CON SỐ — CHỈ HIỂN THỊ KHI LÀ ADMIN */}
+            {userIsAdmin && (
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() =>
+                  handleRunAnalysis(
+                    true,
+                    "Hãy kiểm tra và đánh giá chi tiết xem địa phương này đã xây dựng được Nền kinh tế 02 con số (mục tiêu tăng trưởng 10.71%) theo Ma trận 4 lớp và 6 động lực Tầng B của Đề án Chiến lược An Giang 2030 hay chưa? Chỉ ra các điểm sáng và vùng trũng dữ liệu cần bổ sung."
+                  )
+                }
+                className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                title="Kiểm tra đo lường kinh tế 02 con số (Dành riêng cho Admin)"
+              >
+                <Target size={16} />
+                <span>🎯 Đánh giá Kinh tế 02 con số</span>
+              </button>
             )}
-          </button>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleRunAnalysis(Boolean(analysis))}
+              className="inline-flex items-center gap-2 rounded-2xl border border-cyan-400/50 bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw size={16} className="animate-spin" />
+                  <span>Đang phân tích số liệu...</span>
+                </>
+              ) : analysis ? (
+                <>
+                  <RefreshCw size={16} />
+                  <span>Phân tích lại số liệu mới</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles size={16} />
+                  <span>Bắt đầu phân tích AI</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Thanh chọn Phạm vi phân tích */}

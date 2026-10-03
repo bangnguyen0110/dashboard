@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  applyB3Revenue,
+  buildB3MetadataMirror,
+  B3_FIELDS,
+  type B3Field,
+} from "@/lib/b3-revenue";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
@@ -107,14 +113,78 @@ async function syncProvinceDirectly() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { dashboardId, section, field, fields, value } = await req.json();
+    const { dashboardId, section, field, fields, value, metricKey, metric_key } = await req.json();
 
-    if (!dashboardId || !field) {
+    // ===== KHỐI B3: nhận diện metric_key dạng "b3_daily", "b3_weekly", ... =====
+    const rawMetricKey = String(metricKey ?? metric_key ?? "").trim();
+    const b3MetricKey = rawMetricKey.startsWith("b3_")
+      ? rawMetricKey
+      : typeof field === "string" && field.startsWith("b3_")
+        ? field
+        : "";
+
+    // Bóc tách field tương ứng: "b3_daily" -> "daily"
+    const resolvedField = b3MetricKey ? b3MetricKey.replace("b3_", "") : field;
+
+    if (!dashboardId || !resolvedField) {
       return NextResponse.json({ success: false, error: "Thiếu dashboardId hoặc field" }, { status: 400 });
     }
 
     const numValue = Number(value) || 0;
     const sec = (section || "").toUpperCase();
+
+    // ===== KHỐI B3 (JSONB) — CỘNG DỒN LŨY KẾ (xem lib/b3-revenue.ts) =====
+    // Khi nhận `b3_daily` (tổng doanh thu trong ngày từ web nguồn):
+    //   delta = newRevenue - daily_cu  ->  rót vào weekly/monthly/quarterly/yearly
+    //   sang ngày/tuần/tháng/quý/năm mới -> reset đúng mốc đó về 0.
+    if (b3MetricKey) {
+      const b3Field = resolvedField as B3Field;
+      if (!B3_FIELDS.includes(b3Field)) {
+        return NextResponse.json(
+          { success: false, error: `Trường B3 không hợp lệ: ${b3Field}` },
+          { status: 400 }
+        );
+      }
+
+      const { data: dash, error: readErr } = await supabase
+        .from("dashboards")
+        .select("b3, metadata")
+        .eq("id", dashboardId)
+        .single();
+      if (readErr) throw readErr;
+
+      const dashRow = (dash ?? {}) as {
+        b3?: Record<string, unknown> | null;
+        metadata?: Record<string, unknown> | null;
+      };
+
+      // 1) Đọc object b3 hiện tại -> 2) reset theo kỳ -> 3) cộng dồn delta
+      const applied = applyB3Revenue(dashRow.b3, b3Field, numValue);
+
+      const patch: Record<string, unknown> = {
+        b3: applied.b3,
+        // 4) Đồng bộ metadata cho CẢ 5 mốc, nếu không UI sẽ bị giá trị cũ
+        //    trong metadata ghi đè (applyMetricValueToRow ở dashboard-detail).
+        metadata: buildB3MetadataMirror(dashRow.metadata, applied.b3),
+      };
+
+      const { error: updateErr } = await supabase
+        .from("dashboards")
+        .update(patch)
+        .eq("id", dashboardId);
+      if (updateErr) throw updateErr;
+
+      await syncProvinceDirectly();
+      return NextResponse.json({
+        success: true,
+        value: numValue,
+        // Thông tin cộng dồn để frontend/debug theo dõi.
+        delta: applied.delta,
+        accumulated: applied.accumulated,
+        reset: applied.reset,
+        b3: applied.b3,
+      });
+    }
 
     // TẦNG 2, 3, 4, 5
     if (

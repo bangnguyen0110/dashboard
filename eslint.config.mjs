@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Artifact build của OpenNext (được tạo bởi `npm run build`):
     ".open-next/**",
+    // Supabase Edge Functions (Deno runtime — lint/format riêng bằng `supabase`):
+    "supabase/functions/**",
   ]),
 ]);
 

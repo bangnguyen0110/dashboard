@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -34,8 +34,10 @@ import { CommuneDashboardModal } from "./commune-dashboard-modal";
 import { KpiFilterCompareModal } from "./kpi-filter-compare-modal";
 import { CellQuantityModal } from "./blocks/cell-quantity-modal";
 import { MetricIdModal } from "./blocks/metric-id-modal";
+import { MacroMetricsModal } from "./blocks/macro-metrics-modal"; // Import modal vĩ mô tầng B
 import { B1Section } from "./blocks/b1-section";
 import { B2Section } from "./blocks/b2-section";
+import { B3RevenueSection } from "./blocks/b3-revenue-section";
 import { B3Section } from "./blocks/b3-section";
 import { B4Section } from "./blocks/b4-section";
 import { B5Section } from "./blocks/b5-section";
@@ -98,6 +100,13 @@ interface MetricFieldMapInfo {
 
 const B3_TO_B9_PREFIXES = ["b3", "b4", "b5", "b6", "b7", "b8", "b9"];
 const LEVEL_PREFIXES = ["l2", "l3", "l4", "l5"];
+
+/**
+ * Chu kỳ polling dự phòng cho auto-refresh (ms).
+ * Realtime là kênh chính; polling chỉ để phòng khi WebSocket bị chặn hoặc bảng
+ * chưa được bật trong publication `supabase_realtime`.
+ */
+const AUTO_REFRESH_POLL_MS = 60_000;
 
 function getMetricFieldMap(metricKey: string): MetricFieldMapInfo | null {
   const prefix = metricKey.split("_")[0];
@@ -221,6 +230,7 @@ function AiAdvisorModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const { isAdmin } = useAuth();
   const [selectedScope, setSelectedScope] = useState<"all" | "level1" | "level2">("all");
   const [analysis, setAnalysis] = useState<string>("");
   const [updatedAt, setUpdatedAt] = useState<string>("");
@@ -317,7 +327,7 @@ function AiAdvisorModal({
     setMessages(nextMessages);
 
     const cleanTitle = cleanDashboardTitle(dashboard.title);
-    const prompt = `Dựa trên số liệu thực tế chuyển đổi số và kinh tế của địa bàn ${cleanTitle}, hãy trả lời câu hỏi sau một cách chi tiết, sắc sảo và sát thực tế:\n\n"${q}"`;
+    const prompt = `Dựa trên số liệu thực tế chuyển đổi số và kinh tế của địa bàn ${cleanTitle}, hãy trả lời câu hỏi sau bằng tiếng Việt có dấu chuẩn mực, chi tiết và sắc sảo:\n\n"${q}"`;
 
     try {
       const res = await fetch("/api/v1/ai/analyze", {
@@ -380,8 +390,8 @@ function AiAdvisorModal({
 
     const prompt =
       actionType === "explain"
-        ? `Hãy giải thích ngắn gọn, súc tích và dễ hiểu về đoạn văn bản sau dựa theo ngữ cảnh chuyển đổi số của địa bàn ${cleanTitle}:\n\n"${selectedText}"`
-        : `Hãy phân tích chuyên sâu, chỉ ra nguyên nhân, tác động và gợi ý giải pháp thực tế đối với đoạn văn bản sau tại địa bàn ${cleanTitle}:\n\n"${selectedText}"`;
+        ? `Hãy giải thích bằng tiếng Việt có dấu ngắn gọn, súc tích và dễ hiểu về đoạn văn bản sau dựa theo ngữ cảnh chuyển đổi số của địa bàn ${cleanTitle}:\n\n"${selectedText}"`
+        : `Hãy phân tích bằng tiếng Việt có dấu chuyên sâu, chỉ ra nguyên nhân, tác động và gợi ý giải pháp thực tế đối với đoạn văn bản sau tại địa bàn ${cleanTitle}:\n\n"${selectedText}"`;
 
     try {
       const res = await fetch("/api/v1/ai/analyze", {
@@ -549,6 +559,25 @@ function AiAdvisorModal({
                 </button>
               </>
             )}
+
+            {/* 🎯 NÚT ĐÁNH GIÁ KINH TẾ 02 CON SỐ — NẰM BÊN TRÁI NÚT PHÂN TÍCH, CHỈ ADMIN MỚI THẤY */}
+            {isAdmin && (
+              <button
+                type="button"
+                disabled={chatLoading || subLoading || loading}
+                onClick={() =>
+                  handleAskCustomQuestion(
+                    "Hãy kiểm tra và đánh giá chi tiết xem địa phương này đã xây dựng được Nền kinh tế 02 con số (mục tiêu tăng trưởng 10.71%) theo Ma trận 4 lớp và 6 động lực Tầng B của Đề án Chiến lược An Giang 2030 hay chưa? Hãy vẽ bảng so sánh trực quan, chỉ ra các điểm sáng, điểm mù dữ liệu và lộ trình 30 ngày thực chiến bằng tiếng Việt có dấu đầy đủ."
+                  )
+                }
+                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-700 px-3 py-1 text-xs font-bold text-white shadow-md hover:brightness-110 transition disabled:opacity-50"
+                title="Đánh giá mức độ sẵn sàng Kinh tế 02 con số (Dành riêng cho Admin)"
+              >
+                <Target size={13} />
+                <span>Đánh giá KT 02 con số</span>
+              </button>
+            )}
+
             <button
               type="button"
               disabled={loading}
@@ -782,6 +811,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [showImportPdf, setShowImportPdf] = useState(false);
   const [showLevel2IdModal, setShowLevel2IdModal] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
+  const [showMacroModal, setShowMacroModal] = useState(false); // State quản lý modal vĩ mô
 
   const [b1QtyTarget, setB1QtyTarget] = useState<{
     metricKey: string;
@@ -803,6 +833,15 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   } | null>(null);
 
   const loadCommunes = async (provinceUnitId: string): Promise<void> => {
+    // ===== B3: tổng doanh thu của toàn bộ xã/phường sẽ được cộng dồn vào Dashboard Tỉnh =====
+    const sumB3: Record<string, number> = {
+      daily: 0,
+      weekly: 0,
+      monthly: 0,
+      quarterly: 0,
+      yearly: 0,
+    };
+
     const { data: childUnits } = await supabase
       .from("administrative_units")
       .select("id")
@@ -811,6 +850,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     const ids = childUnits?.map((u) => u.id) ?? [];
     if (ids.length === 0) {
       setCommunes([]);
+      setB3(sumB3);
       return;
     }
 
@@ -859,10 +899,19 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         valueByCommune.set(link.dashboard_id, map);
       }
 
+      // Cột b3 (JSONB) của từng xã/phường — nguồn dữ liệu B3 gốc
+      const b3Map = new Map<string, KpiRow>();
+      for (const row of communeRows) {
+        if (!b3Map.has(row.id)) {
+          b3Map.set(row.id, (row as DashboardRow & { b3?: KpiRow | null }).b3 ?? {});
+        }
+      }
+
       const kpiById: Record<string, { b1?: KpiRow; b2?: KpiRow }> = {};
       for (const id of communeIds) {
         let b1 = b1Map.get(id) ?? {};
         let b2 = b2Map.get(id) ?? {};
+        let b3 = b3Map.get(id) ?? {};
         const values = valueByCommune.get(id);
         if (values) {
           for (const [metricKey, value] of Object.entries(values)) {
@@ -870,12 +919,22 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
             if (!info) continue;
             if (info.section === "b1") b1 = applyMetricValueToRow(b1, info, value);
             if (info.section === "b2") b2 = applyMetricValueToRow(b2, info, value);
+            if (info.section === "b3") b3 = applyMetricValueToRow(b3, info, value);
           }
         }
         kpiById[id] = { b1, b2 };
+
+        // Cộng dồn doanh thu B3 (daily/weekly/monthly/quarterly/yearly) của xã này
+        for (const k of ["daily", "weekly", "monthly", "quarterly", "yearly"]) {
+          const n = Number(b3[k] ?? 0);
+          if (Number.isFinite(n)) sumB3[k] += n;
+        }
       }
       setCommuneKpi(kpiById);
     }
+
+    // Ép Dashboard Tỉnh hiển thị TỔNG doanh thu của toàn bộ xã/phường trực thuộc
+    setB3(sumB3);
   };
 
   const loadParentProvince = async (communeUnitId: string): Promise<void> => {
@@ -895,7 +954,12 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     }
   };
 
-  const fetchAll = useCallback(async () => {
+  /**
+   * @param options.silent true khi gọi nền (auto-refresh) — bỏ qua ghi log-perf
+   *        để không làm đầy bảng sync_logs khi polling mỗi phút.
+   */
+  const fetchAll = useCallback(async (options?: { silent?: boolean }) => {
+    const isSilent = options?.silent === true;
     const { data: dash, error } = await supabase
       .from("dashboards")
       .select("*, unit:administrative_units(*)")
@@ -1015,12 +1079,12 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     setLevel5Data(sectionRows.l5);
 
     if (unitType === "PROVINCE") {
-      // ⚡ Chỉ ĐỌC danh sách xã/phường từ Database — TUYỆT ĐỐI KHÔNG tự gọi cào dữ liệu (sync-live)
-      // khi vừa mở trang hoặc chuyển đổi giữa các dashboard để tránh treo/chậm.
       void loadCommunes(row.unit_id);
     }
 
     setState("ready");
+
+    if (isSilent) return;
 
     const durationSec = ((performance.now() - loadStartTimeRef.current) / 1000).toFixed(2);
     fetch("/api/v1/metrics/log-perf", {
@@ -1037,7 +1101,72 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   const refetchAfterSave = useCallback(() => void fetchAll(), [fetchAll]);
 
-  // 🌟 NÚT LÀM MỚI DỮ LIỆU SIÊU TỐC VỚI THANH TIẾN TRÌNH (PROCESS BAR)
+  // ==========================================================================
+  // TỰ ĐỒNG BỘ DỮ LIỆU KHI CRON CẬP NHẬT (không cần F5)
+  // ==========================================================================
+  // BỐI CẢNH: trang này là Client Component và đọc Supabase bằng client
+  // trong trình duyệt, nên nó KHÔNG đi qua Data Cache của Next.js. Dữ liệu chỉ
+  // được nạp 1 lần lúc mount -> khi cron ghi vào DB, UI không hề biết.
+  // Vì vậy cần:
+  //   1. Realtime: nghe `dashboards` (xã) + `kpi_revenue_history` (tín hiệu "đã
+  //      cào xong", quan trọng với Tỉnh vì Tỉnh không có dòng dashboards riêng
+  //      được cron cập nhật — số Tỉnh do loadCommunes cộng dồn client).
+  //   2. Polling dự phòng phòng khi WebSocket bị chặn hoặc bảng chưa bật
+  //      realtime (chạy nền, chỉ khi tab đang hiển thị).
+  useEffect(() => {
+    const dashId = dashboard?.id;
+    if (state !== "ready" || !dashId) return;
+
+    let disposed = false;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // Gom nhiều sự kiện liên tiếp (cron ghi nhiều bảng trong 1 lượt) thành
+    // đúng 1 lần refetch.
+    const scheduleRefresh = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (!disposed) void fetchAll({ silent: true });
+      }, 800);
+    };
+
+    const channel = supabase
+      .channel(`dash-live:${dashId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "dashboards",
+          filter: `id=eq.${dashId}`,
+        },
+        scheduleRefresh
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "kpi_revenue_history" },
+        scheduleRefresh
+      )
+      .subscribe();
+
+    const poll = setInterval(() => {
+      if (disposed) return;
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      void fetchAll({ silent: true });
+    }, AUTO_REFRESH_POLL_MS);
+
+    return () => {
+      disposed = true;
+      if (debounceTimer) clearTimeout(debounceTimer);
+      clearInterval(poll);
+      void supabase.removeChannel(channel);
+    };
+  }, [state, dashboard?.id, fetchAll]);
+
+  // ==== KHỐI B3: danh sách dashboard_id xã/phường cho biểu đồ lịch sử ====
+  // Dashboard Tỉnh cộng dồn lịch sử của các xã trực thuộc; Dashboard xã có mảng
+  // rỗng nên B3RevenueSection tự fallback về chính nó (dashboard.id).
+  const b3HistoryIds = useMemo(() => communes.map((c) => c.id), [communes]);
+
   const handleLiveSync = useCallback(
     async (silent = false) => {
       if (!dashboard?.id) return;
@@ -1048,7 +1177,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ dashboardId: dashboard.id }),
-          // Giới hạn thời gian chờ → vòng quay/modal không bị treo vô hạn
           signal: AbortSignal.timeout(60_000),
         });
 
@@ -1140,6 +1268,24 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
       if (["b3", "b4", "b5", "b6", "b7", "b8", "b9"].includes(prefix)) {
         const fieldName = metricKey.replace(`${prefix}_`, "");
+
+        // ===== KHỐI B3: chuyển qua API để dùng logic CỘNG DỒN LŨY KẾ + mirror
+        // metadata đầy đủ. Ghi thẳng từ client sẽ bị `applyMetricValueToRow`
+        // trong dashboard-detail ghi đè lại bằng giá trị metadata cũ.
+        if (prefix === "b3" && currentDashId) {
+          setB3((prev: any) => ({ ...prev, [fieldName]: val }));
+          try {
+            await fetch("/api/v1/metrics/update-value", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ dashboardId: currentDashId, metricKey, value: val }),
+            });
+          } catch (err) {
+            console.error("Lỗi lưu doanh thu B3:", err);
+          }
+          return;
+        }
+
         const setters: Record<string, any> = {
           b3: setB3, b4: setB4, b5: setB5, b6: setB6, b7: setB7, b8: setB8, b9: setB9,
         };
@@ -1477,13 +1623,25 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {isAdmin && (
-                      <button
-                        type="button"
-                        onClick={() => setShowLink(true)}
-                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
-                      >
-                        <Link2 size={14} /> Thiết lập Link
-                      </button>
+                      <>
+                        {/* 📊 NÚT MỞ MODAL NHẬP LIỆU VĨ MÔ TẦNG B */}
+                        <button
+                          type="button"
+                          onClick={() => setShowMacroModal(true)}
+                          className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20 shadow-lg"
+                          title="Cấu hình chỉ số vĩ mô Tầng B (GMV, Kinh tế đêm, Lưu trú...)"
+                        >
+                          <TrendingUp size={14} /> Cấu hình Vĩ mô Tầng B
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowLink(true)}
+                          className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                        >
+                          <Link2 size={14} /> Thiết lập Link
+                        </button>
+                      </>
                     )}
                     {/* Nút Bộ lọc — đặt NGAY BÊN TRÁI nút "Danh sách xã/phường" */}
                     <button
@@ -1531,6 +1689,19 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveMetricId={handleSaveMetricId}
                   />
                 </div>
+                <div className="w-full xl:col-span-2">
+                  <B3RevenueSection
+                    dashboard={dashboard}
+                    data={b3}
+                    metricLinks={metricLinks}
+                    metricIds={metricIds}
+                    onSaveMetricId={handleSaveMetricId}
+                    onSaveQuantity={handleSaveQuantity}
+                    onChanged={refetchAfterSave}
+                    historyDashboardIds={b3HistoryIds}
+                  />
+                </div>
+
               <div className="andata">
                 <div className="w-full flex flex-col">
                   <B3Section
@@ -1808,6 +1979,16 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           dashboard={dashboard}
           open={showAiModal}
           onClose={() => setShowAiModal(false)}
+        />
+      )}
+
+      {/* 📊 MODAL NHẬP LIỆU VĨ MÔ TẦNG B */}
+      {showMacroModal && dashboard && (
+        <MacroMetricsModal
+          dashboard={dashboard}
+          open={showMacroModal}
+          onClose={() => setShowMacroModal(false)}
+          onSaved={refetchAfterSave}
         />
       )}
 

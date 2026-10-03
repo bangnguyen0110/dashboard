@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase"; // hoặc getSupabaseAdmin()
 
+// Không bao giờ cache dữ liệu dashboards (số liệu do cron cập nhật liên tục).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> | { id: string } }

@@ -3,15 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  ArrowDown,
+  ArrowUp,
   BarChart3,
   History,
   Link2,
   Loader2,
+  Minus,
   Radio,
   Settings2,
   TrendingUp,
   Zap,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CartesianGrid,
   Line,
@@ -47,7 +51,12 @@ import { supabase } from "@/lib/supabase";
  * (không truy cập Supabase trực tiếp).
  */
 
-export type B3RangeKey = "day" | "week" | "month" | "year";
+export type B3RangeKey = "day" | "week" | "month" | "quarter" | "year";
+
+/** Alias giữ tương thích yêu cầu: `timeFilter` dùng chung cho Biểu đồ + BXH. */
+export type B3ChartFilter = B3RangeKey;
+/** Alias tương thích ngược với tên state cũ `chartFilter`. */
+export type B3TimeFilter = B3RangeKey;
 
 export interface B3RevenueData {
   daily: number;
@@ -91,6 +100,12 @@ interface B3RevenueSectionProps {
    * fallback về `dashboard.id` hiện tại (Dashboard Xã).
    */
   historyDashboardIds?: string[];
+  /**
+   * (Dashboard TỈNH) Danh sách TẤT CẢ dashboard xã/phường trực thuộc
+   * (mỗi item là `DashboardRow`, gồm cột JSONB `b3`) — dùng vẽ
+   * BXH Top 5 Cao Nhất / Top 5 Thấp Nhất theo đúng `chartFilter` hiện tại.
+   */
+  communesData?: DashboardRow[];
 }
 
 const numberFmt = new Intl.NumberFormat("vi-VN");
@@ -115,6 +130,7 @@ const RANGE_OPTIONS: { key: B3RangeKey; label: string }[] = [
   { key: "day", label: "Ngày" },
   { key: "week", label: "Tuần" },
   { key: "month", label: "Tháng" },
+  { key: "quarter", label: "Quý" },
   { key: "year", label: "Năm" },
 ];
 
@@ -151,8 +167,20 @@ const RANGE_FIELD: Record<B3RangeKey, keyof Omit<HistoryRow, "dashboard_id" | "s
   day: "daily",
   week: "weekly",
   month: "monthly",
+  quarter: "quarterly",
   year: "yearly",
 };
+
+/** Map `timeFilter` (day/week/month/quarter/year) -> key doanh thu trong cột `b3`. */
+const TIME_FILTER_TO_B3_KEY: Record<B3RangeKey, keyof B3RevenueData> = {
+  day: "daily",
+  week: "weekly",
+  month: "monthly",
+  quarter: "quarterly",
+  year: "yearly",
+};
+/** Alias tương thích ngược với tên hằng cũ. */
+const CHART_FILTER_TO_B3_KEY = TIME_FILTER_TO_B3_KEY;
 
 /**
  * Dựng chuỗi LineChart TỪ LỊCH SỬ THẬT (`kpi_revenue_history`) — thay mock zeros.
@@ -212,8 +240,53 @@ function buildHistorySeries(
     }));
 }
 
-export function B3RevenueSection({
-  dashboard,
+function TopRankRow({
+  rank,
+  index,
+  item,
+  max,
+  tone,
+}: {
+  rank: number;
+  index: number;
+  item: { name: string; revenue: number; growth: number };
+  max: number;
+  tone: "emerald" | "rose";
+}) {
+  const pct = max > 0 ? Math.max(4, Math.round((item.revenue / max) * 100)) : 0;
+  const bar = tone === "emerald" ? "bg-emerald-500/15" : "bg-rose-500/15";
+  const cell = tone === "emerald" ? "bg-emerald-500/10" : "bg-rose-500/10";
+  const rankColor = tone === "emerald" ? "text-emerald-300" : "text-rose-300";
+  return (
+    <motion.tr
+      layout
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="border-t border-white/5 transition hover:bg-white/[0.02]"
+    >
+      <td className={`px-2 py-2.5 font-extrabold ${rankColor}`}>#{rank}</td>
+      <td className="max-w-[160px] truncate px-2 py-2.5 text-left font-semibold text-slate-200" title={item.name}>
+        {item.name}
+      </td>
+      <td className="px-2 py-2.5 text-right">
+        <span className={`relative inline-block min-w-[110px] overflow-hidden rounded-lg px-2.5 py-1.5 text-right font-bold tabular-nums text-slate-100 ${cell}`}>
+          <span className={`pointer-events-none absolute inset-y-0 left-0 ${bar}`} style={{ width: `${pct}%` }} />
+          <span className="relative">{numberFmt.format(item.revenue)} VND</span>
+        </span>
+      </td>
+      <td className="px-2 py-2.5 text-right">
+        <span className={`inline-flex items-center justify-end gap-1 font-bold tabular-nums ${item.growth > 0 ? "text-emerald-400" : item.growth < 0 ? "text-rose-400" : "text-slate-500"}`}>
+          {item.growth > 0 ? (<ArrowUp size={12} />) : item.growth < 0 ? (<ArrowDown size={12} />) : (<Minus size={12} />)}
+          {item.growth > 0 ? "+" : ""}{item.growth.toFixed(1)}%
+        </span>
+      </td>
+    </motion.tr>
+  );
+}
+
+export function B3RevenueSection({  dashboard,
   data,
   metricLinks = {},
   metricIds = {},
@@ -221,11 +294,18 @@ export function B3RevenueSection({
   isAdmin: isAdminProp,
   onChanged,
   historyDashboardIds,
+  communesData = [],
 }: B3RevenueSectionProps) {
   const { isAdmin: isAdminAuth } = useAuth();
   /** Quyền Admin: ưu tiên prop truyền từ cha, fallback về AuthContext. */
   const isAdmin = isAdminProp ?? isAdminAuth;
-  const [range, setRange] = useState<B3RangeKey>("day");
+  /** Bộ lọc thời gian chung cho Biểu đồ + Bảng xếp hạng (day/week/month/quarter/year). */
+  const [timeFilter, setTimeFilter] = useState<B3RangeKey>("day");
+  /** Alias tương thích ngược với tên state cũ `chartFilter` / `range`. */
+  const chartFilter = timeFilter;
+  const setChartFilter = setTimeFilter;
+  const range = timeFilter;
+  const setRange = setTimeFilter;
   const [showSetup, setShowSetup] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   /** Modal "Thiết lập ID" cho 1 trong 5 thẻ doanh thu (b3_daily … b3_yearly). */
@@ -496,6 +576,85 @@ export function B3RevenueSection({
   const totalRevenue =
     revenue.daily + revenue.weekly + revenue.monthly + revenue.quarterly + revenue.yearly;
 
+  // ===== BXH DOANH THU XÃ/PHƯỜNG (CHỈ Dashboard Tỉnh, 100% dữ liệu thật) =====
+  // Tái sử dụng `timeFilter` chung với Biểu đồ: day/week/month/quarter/year.
+  interface CommuneRankItem {
+    id: string;
+    name: string;
+    revenue: number;
+    growth: number;
+  }
+
+  const communeRanking = useMemo<CommuneRankItem[]>(() => {
+    if (!isProvince) return [];
+    const b3Key = TIME_FILTER_TO_B3_KEY[timeFilter];
+    const historyField = RANGE_FIELD[timeFilter];
+
+    // Map dashboard_id -> [bản ghi mới nhất, bản ghi cũ thứ 2] để tính growth thật.
+    const historyByDash = new Map<string, HistoryRow[]>();
+    for (const row of historyRows) {
+      if (!row?.dashboard_id) continue;
+      const list = historyByDash.get(row.dashboard_id) ?? [];
+      list.push(row);
+      historyByDash.set(row.dashboard_id, list);
+    }
+    for (const list of historyByDash.values()) {
+      list.sort(
+        (a, b) => Date.parse(b.scraped_at) - Date.parse(a.scraped_at)
+      );
+    }
+
+    return (communesData ?? [])
+      .filter((c) => c?.unit?.type !== "PROVINCE")
+      .map((c) => {
+        const rawB3 = (c as DashboardRow & { b3?: KpiRow | null }).b3 ?? {};
+        const revenueValue = toNum(rawB3[b3Key as string]);
+        const name =
+          (c?.unit?.name || c?.title || "Chưa đặt tên").trim() ||
+          "Chưa đặt tên";
+
+        // Tốc độ tăng trưởng thật từ `kpi_revenue_history`:
+        // ((Current - Previous) / Previous) * 100
+        // TODO: Connect real history data đầy đủ hơn nếu cần so sánh theo kỳ (tháng trước/quý trước).
+        let growth = 0;
+        const hist = historyByDash.get(c.id);
+        if (hist && hist.length >= 2) {
+          const current = toNum(hist[0]?.[historyField]);
+          const previous = toNum(hist[1]?.[historyField]);
+          if (previous !== 0) {
+            const g = ((current - previous) / Math.abs(previous)) * 100;
+            growth = Number.isFinite(g) ? g : 0;
+          } else if (current > 0) {
+            growth = 100;
+          }
+        }
+
+        return { id: c.id, name, revenue: revenueValue, growth };
+      })
+      .sort((a, b) => b.revenue - a.revenue);
+  }, [isProvince, communesData, timeFilter, historyRows]);
+
+  /** Top 5 doanh thu CAO nhất. */
+  const top5Highest = useMemo(
+    () => communeRanking.slice(0, 5),
+    [communeRanking]
+  );
+
+  /** Top 5 doanh thu THẤP nhất: 5 xã cuối, sắp xếp tăng dần để xã thấp nhất đứng đầu. */
+  const top5Lowest = useMemo(() => {
+    if (communeRanking.length === 0) return [];
+    // Bỏ các xã có doanh thu = 0 để BXH bottom có ý nghĩa hơn (nếu tất cả = 0 thì giữ nguyên).
+    const nonZero = communeRanking.filter((c) => c.revenue > 0);
+    const source = nonZero.length > 0 ? nonZero : communeRanking;
+    return source.slice(-5).reverse();
+  }, [communeRanking]);
+
+  const topRankingMax = top5Highest[0]?.revenue ?? 0;
+  const bottomRankingMax = useMemo(
+    () => top5Lowest.reduce((m, c) => Math.max(m, c.revenue), 0),
+    [top5Lowest]
+  );
+
   const cards = [
     { key: "b3_daily", label: "Doanh thu trong ngày", value: revenue.daily, color: "#22d3ee" },
     { key: "b3_weekly", label: "Doanh thu trong tuần", value: revenue.weekly, color: "#38bdf8" },
@@ -506,8 +665,8 @@ export function B3RevenueSection({
 
   return (
     <section className="mb-6 w-full rounded-2xl border border-cyan-500/20 bg-[#071326] p-5 shadow-2xl backdrop-blur-xl sm:p-6">
-      {/* ===== TIÊU ĐỀ KHỐI ===== */}
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+      {/* ===== TIÊU ĐỀ KHỐI + BỘ LỌC THỜI GIAN CHUNG ===== */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-start gap-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-[0_0_20px_-4px_rgba(6,182,212,0.5)]">
             <TrendingUp size={20} />
@@ -601,6 +760,25 @@ export function B3RevenueSection({
               {scraping ? "Đang cào..." : "⚡ Cào ngay"}
             </button>
           ) : null}
+
+          {/* BỘ LỌC THỜI GIAN CHUNG: điều khiển cả Biểu đồ + BXH Top 5 */}
+          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Bộ lọc thời gian B3">
+            {RANGE_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setTimeFilter(opt.key)}
+                aria-pressed={timeFilter === opt.key}
+                className={`rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition ${
+                  timeFilter === opt.key
+                    ? "border-cyan-500/50 bg-cyan-500/20 text-cyan-300 shadow-[0_0_16px_-6px_rgba(6,182,212,0.8)]"
+                    : "border-white/10 bg-slate-900/60 text-slate-400 hover:border-cyan-500/30 hover:text-cyan-300"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -646,29 +824,12 @@ export function B3RevenueSection({
         ))}
       </div>
 
-      {/* ===== HÀNG 2: BIỂU ĐỒ ĐƯỜNG + BỘ LỌC ===== */}
+      {/* ===== HÀNG 2: BIỂU ĐỒ ĐƯỜNG ===== */}
       <div className="mt-5 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
             <BarChart3 size={14} className="text-cyan-400" />
             TĂNG TRƯỞNG DOANH THU
-          </div>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {RANGE_OPTIONS.map((opt) => (
-              <button
-                key={opt.key}
-                type="button"
-                onClick={() => setRange(opt.key)}
-                aria-pressed={range === opt.key}
-                className={`rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition ${
-                  range === opt.key
-                    ? "border-cyan-500/50 bg-cyan-500/20 text-cyan-300 shadow-[0_0_16px_-6px_rgba(6,182,212,0.8)]"
-                    : "border-white/10 bg-slate-900/60 text-slate-400 hover:border-cyan-500/30 hover:text-cyan-300"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -722,6 +883,82 @@ export function B3RevenueSection({
           </p>
         )}
       </div>
+
+      {/* ===== HÀNG 3: BXH TOP 5 (CHỈ Dashboard Tỉnh) ===== */}
+      {isProvince ? (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+          <div className="bg-[#0a1830]/50 border border-emerald-500/20 rounded-2xl p-5">
+            <h4 className="mb-4 text-sm font-extrabold uppercase tracking-wide text-emerald-400">
+              🏆 Top 5 Doanh Thu Cao Nhất
+            </h4>
+            {top5Highest.length === 0 ? (
+              <p className="py-6 text-center text-xs text-slate-500">
+                Chưa có dữ liệu xếp hạng.
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <th className="w-10 px-2 py-2">Hạng</th>
+                    <th className="px-2 py-2">Xã/Phường</th>
+                    <th className="px-2 py-2 text-right">Doanh thu</th>
+                    <th className="px-2 py-2 text-right">Tăng trưởng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {top5Highest.map((item, idx) => (
+                      <TopRankRow
+                        key={`${timeFilter}-${item.id}`}
+                        rank={idx + 1}
+                        index={idx}
+                        item={item}
+                        max={topRankingMax}
+                        tone="emerald"
+                      />
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            )}
+          </div>
+          <div className="bg-[#0a1830]/50 border border-rose-500/20 rounded-2xl p-5">
+            <h4 className="mb-4 text-sm font-extrabold uppercase tracking-wide text-rose-400">
+              ⚠️ Top 5 Doanh Thu Thấp Nhất
+            </h4>
+            {top5Lowest.length === 0 ? (
+              <p className="py-6 text-center text-xs text-slate-500">
+                Chưa có dữ liệu xếp hạng.
+              </p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <th className="w-10 px-2 py-2">Hạng</th>
+                    <th className="px-2 py-2">Xã/Phường</th>
+                    <th className="px-2 py-2 text-right">Doanh thu</th>
+                    <th className="px-2 py-2 text-right">Tăng trưởng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {top5Lowest.map((item, idx) => (
+                      <TopRankRow
+                        key={`${timeFilter}-${item.id}`}
+                        rank={idx + 1}
+                        index={idx}
+                        item={item}
+                        max={bottomRankingMax}
+                        tone="rose"
+                      />
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      ) : null}
 
       {/* ===== MODAL: THIẾT LẬP DOANH THU (dành cho Admin) ===== */}
       {showSetup ? (

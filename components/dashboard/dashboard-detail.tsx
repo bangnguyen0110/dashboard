@@ -1699,6 +1699,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveQuantity={handleSaveQuantity}
                     onChanged={refetchAfterSave}
                     historyDashboardIds={b3HistoryIds}
+                    communesData={communes}
                   />
                 </div>
 

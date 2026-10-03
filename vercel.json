@@ -7,10 +7,6 @@
     {
       "path": "/api/v1/metrics/kpi-history/snapshot",
       "schedule": "30 18 * * *"
-    },
-    {
-      "path": "/api/v1/metrics/cron-b3",
-      "schedule": "*/10 * * * *"
     }
   ]
 }

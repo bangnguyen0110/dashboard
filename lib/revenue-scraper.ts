@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { errorMessage } from "@/lib/server-utils";
-import { REVENUE_SOURCE_TABLE, REVENUE_XA_TABLE } from "@/lib/revenue-sync";
+import { REVENUE_SOURCE_TABLE, REVENUE_XA_TABLE, normalizeUrlList } from "@/lib/revenue-sync";
 
 /**
  * ============================================================================
@@ -168,6 +168,8 @@ interface NguonRow {
   ma_xa: string;
   ma_tinh: string | null;
   url_nguon: string | null;
+  /** MẢNG URL nguồn cào (Array of Strings, cột jsonb — migration 0011). */
+  b3_urls?: unknown;
 }
 
 /** Cập nhật "trạng thái cào" (KHÔNG sinh sự kiện Realtime vì bảng này ngoài publication). */
@@ -208,23 +210,56 @@ async function scrapeOne(
     .maybeSingle();
   const oldValue = Number((current as { gia_tri?: number } | null)?.gia_tri ?? 0);
 
-  const url = normalizeSourceUrl(row.url_nguon);
-  if (!url) {
+  // Toàn bộ URL nguồn của xã (mảng b3_urls + url_nguon legacy).
+  const urls: string[] = [];
+  for (const raw of normalizeUrlList([row.b3_urls ?? [], row.url_nguon ?? ""])) {
+    const u = normalizeSourceUrl(raw);
+    if (u && !urls.includes(u)) urls.push(u);
+  }
+  if (urls.length === 0) {
     const message = "Chưa thiết lập URL nguồn";
     await markScrapeStatus(supabase, maXa, "error", oldValue, message);
     return { maXa, status: "error", oldValue, newValue: null, changed: false, error: message };
   }
 
   try {
-    // 2) Cào HTML và bóc `data-value` của thẻ tongtienthu
-    const html = await fetchSourceHtml(url);
-    const newValue = extractRevenueDataValue(html);
+    // 2) Cào SONG SONG toàn bộ URL (Promise.all) rồi CỘNG TỔNG `data-value`
+    //    thành một biến `total_scraped_value` duy nhất.
+    const settled = await Promise.all(
+      urls.map(async (url) => {
+        try {
+          const html = await fetchSourceHtml(url);
+          const value = extractRevenueDataValue(html);
+          if (value === null) {
+            return {
+              url,
+              value: null as number | null,
+              error: `Không tìm thấy data-value tại ${url}`,
+            };
+          }
+          return { url, value, error: null as string | null };
+        } catch (err) {
+          return { url, value: null as number | null, error: errorMessage(err, `Lỗi cào ${url}`) };
+        }
+      })
+    );
 
-    if (newValue === null) {
-      const message = "Không tìm thấy thẻ <p class=\"chuxanh tongtienthu\"> data-value";
+    const values: number[] = [];
+    const failures: string[] = [];
+    for (const r of settled) {
+      if (typeof r.value === "number") values.push(r.value);
+      else if (r.error) failures.push(r.error);
+    }
+
+    if (values.length === 0) {
+      const message =
+        failures.join("; ") ||
+        "Không tìm thấy thẻ <p class=\"chuxanh tongtienthu\"> data-value";
       await markScrapeStatus(supabase, maXa, "error", oldValue, message);
       return { maXa, status: "error", oldValue, newValue: null, changed: false, error: message };
     }
+
+    const newValue = values.reduce((sum, v) => sum + v, 0);
 
     // 3) Không đổi -> không ghi, không sinh sự kiện Realtime
     if (newValue === oldValue) {
@@ -282,7 +317,8 @@ export async function runRevenueScrape(
 
   let query = supabase
     .from(REVENUE_SOURCE_TABLE)
-    .select("ma_xa, ma_tinh, url_nguon")
+    // select("*") để không vỡ khi DB chưa chạy migration thêm cột `b3_urls`.
+    .select("*")
     .eq("active", true)
     .not("url_nguon", "is", null);
 

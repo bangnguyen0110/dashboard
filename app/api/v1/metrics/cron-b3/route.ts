@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
  *   `/api/v1/metrics/sync-all-b3` (nút "Làm mới doanh thu" ở Dashboard Tỉnh).
  *
  *  GET  (cron/worker)  -> quét TOÀN BỘ link cấu hình của các XÃ/PHƯỜNG
- *                         (metric_links b3_* + settings.revenue.url_nguon).
+ *                         (metric_links b3_* + MẢNG settings.revenue.b3_urls).
  *                         Cần CRON_SECRET nếu đã set (x-cron-secret /
  *                         x-vercel-cron, giống cron-sync).
  *  POST { dashboardId } -> nút "⚡ Cào ngay" trên Dashboard Xã: cào 1 dashboard,

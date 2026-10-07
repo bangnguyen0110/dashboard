@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import {
   REVENUE_SOURCE_TABLE,
   SYNC_REVENUE_FUNCTION,
+  normalizeUrlList,
   type RevenueSourceSettings,
 } from "@/lib/revenue-sync";
 
@@ -14,8 +15,9 @@ export const dynamic = "force-dynamic";
  * ----------------------------------------------------------------------------
  * Quản lý CẤU HÌNH NGUỒN + SECRET TOKEN cho luồng "push doanh thu".
  *
- *  POST  { dashboardId, maXa, maTinh?, urlNguon? }
- *        -> sinh Secret Token (hoặc tái dùng), upsert bảng `nguon_dong_bo`,
+ *  POST  { dashboardId, maXa, maTinh?, b3Urls?: string[], urlNguon? }
+ *        -> sinh Secret Token (hoặc tái dùng), upsert bảng `nguon_dong_bo`
+ *           (cột `b3_urls` — MẢNG URL nguồn, jsonb Array of Strings),
  *           lưu cấu hình vào `dashboards.settings.revenue`,
  *           trả về { token, endpoint } để dán vào mã nhúng.
  *
@@ -46,7 +48,18 @@ export async function POST(req: NextRequest) {
     const dashboardId = String(body.dashboardId ?? "").trim();
     const maXa = String(body.maXa ?? "").trim();
     const maTinh = body.maTinh ? String(body.maTinh).trim() : null;
-    const urlNguon = body.urlNguon ? String(body.urlNguon).trim() : null;
+
+    // ===== YÊU CẦU 1: NHẬN MẢNG NHIỀU URL NGUỒN =====
+    // Ưu tiên `b3Urls` / `b3_urls` (string[]); vẫn chấp nhận `urlNguon` (legacy)
+    // -> gộp vào mảng, bỏ trùng. Phần tử ĐẦU TIÊN làm `url_nguon` cũ (backward-
+    // compat với VIEW dashboard_xa / embed push).
+    const rawUrlList = Array.isArray(body.b3Urls)
+      ? body.b3Urls
+      : Array.isArray(body.b3_urls)
+        ? body.b3_urls
+        : [];
+    const b3Urls = normalizeUrlList([...rawUrlList, body.urlNguon ? String(body.urlNguon) : ""]);
+    const urlNguon = b3Urls[0] ?? null;
 
     if (!dashboardId) {
       return NextResponse.json(
@@ -73,20 +86,31 @@ export async function POST(req: NextRequest) {
     const token =
       (existing?.secret_token as string | undefined) || generateSecretToken();
 
-    // 2) Upsert cấu hình nguồn + token
-    const { error: upsertError } = await supabase
+    // 2) Upsert cấu hình nguồn + token (kèm MẢNG `b3_urls`)
+    const nguonPayload: Record<string, unknown> = {
+      ma_xa: maXa,
+      ma_tinh: maTinh,
+      url_nguon: urlNguon,
+      b3_urls: b3Urls,
+      secret_token: token,
+      active: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    let { error: upsertError } = await supabase
       .from(REVENUE_SOURCE_TABLE)
-      .upsert(
-        {
-          ma_xa: maXa,
-          ma_tinh: maTinh,
-          url_nguon: urlNguon,
-          secret_token: token,
-          active: true,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "ma_xa" }
-      );
+      .upsert(nguonPayload, { onConflict: "ma_xa" });
+
+    // DB chưa chạy migration 0011 (thêm cột b3_urls) -> lưu bản không cột này
+    // để app vẫn hoạt động (mảng URL trong dashboards.settings vẫn có đầy đủ).
+    if (upsertError && /b3_urls|column|PGRST204/i.test(upsertError.message ?? "")) {
+      const legacyPayload = { ...nguonPayload };
+      delete legacyPayload.b3_urls;
+      const retry = await supabase
+        .from(REVENUE_SOURCE_TABLE)
+        .upsert(legacyPayload, { onConflict: "ma_xa" });
+      upsertError = retry.error;
+    }
 
     if (upsertError) {
       return NextResponse.json(
@@ -107,13 +131,24 @@ export async function POST(req: NextRequest) {
       ma_xa: maXa,
       ma_tinh: maTinh ?? undefined,
       url_nguon: urlNguon ?? undefined,
+      // MẢNG URL cào (Array of Strings) — API cào sẽ Promise.all toàn bộ.
+      b3_urls: b3Urls,
       token_hint: token.slice(-4),
       updated_at: new Date().toISOString(),
     };
 
     const { error: settingsError } = await supabase
       .from("dashboards")
-      .update({ settings: { ...currentSettings, revenue: revenueSettings } })
+      .update({
+        settings: {
+          ...currentSettings,
+          // Merge (KHÔNG đè) để giữ các key cấu hình khác của `revenue`.
+          revenue: {
+            ...((currentSettings.revenue as Record<string, unknown> | undefined) ?? {}),
+            ...revenueSettings,
+          },
+        },
+      })
       .eq("id", dashboardId);
 
     if (settingsError) {
@@ -128,6 +163,7 @@ export async function POST(req: NextRequest) {
       maXa,
       maTinh,
       urlNguon,
+      b3_urls: b3Urls,
       token,
       token_hint: token.slice(-4),
       endpoint: endpointUrl(),

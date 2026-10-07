@@ -1,5 +1,5 @@
 import { errorMessage } from "@/lib/server-utils";
-import { readRevenueSource } from "@/lib/revenue-sync";
+import { readRevenueSourceUrls } from "@/lib/revenue-sync";
 import {
   applyB3Revenue,
   buildB3MetadataMirror,
@@ -27,10 +27,14 @@ import {
  *                                     (Admin bấm tay, quét toàn tỉnh).
  *
  * LUỒNG XỬ LÝ chung cho mỗi target:
- *   Fetch web nguồn -> bóc thẻ `data-value`
- *     -> so sánh `metric_links.current_value`
- *     -> UPDATE current_value + `dashboards.b3` qua CỘNG DỒN LŨY KẾ (lib/b3-revenue)
- *     -> INSERT 1 dòng `kpi_revenue_history` (migration 0009).
+ *   1. Dựng target từ MẢNG URL nguồn của xã (`settings.revenue.b3_urls` +
+ *      `url_nguon` legacy + `metric_links.target_url`).
+ *   2. `Promise.all` qua TOÀN BỘ URL -> bóc `data-value` từng trang
+ *      -> CỘNG TỔNG thành một biến `total_scraped_value` duy nhất.
+ *   3. So sánh với `metric_links.current_value` / `b3.last_raw_value`.
+ *   4. UPDATE `dashboards.b3` theo thuật toán TIME-BASED ACCUMULATION
+ *      (reset đúng kỳ theo GMT+7 + delta + cộng dồn — lib/b3-revenue).
+ *   5. INSERT 1 dòng `kpi_revenue_history` (migration 0009).
  *
  * ⚠️ AN TOÀN:
  *   * SSRF: chỉ request đúng URL đã lưu trong DB (không nhận URL từ request).
@@ -76,7 +80,13 @@ export interface B3Target {
   dashboardId: string;
   metricKey: string;
   field: B3Field;
+  /** URL chính (dùng cho log / thông báo lỗi). */
   url: string;
+  /**
+   * TOÀN BỘ URL nguồn của xã/phường — API cào sẽ `Promise.all` qua mảng này,
+   * bóc `data-value` từng trang rồi CỘNG TỔNG thành `total_scraped_value`.
+   */
+  urls: string[];
   /** `metric_links.current_value` (fallback: giá trị hiện tại trong cột b3). */
   prevValue: number | null;
   /** Dòng metric_links đã tồn tại (nếu không, chỉ ghi `dashboards.b3`). */
@@ -86,8 +96,11 @@ export interface B3Target {
 export interface TargetResult {
   target: B3Target;
   status: "changed" | "unchanged" | "error";
+  /** `total_scraped_value` — tổng `data-value` từ mọi URL của target. */
   newValue: number | null;
   error?: string;
+  /** Một số URL lỗi nhưng vẫn tổng hợp được URL thành công (không chặn luồng). */
+  warnings?: string[];
 }
 
 export interface ScanSummary {
@@ -133,16 +146,36 @@ export function extractDataValue(html: string): number | null {
   return null;
 }
 
+/** Gộp + chuẩn hoá danh sách URL (thêm scheme, bỏ trùng, bỏ rỗng). */
+function mergeUrls(
+  ...groups: (ReadonlyArray<string | null | undefined> | null | undefined)[]
+): string[] {
+  const out: string[] = [];
+  for (const group of groups) {
+    for (const raw of group ?? []) {
+      const url = normalizeSourceUrl(raw);
+      if (url && !out.includes(url)) out.push(url);
+    }
+  }
+  return out;
+}
+
 /**
  * Dựng danh sách target cào cho MỘT dashboard từ:
  *  1. `metric_links` có metric_key dạng b3_daily … b3_yearly + target_url;
- *  2. Fallback: `settings.revenue.url_nguon` (modal "Thiết lập doanh thu")
- *     dùng cho thẻ b3_daily khi thẻ này CHƯA có link riêng.
+ *     riêng thẻ `b3_daily` được GỘP thêm toàn bộ `settings.revenue.b3_urls`
+ *     (mảng URL nguồn của xã) — cào song song rồi CỘNG TỔNG thành
+ *     `total_scraped_value` (Yêu cầu 1).
+ *  2. Fallback: mảng `settings.revenue.b3_urls` (modal "Thiết lập doanh thu",
+ *     kèm `url_nguon` cũ) dùng cho thẻ b3_daily khi thẻ này CHƯA có link riêng.
  */
 export function buildTargets(dash: DashboardLite, links: MetricLinkLite[]): B3Target[] {
   const targets: B3Target[] = [];
   const currentB3 = dash.b3 ?? {};
   const seenFields = new Set<B3Field>();
+
+  // Toàn bộ URL nguồn của xã/phường (mảng cấu hình + URL legacy).
+  const communeUrls = mergeUrls(readRevenueSourceUrls(dash));
 
   for (const link of links) {
     const key = String(link.metric_key ?? "");
@@ -150,31 +183,46 @@ export function buildTargets(dash: DashboardLite, links: MetricLinkLite[]): B3Ta
     const field = key.slice(3) as B3Field;
     if (!B3_FIELDS.includes(field)) continue;
 
-    const url = normalizeSourceUrl(link.target_url ?? "");
-    if (!url) continue;
+    const linkUrl = normalizeSourceUrl(link.target_url ?? "");
+    // Thẻ daily: cào TOÀN BỘ URL của xã + URL riêng của link (nếu có) -> cộng tổng.
+    const urls =
+      field === "daily" ? mergeUrls(communeUrls, linkUrl ? [linkUrl] : []) : mergeUrls([linkUrl]);
+    if (urls.length === 0) continue;
+
+    // So sánh "đổi/không đổi" theo giá trị TRẦM đã cào (raw), không phải daily.
+    const prevValue =
+      field === "daily"
+        ? toNumOrNull(currentB3.last_raw_value) ??
+          toNumOrNull(link.current_value) ??
+          toNumOrNull(currentB3[field])
+        : toNumOrNull(link.current_value) ?? toNumOrNull(currentB3[field]);
 
     targets.push({
       dashboardId: dash.id,
       metricKey: key,
       field,
-      url,
-      prevValue: toNumOrNull(link.current_value) ?? toNumOrNull(currentB3[field]),
+      url: urls[0],
+      urls,
+      prevValue,
       hasLinkRow: true,
     });
     seenFields.add(field);
   }
 
-  // URL nguồn chung (Thiết lập doanh thu) -> thẻ "Doanh thu trong ngày"
+  // Mảng URL nguồn chung (Thiết lập doanh thu) -> thẻ "Doanh thu trong ngày"
   // nếu thẻ daily CHƯA có link riêng.
-  const urlNguon = normalizeSourceUrl(readRevenueSource(dash).url_nguon ?? "");
-  if (urlNguon && !seenFields.has("daily")) {
+  if (communeUrls.length > 0 && !seenFields.has("daily")) {
     const dailyRow = links.find((l) => String(l.metric_key ?? "") === "b3_daily");
     targets.push({
       dashboardId: dash.id,
       metricKey: "b3_daily",
       field: "daily",
-      url: urlNguon,
-      prevValue: toNumOrNull(dailyRow?.current_value) ?? toNumOrNull(currentB3.daily),
+      url: communeUrls[0],
+      urls: communeUrls,
+      prevValue:
+        toNumOrNull(currentB3.last_raw_value) ??
+        toNumOrNull(dailyRow?.current_value) ??
+        toNumOrNull(currentB3.daily),
       hasLinkRow: Boolean(dailyRow),
     });
   }
@@ -182,31 +230,65 @@ export function buildTargets(dash: DashboardLite, links: MetricLinkLite[]): B3Ta
   return targets;
 }
 
-/** Cào 1 target: fetch -> bóc data-value -> so sánh với giá trị cũ. */
-async function scrapeTarget(target: B3Target): Promise<TargetResult> {
-  try {
-    const html = await fetchSourceHtml(target.url, FETCH_TIMEOUT_MS);
-    const value = extractDataValue(html);
-    if (value === null) {
-      return {
-        target,
-        status: "error",
-        newValue: null,
-        error: `Không tìm thấy data-value tại ${target.url}`,
-      };
-    }
-    if (target.prevValue !== null && value === target.prevValue) {
-      return { target, status: "unchanged", newValue: value };
-    }
-    return { target, status: "changed", newValue: value };
-  } catch (err) {
+/**
+ * Cào 1 target: `Promise.all` qua TOÀN BỘ `target.urls` -> bóc `data-value`
+ * từng trang -> CỘNG TỔNG thành một biến `total_scraped_value` duy nhất.
+ *
+ * - Mọi URL đều lỗi -> status "error".
+ * - Chỉ một số URL lỗi -> vẫn cộng tổng các URL thành công, lỗi lẻ được ghi
+ *   vào `warnings` để hiện ở summary (không chặn luồng).
+ */
+export async function scrapeTarget(target: B3Target): Promise<TargetResult> {
+  const urls = target.urls.length > 0 ? target.urls : target.url ? [target.url] : [];
+  if (urls.length === 0) {
     return {
       target,
       status: "error",
       newValue: null,
-      error: errorMessage(err, `Lỗi cào ${target.url}`),
+      error: "Chưa cấu hình URL nguồn để cào",
     };
   }
+
+  const settled = await Promise.all(
+    urls.map(async (url) => {
+      try {
+        const html = await fetchSourceHtml(url, FETCH_TIMEOUT_MS);
+        const value = extractDataValue(html);
+        if (value === null) {
+          return { url, value: null as number | null, error: `Không tìm thấy data-value tại ${url}` };
+        }
+        return { url, value, error: null as string | null };
+      } catch (err) {
+        return { url, value: null as number | null, error: errorMessage(err, `Lỗi cào ${url}`) };
+      }
+    })
+  );
+
+  const ok = settled.filter((r): r is { url: string; value: number; error: null } => r.value !== null);
+  const failures = settled
+    .filter((r): r is { url: string; value: null; error: string } => r.error !== null)
+    .map((r) => r.error);
+
+  if (ok.length === 0) {
+    return {
+      target,
+      status: "error",
+      newValue: null,
+      error: failures.join("; ") || `Không đọc được data-value từ ${urls.length} URL`,
+    };
+  }
+
+  // ===== total_scraped_value: CỘNG TỔNG `data-value` từ TẤT CẢ các trang =====
+  const totalScrapedValue = ok.reduce((sum, r) => sum + r.value, 0);
+
+  const result: TargetResult = {
+    target,
+    status:
+      target.prevValue !== null && totalScrapedValue === target.prevValue ? "unchanged" : "changed",
+    newValue: totalScrapedValue,
+  };
+  if (failures.length > 0) result.warnings = failures;
+  return result;
 }
 
 /** Pool song song có giới hạn + hạn chót (bounded work cho serverless 60s). */
@@ -254,17 +336,41 @@ async function persistDashboard(
   const shouldWrite = mode === "manual" ? okResults.length > 0 : changedResults.length > 0;
   if (!shouldWrite) return { changed: 0, historySaved: false };
 
-  // ===== KHỐI B3: CỘNG DỒN LŨY KẾ (thay vì ghi đè từng field) =====
-  // `daily` sẽ tự reset theo kỳ và rót delta sang weekly/monthly/quarterly/yearly.
-  let accumulatedB3 = normalizeB3(dash.b3);
-  let appliedAnyChange = false;
-
-  for (const r of changedResults) {
-    if (r.newValue === null) continue;
-    const applied = applyB3Revenue(accumulatedB3, r.target.field, r.newValue);
-    accumulatedB3 = applied.b3;
-    appliedAnyChange = true;
+  // ===== YÊU CẦU 2 — BƯỚC 1: FETCH OBJECT B3 HIỆN TẠI TỪ DB =====
+  // Không dùng snapshot đọc lúc bắt đầu vòng quét: nếu có luồng khác vừa ghi
+  // (push realtime / nhập tay) thì vẫn lấy bản MỚI NHẤT để cộng dồn.
+  let freshB3: unknown = dash.b3;
+  let freshMetadata: unknown = dash.metadata;
+  try {
+    const { data: freshRow } = await admin
+      .from("dashboards")
+      .select("b3, metadata")
+      .eq("id", dash.id)
+      .maybeSingle();
+    if (freshRow) {
+      const row = freshRow as { b3?: unknown; metadata?: unknown };
+      if (row.b3 !== undefined && row.b3 !== null) freshB3 = row.b3;
+      if (row.metadata !== undefined && row.metadata !== null) freshMetadata = row.metadata;
+    }
+  } catch (err) {
+    if (warnings.length < MAX_WARNINGS) warnings.push(`dashboards.b3 (đọc lại): ${errorMessage(err)}`);
   }
+
+  // ===== YÊU CẦU 2 — BƯỚC 2..5: RESET CHU KỲ + DELTA + CỘNG DỒN LŨY KẾ =====
+  // `now` dùng chung cho cả lượt cào; applyB3Revenue tự quy về GMT+7 (dayjs).
+  const now = new Date();
+  let accumulatedB3 = normalizeB3(freshB3);
+
+  // Cron: chỉ cộng khi giá trị THAY ĐỔI. Manual ("Cào ngay"/"Làm mới"): cộng
+  // mọi kết quả đọc được — delta = 0 nếu chưa đổi, nhưng vẫn cập nhật
+  // `last_updated` / reset đúng kỳ khi vừa sang ngày/tuần/tháng mới.
+  const resultsToApply = mode === "manual" ? okResults : changedResults;
+  for (const r of resultsToApply) {
+    if (r.newValue === null) continue;
+    const applied = applyB3Revenue(accumulatedB3, r.target.field, r.newValue, now);
+    accumulatedB3 = applied.b3;
+  }
+  const appliedAnyChange = resultsToApply.some((r) => r.newValue !== null);
 
   // 1) Cập nhật current_value trên các dòng metric_links đã thay đổi.
   for (const r of changedResults) {
@@ -279,13 +385,14 @@ async function persistDashboard(
     }
   }
 
-  // 2) Ghi cột JSONB `dashboards.b3` + mirror metadata cho CẢ 5 mốc.
+  // 2) Ghi cột JSONB `dashboards.b3` (kèm last_updated + last_raw_value) +
+  //    mirror metadata cho CẢ 5 mốc.
   if (appliedAnyChange) {
-    const meta = buildB3MetadataMirror(dash.metadata, accumulatedB3);
+    const meta = buildB3MetadataMirror(freshMetadata, accumulatedB3);
 
     const { error: upErr } = await admin
       .from("dashboards")
-      .update({ b3: accumulatedB3, metadata: meta, updated_at: new Date().toISOString() })
+      .update({ b3: accumulatedB3, metadata: meta, updated_at: now.toISOString() })
       .eq("id", dash.id);
 
     if (upErr) {
@@ -305,7 +412,7 @@ async function persistDashboard(
       monthly: toNum(accumulatedB3.monthly),
       quarterly: toNum(accumulatedB3.quarterly),
       yearly: toNum(accumulatedB3.yearly),
-      scraped_at: new Date().toISOString(),
+      scraped_at: now.toISOString(),
     });
     if (histErr) {
       if (warnings.length < MAX_WARNINGS) {
@@ -410,6 +517,10 @@ export async function processDashboards(
     if (r.status === "changed") changed += 1;
     else if (r.status === "unchanged") unchanged += 1;
     else errors += 1;
+    // Một số URL lỗi nhưng vẫn cộng tổng được URL thành công -> cảnh báo lẻ.
+    for (const w of r.warnings ?? []) {
+      if (warnings.length < MAX_WARNINGS) warnings.push(w);
+    }
   }
 
   // 3) Gom kết quả theo dashboard để ghi DB.

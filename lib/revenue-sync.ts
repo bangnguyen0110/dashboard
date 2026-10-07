@@ -57,7 +57,13 @@ export interface LichSuDoanhThuRow {
 export interface RevenueSourceSettings {
   ma_xa?: string;
   ma_tinh?: string;
+  /** URL chính (legacy — luôn là phần tử ĐẦU TIÊN của `b3_urls`). */
   url_nguon?: string;
+  /**
+   * MẢNG URL nguồn cào của xã/phường (Array of Strings) — Khối B3 sẽ cào
+   * song song toàn bộ và CỘNG TỔNG `data-value` thành `total_scraped_value`.
+   */
+  b3_urls?: string[];
   /** Chỉ lưu 4 ký tự cuối để nhận diện, KHÔNG lưu token gốc ở đây. */
   token_hint?: string;
   updated_at?: string;
@@ -107,6 +113,58 @@ export function readRevenueSource(
   const raw = dashboard?.settings?.revenue;
   if (!raw || typeof raw !== "object") return {};
   return raw as RevenueSourceSettings;
+}
+
+/**
+ * Chuẩn hoá đầu vào về MẢNG URL sạch: bỏ rỗng, bỏ trùng (không phân biệt hoa
+ * thường / dấu `/` cuối). Chấp nhận `string[]`, chuỗi đơn, JSON string hoặc
+ * object số-động (phòng khi jsonb trả về dạng khác dự kiến).
+ */
+export function normalizeUrlList(input: unknown): string[] {
+  let raw: unknown[] = [];
+
+  if (Array.isArray(input)) {
+    raw = input;
+  } else if (typeof input === "string") {
+    const trimmed = input.trim();
+    if (!trimmed) {
+      raw = [];
+    } else if (trimmed.startsWith("[")) {
+      try {
+        const parsed: unknown = JSON.parse(trimmed);
+        raw = Array.isArray(parsed) ? parsed : [trimmed];
+      } catch {
+        raw = [trimmed];
+      }
+    } else {
+      raw = [trimmed];
+    }
+  } else if (input && typeof input === "object") {
+    raw = Object.values(input as Record<string, unknown>);
+  }
+
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of raw) {
+    const url = String(item ?? "").trim();
+    if (!url) continue;
+    const key = url.toLowerCase().replace(/\/+$/, "");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(url);
+  }
+  return out;
+}
+
+/**
+ * Đọc TOÀN BỘ URL nguồn cào của một dashboard (`b3_urls` + `url_nguon` legacy).
+ * Đây là mảng mà API cào sẽ lặp `Promise.all` rồi CỘNG TỔNG `data-value`.
+ */
+export function readRevenueSourceUrls(
+  dashboard: { settings?: Record<string, unknown> | null } | null | undefined
+): string[] {
+  const cfg = readRevenueSource(dashboard);
+  return normalizeUrlList([...(cfg.b3_urls ?? []), cfg.url_nguon ?? ""]);
 }
 
 /**

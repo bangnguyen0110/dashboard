@@ -251,5 +251,53 @@ Mở Dashboard **cấp Xã** đã thiết lập URL nguồn (admin → nút
 
 ---
 
+## 7. NHIỀU URL NGUỒN + CỘNG DỒN LŨY KẾ (Khối B3)
+
+### 7.1 Nhiều URL cho 1 xã/phường (Yêu cầu 1)
+
+- **UI:** Modal *"Thiết lập doanh thu"* là **Dynamic Form** — nút **"Thêm URL"** /
+  icon thùng rác để thêm/xóa bao nhiêu dòng URL tùy ý.
+- **Lưu:**
+  - `dashboards.settings.revenue.b3_urls` — mảng JSONB (Array of Strings),
+    app luôn đọc/ghi nơi này;
+  - `nguon_dong_bo.b3_urls` — **cột jsonb** (migration
+    `0011_b3_urls_multi_source.sql`); `url_nguon` cũ = phần tử đầu tiên để
+    VIEW/luồng push không vỡ.
+- **Cào:** `lib/b3-scraper.ts` dựng target cho thẻ `daily` gồm toàn bộ mảng URL
+  rồi `Promise.all` → bóc `data-value` từng trang → **CỘNG TỔNG** thành biến
+  `total_scraped_value` duy nhất. URL lỗi một phần vẫn tổng hợp được URL tốt
+  (vào `warnings`); mọi URL mới lỗi thì báo `error`.
+
+```bash
+# Chạy migration (Supabase SQL Editor -> Run):
+#   supabase/migrations/0011_b3_urls_multi_source.sql
+```
+
+### 7.2 Thuật toán reset + cộng dồn (Yêu cầu 2)
+
+`lib/b3-revenue.ts` — `accumulateB3ScrapedValue(total_scraped_value)`:
+
+1. Fetch object B3 hiện tại `{ daily, weekly, monthly, quarterly, yearly,
+   last_updated, last_raw_value }`;
+2. `now` theo **múi giờ GMT+7** (dayjs + `Asia/Ho_Chi_Minh`);
+3. **Reset đúng kỳ** (chỉ reset mốc tương ứng, không đụng mốc khác):
+   `isSameDay/ISO-week/Month/Quarter/Year == false` → mốc đó = 0;
+4. `delta = total_scraped_value - last_raw_value`; nếu `delta < 0` (web nguồn
+   reset số) → `delta = total_scraped_value`;
+5. Cả 5 thẻ `+= delta`;
+6. Lưu `last_updated = now` (GMT+7) + `last_raw_value = total_scraped_value`.
+
+> Kết quả: sang ngày mới chỉ có `daily` reset, tuần/tháng/quý/năm vẫn giữ số
+> đã tích lũy và cộng delta mới.
+
+### 7.3 Test
+
+```bash
+npm run test:b3    # 53 assertion thuật toán + 14 assertion cào nhiều URL
+```
+
+
+---
+
 
 

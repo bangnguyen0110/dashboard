@@ -757,7 +757,7 @@ export function B3RevenueSection({  dashboard,
               className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-slate-900/60 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:border-cyan-500/30 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Zap size={13} className={scraping ? "animate-pulse" : undefined} />
-              {scraping ? "Đang cào..." : "⚡ Cào ngay"}
+              {scraping ? "Đang cào..." : "Đồng bộ"}
             </button>
           ) : null}
 

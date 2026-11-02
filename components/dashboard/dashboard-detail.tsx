@@ -34,6 +34,7 @@ import {
   Sprout,
   Factory,
   Store,
+  Layers,
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import { supabase } from "@/lib/supabase";
@@ -1939,7 +1940,44 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       )}
                     </div>
 
-                    {/* THẺ 5 (TOP SP) đã được chuyển sang Khối B2 */}
+                    {/* THẺ 5: DNVVN SỬ DỤNG NỀN TẢNG SỐ */}
+                    <div className="col-span-2 bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-blue-200 dark:border-blue-800/50 shadow flex flex-col justify-between">
+                      <div className="flex justify-between items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h6 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">DNVVN sử dụng nền tảng số</h6>
+                          <span className="text-3xl font-black text-blue-600 dark:text-blue-400">4.520</span>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl shrink-0">
+                          <Layers className="w-7 h-7 text-blue-500 dark:text-blue-400" />
+                        </div>
+                      </div>
+                      {isAdmin && (
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => setTopEntIdModal({ key: "b1_sme_platform_biz", label: "DNVVN sử dụng nền tảng số" })}
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                          >
+                            Thiết lập ID
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setB1QtyTarget({
+                                metricKey: "b1_sme_platform_biz",
+                                fields: ["b1_sme_platform_biz"],
+                                label: "DNVVN sử dụng nền tảng số",
+                                current: 4520,
+                                matchTokens: ["nền tảng số", "platform"],
+                              })
+                            }
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                          >
+                            Setup số lượng
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* 2. THANH TIÊU ĐỀ LOẠI HÌNH DN */}

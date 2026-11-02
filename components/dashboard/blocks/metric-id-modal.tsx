@@ -113,21 +113,21 @@ export function MetricIdModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-      <div className="relative w-full max-w-lg bg-[#0a1124] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-xl shadow-2xl overflow-hidden text-white my-auto">
+      <div className="relative w-full max-w-lg bg-white dark:bg-[#0a1124] border border-slate-200 dark:border-[#1d293d] rounded-xl shadow-2xl overflow-hidden text-slate-800 dark:text-white my-auto">
         {/* Header */}
-        <div className="bg-[#0c1e38] px-6 py-4 border-b border-[#1d293d] flex justify-between items-center">
+        <div className="bg-slate-50 dark:bg-[#0c1e38] px-6 py-4 border-b border-slate-200 dark:border-[#1d293d] flex justify-between items-center">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-cyan-400 uppercase tracking-wider">
+            <h3 className="text-sm sm:text-base font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
               THIẾT LẬP ID & ĐỒNG BỘ DỮ LIỆU
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Áp dụng cho: <strong className="text-slate-200">{displayLabel}</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Áp dụng cho: <strong className="text-slate-700 dark:text-slate-200">{displayLabel}</strong>
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <X size={18} />
           </button>
@@ -139,8 +139,8 @@ export function MetricIdModal({
             <div
               className={`p-3 rounded-xl text-xs flex items-center gap-2 border ${
                 statusMsg.type === "success"
-                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                  : "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                  ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
+                  : "bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400"
               }`}
             >
               {statusMsg.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -150,7 +150,7 @@ export function MetricIdModal({
 
           {/* Ô nhập ID */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">Mã ID thẻ (text)</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Mã ID thẻ (text)</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                 <Hash size={16} />
@@ -161,23 +161,23 @@ export function MetricIdModal({
                 value={idInput}
                 onChange={(e) => setIdInput(e.target.value)}
                 placeholder="Ví dụ: B4HbFf11820eB5C"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#061121] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-xl text-sm focus:outline-hidden focus:border-cyan-400 text-slate-100 placeholder-slate-500 font-mono"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-[#061121] border border-slate-300 dark:border-[#1d293d] rounded-xl text-sm focus:outline-hidden focus:border-cyan-500 dark:focus:border-cyan-400 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-mono"
               />
             </div>
           </div>
 
           {/* 🌟 Thêm lựa chọn: Bạn có muốn đồng bộ dữ liệu không? */}
-          <div className="flex items-start space-x-3 p-3.5 bg-[#061121] rounded-xl border border-[#1d293d]">
+          <div className="flex items-start space-x-3 p-3.5 bg-slate-50 dark:bg-[#061121] rounded-xl border border-slate-200 dark:border-[#1d293d]">
             <input
               type="checkbox"
               id="syncCheckbox"
               checked={syncEnabled}
               onChange={(e) => setSyncEnabled(e.target.checked)}
-              className="mt-0.5 w-4 h-4 text-cyan-600 border-slate-700 rounded-xl bg-[#0a1124] focus:ring-cyan-500 focus:ring-offset-[#0a1124] cursor-pointer"
+              className="mt-0.5 w-4 h-4 text-cyan-600 border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-[#0a1124] focus:ring-cyan-500 focus:ring-offset-white dark:focus:ring-offset-[#0a1124] cursor-pointer"
             />
-            <label htmlFor="syncCheckbox" className="text-xs text-slate-300 cursor-pointer select-none">
-              <span className="font-semibold text-slate-200 block mb-0.5">Đồng bộ dữ liệu từ web nguồn</span>
-              <span className="text-slate-400 text-[11px] leading-relaxed block">
+            <label htmlFor="syncCheckbox" className="text-xs text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+              <span className="font-semibold text-slate-900 dark:text-slate-200 block mb-0.5">Đồng bộ dữ liệu từ web nguồn</span>
+              <span className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed block">
                 Nếu không tick, thẻ sẽ chỉ liên kết trực tiếp tới đường dẫn tự động mà không tiến hành cào/đồng bộ số liệu.
               </span>
             </label>
@@ -185,20 +185,20 @@ export function MetricIdModal({
 
           {/* Đường dẫn tự động ghép */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400">Đường dẫn tự động tạo</label>
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Đường dẫn tự động tạo</label>
             {previewHref ? (
               <a
                 href={previewHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 title={`Mở trong tab mới: ${previewHref}`}
-                className="p-3 bg-[#061121] rounded-xl border border-[#1d293d] flex items-center gap-2 text-xs text-cyan-300 font-mono break-all cursor-pointer transition-colors hover:border-cyan-400/70 hover:text-cyan-200"
+                className="p-3 bg-slate-50 dark:bg-[#061121] rounded-xl border border-slate-200 dark:border-[#1d293d] flex items-center gap-2 text-xs text-cyan-700 dark:text-cyan-300 font-mono break-all cursor-pointer transition-colors hover:border-cyan-400/70 hover:text-cyan-800 dark:hover:text-cyan-200"
               >
                 <Globe size={14} className="shrink-0 text-slate-400" />
                 <span className="underline decoration-dotted underline-offset-4">{previewHref}</span>
               </a>
             ) : (
-              <div className="p-3 bg-[#061121] rounded-xl border border-[#1d293d] flex items-center gap-2 text-xs text-cyan-300 font-mono break-all">
+              <div className="p-3 bg-slate-50 dark:bg-[#061121] rounded-xl border border-slate-200 dark:border-[#1d293d] flex items-center gap-2 text-xs text-cyan-700 dark:text-cyan-300 font-mono break-all">
                 <Globe size={14} className="shrink-0 text-slate-400" />
                 <span>{fullPreviewUrl || "Chưa có domain"}</span>
               </div>

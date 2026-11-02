@@ -505,30 +505,30 @@ function AiAdvisorModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative flex flex-col w-full max-w-4xl max-h-[92vh] bg-[#071326] border border-[#1e3a5f] rounded-xl shadow-2xl overflow-hidden text-slate-100">
+      <div className="relative flex flex-col w-full max-w-4xl max-h-[92vh] bg-white dark:bg-[#071326] border border-slate-200 dark:border-[#1e3a5f] rounded-xl shadow-2xl overflow-hidden text-slate-800 dark:text-slate-100">
         
         {/* Header Modal */}
-        <div className="relative shrink-0 px-6 py-4 border-b border-white/10 bg-gradient-to-r from-cyan-950/60 via-[#0a1c38] to-[#071326] flex items-center justify-between gap-4">
+        <div className="relative shrink-0 px-6 py-4 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-gradient-to-r dark:from-cyan-950/60 dark:via-[#0a1c38] dark:to-[#071326] flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-300">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-600 dark:text-cyan-300">
               <Bot size={20} />
             </span>
             <div>
-              <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-white">
+              <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800 dark:text-white">
                 Trợ lý AI Phân tích & Tương tác Báo cáo
               </h3>
-              <p className="text-[11px] text-slate-400">
-                Địa bàn: <strong className="text-cyan-300">{cleanDashboardTitle(dashboard.title)}</strong>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Địa bàn: <strong className="text-cyan-600 dark:text-cyan-300">{cleanDashboardTitle(dashboard.title)}</strong>
               </p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
             <X size={16} />
           </button>
         </div>
 
         {/* Toolbar */}
-        <div className="shrink-0 px-6 py-2.5 bg-[#0a1830]/70 border-b border-white/5 flex flex-wrap items-center justify-between gap-3">
+        <div className="shrink-0 px-6 py-2.5 bg-slate-50/70 dark:bg-[#0a1830]/70 border-b border-slate-200 dark:border-white/5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             {[
               { id: "all", label: "Toàn diện", icon: Zap },
@@ -543,7 +543,9 @@ function AiAdvisorModal({
                   type="button"
                   onClick={() => setSelectedScope(tab.id as any)}
                   className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold transition-all ${
-                    isActive ? "bg-[#0d274c] text-[#00d2ff] border border-[#00d2ff]/40" : "bg-slate-900 text-slate-400"
+                    isActive
+                      ? "bg-cyan-50 dark:bg-[#0d274c] text-cyan-600 dark:text-[#00d2ff] border border-cyan-300 dark:border-[#00d2ff]/40 shadow-xs"
+                      : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
                   }`}
                 >
                   <Icon size={12} />
@@ -556,10 +558,10 @@ function AiAdvisorModal({
           <div className="flex flex-wrap items-center gap-2">
             {analysis && (
               <>
-                <button type="button" onClick={handleDownloadWord} className="inline-flex items-center gap-1 rounded-xl bg-blue-600/20 border border-blue-400/40 px-2.5 py-1 text-xs font-bold text-blue-300 hover:bg-blue-600/30">
+                <button type="button" onClick={handleDownloadWord} className="inline-flex items-center gap-1 rounded-xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-400/40 px-2.5 py-1 text-xs font-bold text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-600/30">
                   <FileText size={12} /> Word (.doc)
                 </button>
-                <button type="button" onClick={handleDownloadPdf} className="inline-flex items-center gap-1 rounded-xl bg-emerald-600/20 border border-emerald-400/40 px-2.5 py-1 text-xs font-bold text-emerald-300 hover:bg-emerald-600/30">
+                <button type="button" onClick={handleDownloadPdf} className="inline-flex items-center gap-1 rounded-xl bg-emerald-50 dark:bg-emerald-600/20 border border-emerald-200 dark:border-emerald-400/40 px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-600/30">
                   <Printer size={12} /> PDF (.pdf)
                 </button>
               </>
@@ -596,7 +598,7 @@ function AiAdvisorModal({
         </div>
 
         {error && (
-          <div className="m-4 mb-0 rounded-xl bg-rose-500/10 p-3 text-xs text-rose-300 flex items-center gap-2">
+          <div className="m-4 mb-0 rounded-xl bg-rose-500/10 p-3 text-xs text-rose-600 dark:text-rose-300 flex items-center gap-2 border border-rose-200 dark:border-rose-500/20">
             <AlertTriangle size={15} /> <span>{error}</span>
           </div>
         )}
@@ -606,24 +608,24 @@ function AiAdvisorModal({
           
           {loading && (
             <div className="flex flex-col items-center justify-center py-16 space-y-4">
-              <div className="relative grid h-16 w-16 place-items-center rounded-full bg-cyan-500/10 text-cyan-400 animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+              <div className="relative grid h-16 w-16 place-items-center rounded-full bg-cyan-500/10 text-cyan-500 dark:text-cyan-400 animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.3)]">
                 <Bot size={30} />
               </div>
               <div className="text-center space-y-1">
-                <p className="text-sm font-bold text-slate-200">AI đang phân tích dữ liệu. Bạn vui lòng chờ một chút!</p>
-                <p className="text-xs text-slate-400 font-mono">Đang tổng hợp chỉ số chuyên sâu...</p>
+                <p className="text-sm font-bold text-slate-800 dark:text-slate-200">AI đang phân tích dữ liệu. Bạn vui lòng chờ một chút!</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">Đang tổng hợp chỉ số chuyên sâu...</p>
               </div>
-              <div className="w-full max-w-md bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700">
+              <div className="w-full max-w-md bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-300 dark:border-slate-700">
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
               </div>
-              <span className="text-xs font-mono text-cyan-400 font-bold">{progress}% hoàn thành</span>
+              <span className="text-xs font-mono text-cyan-600 dark:text-cyan-400 font-bold">{progress}% hoàn thành</span>
             </div>
           )}
 
           {!loading && analysis && (
             <div className="space-y-4">
-              <div className="rounded-xl border border-white/10 bg-[#050e1c] p-6 text-slate-200 shadow-xl">
-                <div className="text-[11px] text-cyan-400 italic mb-3 flex items-center gap-1.5 bg-cyan-500/10 p-2 rounded-xl border border-cyan-500/20">
+              <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#050e1c] p-6 text-slate-800 dark:text-slate-200 shadow-sm dark:shadow-xl">
+                <div className="text-[11px] text-cyan-700 dark:text-cyan-400 italic mb-3 flex items-center gap-1.5 bg-cyan-50 dark:bg-cyan-500/10 p-2 rounded-xl border border-cyan-200 dark:border-cyan-500/20">
                   <Sparkles size={13} /> Bạn có thể chỉnh sửa trực tiếp văn bản hoặc <strong>bôi đen bất kỳ đoạn văn nào</strong> để xuất hiện Tooltip <strong>Giải thích</strong> và <strong>Phân tích sâu</strong>.
                 </div>
 
@@ -641,9 +643,9 @@ function AiAdvisorModal({
 
           {!loading && !analysis && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Target size={32} className="text-cyan-400 mb-2" />
-              <p className="text-sm font-bold text-slate-200">Chưa có kết quả phân tích tổng thể cho phạm vi này.</p>
-              <p className="text-xs text-slate-400 mt-1">Bấm nút "Bắt đầu phân tích" ở trên hoặc chọn gợi ý bên dưới để đặt câu hỏi cho AI.</p>
+              <Target size={32} className="text-cyan-500 dark:text-cyan-400 mb-2" />
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Chưa có kết quả phân tích tổng thể cho phạm vi này.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Bấm nút "Bắt đầu phân tích" ở trên hoặc chọn gợi ý bên dưới để đặt câu hỏi cho AI.</p>
             </div>
           )}
 
@@ -651,10 +653,10 @@ function AiAdvisorModal({
             <div key={index} className={`flex w-full my-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               {msg.role === "assistant" ? (
                 <div className="flex items-start gap-3 max-w-[90%] sm:max-w-[85%]">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-400/30">
                     <Bot size={16} />
                   </span>
-                  <div className="rounded-xl rounded-tl-sm bg-[#061225] border border-cyan-500/30 p-4 text-xs sm:text-sm text-slate-200 shadow-xl whitespace-pre-line font-sans leading-relaxed">
+                  <div className="rounded-xl rounded-tl-sm bg-slate-100 dark:bg-[#061225] border border-slate-200 dark:border-cyan-500/30 p-4 text-xs sm:text-sm text-slate-800 dark:text-slate-200 shadow-sm dark:shadow-xl whitespace-pre-line font-sans leading-relaxed">
                     {msg.content}
                   </div>
                 </div>
@@ -670,11 +672,11 @@ function AiAdvisorModal({
 
           {subLoading && (
             <div className="flex items-center gap-3 my-4">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-400/30 animate-pulse">
                 <Bot size={16} />
               </span>
-              <div className="p-4 rounded-xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
-                <RefreshCw size={15} className="animate-spin text-cyan-400" />
+              <div className="p-4 rounded-xl rounded-tl-sm border border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-950/30 text-xs text-cyan-700 dark:text-cyan-300 flex items-center gap-3 animate-pulse shadow-xs">
+                <RefreshCw size={15} className="animate-spin text-cyan-500 dark:text-cyan-400" />
                 <span>AI đang phân tích đoạn văn bản bạn vừa bôi đen...</span>
               </div>
             </div>
@@ -682,11 +684,11 @@ function AiAdvisorModal({
 
           {chatLoading && (
             <div className="flex items-center gap-3 my-4">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-400/30 animate-pulse">
                 <Bot size={16} />
               </span>
-              <div className="p-4 rounded-xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
-                <RefreshCw size={15} className="animate-spin text-cyan-400" />
+              <div className="p-4 rounded-xl rounded-tl-sm border border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-950/30 text-xs text-cyan-700 dark:text-cyan-300 flex items-center gap-3 animate-pulse shadow-xs">
+                <RefreshCw size={15} className="animate-spin text-cyan-500 dark:text-cyan-400" />
                 <span>Trợ lý AI đang tra cứu cơ sở dữ liệu và trả lời câu hỏi của bạn...</span>
               </div>
             </div>
@@ -694,22 +696,22 @@ function AiAdvisorModal({
 
           {selectedText && tooltipPos && (
             <div
-              className="absolute z-50 flex items-center gap-1 rounded-xl border border-cyan-500/50 bg-[#071326] p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
+              className="absolute z-50 flex items-center gap-1 rounded-xl border border-cyan-300 dark:border-cyan-500/50 bg-white dark:bg-[#071326] p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150"
               style={{ top: `${tooltipPos.y - 48}px`, left: `${tooltipPos.x}px`, transform: "translateX(-50%)" }}
             >
               <button
                 type="button"
                 onClick={() => handleSubAiAction("explain")}
-                className="inline-flex items-center gap-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 px-3 py-1.5 text-xs font-bold text-cyan-300 border border-cyan-500/40 transition"
+                className="inline-flex items-center gap-1 rounded-xl bg-cyan-50 dark:bg-cyan-500/20 hover:bg-cyan-100 dark:hover:bg-cyan-500/30 px-3 py-1.5 text-xs font-bold text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 transition"
               >
-                <Lightbulb size={13} className="text-amber-300" /> Giải thích
+                <Lightbulb size={13} className="text-amber-500 dark:text-amber-300" /> Giải thích
               </button>
               <button
                 type="button"
                 onClick={() => handleSubAiAction("deep_analyze")}
-                className="inline-flex items-center gap-1 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 px-3 py-1.5 text-xs font-bold text-blue-300 border border-blue-500/40 transition"
+                className="inline-flex items-center gap-1 rounded-xl bg-blue-50 dark:bg-blue-500/20 hover:bg-blue-100 dark:hover:bg-blue-500/30 px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/40 transition"
               >
-                <SearchCode size={13} className="text-cyan-300" /> Phân tích sâu
+                <SearchCode size={13} className="text-cyan-600 dark:text-cyan-300" /> Phân tích sâu
               </button>
             </div>
           )}
@@ -718,10 +720,10 @@ function AiAdvisorModal({
         </div>
 
         {/* Ô nhập câu hỏi & gợi ý nhanh ở đáy modal */}
-        <div className="shrink-0 p-4 bg-[#050e1c] border-t border-white/10 space-y-2.5">
+        <div className="shrink-0 p-4 bg-slate-50 dark:bg-[#050e1c] border-t border-slate-200 dark:border-white/10 space-y-2.5">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-            <span className="text-[11px] font-bold text-slate-400 shrink-0 flex items-center gap-1">
-              <Sparkles size={12} className="text-cyan-400" /> Gợi ý nhanh:
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0 flex items-center gap-1">
+              <Sparkles size={12} className="text-cyan-600 dark:text-cyan-400" /> Gợi ý nhanh:
             </span>
             {[
               "Đánh giá điểm yếu lớn nhất của địa bàn?",
@@ -734,7 +736,7 @@ function AiAdvisorModal({
                 type="button"
                 disabled={chatLoading || subLoading}
                 onClick={() => handleAskCustomQuestion(suggestion)}
-                className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-medium text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 transition disabled:opacity-50"
+                className="shrink-0 rounded-full border border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-500/10 px-3 py-1 text-[11px] font-medium text-cyan-700 dark:text-cyan-300 hover:bg-cyan-100 dark:hover:bg-cyan-500/20 hover:border-cyan-400 transition disabled:opacity-50"
               >
                 {suggestion}
               </button>
@@ -752,7 +754,7 @@ function AiAdvisorModal({
                 }
               }}
               placeholder="Nhập nội dung cần hỏi trợ lý AI về số liệu địa phương..."
-              className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              className="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
             />
             <button
               type="button"
@@ -2237,21 +2239,21 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       {/* 🌟 MODAL TIẾN TRÌNH KHI ĐANG CÀO DỮ LIỆU VÀ ĐỒNG BỘ */}
       {isSyncing && (
         <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="flex flex-col items-center justify-center w-full max-w-md bg-[#071326] border border-cyan-500/40 rounded-xl p-6 shadow-2xl text-slate-100 space-y-4">
-            <div className="relative grid h-16 w-16 place-items-center rounded-full bg-cyan-500/10 text-cyan-400 animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.3)]">
-              <RefreshCw size={30} className="animate-spin text-cyan-400" />
+          <div className="flex flex-col items-center justify-center w-full max-w-md bg-white dark:bg-[#071326] border border-slate-200 dark:border-cyan-500/40 rounded-xl p-6 shadow-2xl text-slate-800 dark:text-slate-100 space-y-4">
+            <div className="relative grid h-16 w-16 place-items-center rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+              <RefreshCw size={30} className="animate-spin text-cyan-600 dark:text-cyan-400" />
             </div>
             
             <div className="text-center space-y-1">
-              <h3 className="text-base font-bold text-white uppercase tracking-wide">Đang quét & Cào dữ liệu nguồn</h3>
-              <p className="text-xs text-slate-400 font-mono">Hệ thống đang đồng bộ thông tin mới từ website các xã/phường...</p>
+              <h3 className="text-base font-bold text-slate-800 dark:text-white uppercase tracking-wide">Đang quét & Cào dữ liệu nguồn</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">Hệ thống đang đồng bộ thông tin mới từ website các xã/phường...</p>
             </div>
 
-            <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700">
+            <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-300 dark:border-slate-700">
               <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 animate-pulse rounded-full w-4/5" />
             </div>
 
-            <span className="text-[11px] font-mono text-cyan-400 font-bold tracking-wider">Vui lòng chờ trong giây lát, không tắt trang...</span>
+            <span className="text-[11px] font-mono text-cyan-600 dark:text-cyan-400 font-bold tracking-wider">Vui lòng chờ trong giây lát, không tắt trang...</span>
           </div>
         </div>
       )}

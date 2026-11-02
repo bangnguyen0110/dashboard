@@ -669,23 +669,23 @@ export function LevelMenu({
         {/* Modal cấu hình đường dẫn tự động & Đồng bộ số liệu xã/phường */}
         {showCommuneSyncModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg rounded-xl border border-slate-700 bg-[#0c1830] p-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+            <div className="w-full max-w-lg rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c1830] p-6 shadow-2xl text-slate-800 dark:text-slate-100">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30">
                     <GitMerge size={18} />
                   </span>
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-purple-300">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300">
                       Đồng bộ số liệu từ Xã/Phường
                     </h3>
-                    <p className="text-xs text-slate-400">Tổng sum dữ liệu cấp tỉnh & tùy chỉnh liên kết</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Tổng sum dữ liệu cấp tỉnh & tùy chỉnh liên kết</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowCommuneSyncModal(false)}
-                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-white"
                 >
                   <X size={18} />
                 </button>
@@ -693,7 +693,7 @@ export function LevelMenu({
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300 mb-1.5">
                     Đường dẫn liên kết (Tự động tạo & Có thể chỉnh sửa):
                   </label>
                   <input
@@ -701,22 +701,22 @@ export function LevelMenu({
                     value={communeSyncUrl}
                     onChange={(e) => setCommuneSyncUrl(e.target.value)}
                     placeholder="https://kienhaiangiang.vn/tong-hop-xa-phuong"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900/90 px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:border-purple-400 focus:outline-none font-mono"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/90 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-purple-400 focus:outline-none font-mono"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                     * Link được tự động tạo sẵn. Nếu bạn chỉnh sửa ở đây, các thẻ card/link sẽ tự động trỏ tới đường dẫn mới đó.
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-3 text-xs text-purple-200">
+                <div className="rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 p-3 text-xs text-purple-700 dark:text-purple-200">
                   ℹ️ Khi bấm thực hiện, hệ thống sẽ tự động tổng sum toàn bộ số liệu của tất cả các xã/phường trực thuộc để cập nhật lên dashboard Tỉnh.
                 </div>
 
-                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/5">
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-white/5">
                   <button
                     type="button"
                     onClick={() => setShowCommuneSyncModal(false)}
-                    className="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                    className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                   >
                     Hủy
                   </button>
@@ -738,23 +738,23 @@ export function LevelMenu({
         {/* Modal Custom Link Tài liệu */}
         {showDocModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-slate-700 bg-[#0c1830] p-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+            <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c1830] p-6 text-slate-800 dark:text-slate-100 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
                     <Globe size={18} />
                   </span>
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-300">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
                       Thiết lập Custom Link
                     </h3>
-                    <p className="text-xs text-slate-400">Tài liệu CĐS cho doanh nghiệp</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Tài liệu CĐS cho doanh nghiệp</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowDocModal(false)}
-                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-white"
                 >
                   <X size={18} />
                 </button>
@@ -762,7 +762,7 @@ export function LevelMenu({
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300 mb-1.5">
                     Đường dẫn liên kết:
                   </label>
                   <input
@@ -770,16 +770,16 @@ export function LevelMenu({
                     value={docUrlInput}
                     onChange={(e) => setDocUrlInput(e.target.value)}
                     placeholder="https://drive.google.com/... hoặc https://..."
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900/90 px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/90 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
                     autoFocus
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/5">
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-white/5">
                   <button
                     type="button"
                     onClick={() => setShowDocModal(false)}
-                    className="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                    className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                   >
                     Hủy
                   </button>
@@ -801,22 +801,22 @@ export function LevelMenu({
         {/* ===================== MODAL XUẤT BẢNG BÁO CÁO ===================== */}
         {showExportModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-slate-700 bg-[#0c1830] p-6 shadow-2xl">
+            <div className="w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0c1830] p-6 shadow-2xl text-slate-800 dark:text-slate-100">
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
                     <Download size={18} />
                   </span>
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-300">Xuất bảng báo cáo</h3>
-                    <p className="text-xs text-slate-400">Tải dữ liệu Dashboard về máy của bạn</p>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Xuất bảng báo cáo</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Tải dữ liệu Dashboard về máy của bạn</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleCloseExportModal}
-                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-white"
                 >
                   <X size={18} />
                 </button>
@@ -825,7 +825,7 @@ export function LevelMenu({
               <div className="space-y-4">
                 {/* Chọn định dạng file xuất */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300 mb-1.5">
                     Định dạng file xuất
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -840,13 +840,13 @@ export function LevelMenu({
                           onClick={() => setExportFormat(f.id)}
                           className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 transition disabled:opacity-60 ${
                             selected
-                              ? "border-amber-400/60 bg-[#0d274c] text-amber-300 shadow-sm"
-                              : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-slate-500 hover:text-white"
+                              ? "border-amber-400 bg-amber-50 dark:bg-[#0d274c] text-amber-700 dark:text-amber-300 shadow-xs"
+                              : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-white"
                           }`}
                         >
-                          <Icon size={17} className={selected ? "text-amber-300" : "text-slate-400"} />
+                          <Icon size={17} className={selected ? "text-amber-600 dark:text-amber-300" : "text-slate-400"} />
                           <span className="text-[11px] font-bold leading-tight text-center">{f.label}</span>
-                          <span className="text-[10px] text-slate-500">{f.ext}</span>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500">{f.ext}</span>
                         </button>
                       );
                     })}
@@ -855,7 +855,7 @@ export function LevelMenu({
 
                 {/* Nội dung báo cáo Tầng 1 cố định (đã bỏ lựa chọn "Phạm vi nội dung báo cáo") */}
                 <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3">
-                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
                     <ShieldCheck size={13} />
                     Nội dung báo cáo: Tầng 1
                   </p>
@@ -863,34 +863,34 @@ export function LevelMenu({
                     {EXPORT_TIER1_CONTENT.map((item) => (
                       <span
                         key={item}
-                        className="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-200"
+                        className="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-700 dark:text-emerald-200"
                       >
                         {item}
                       </span>
                     ))}
                   </div>
-                  <p className="mt-2 text-[11px] leading-relaxed text-emerald-100/80">
+                  <p className="mt-2 text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-100/80">
                     Báo cáo xuất ra chỉ gồm số liệu Tầng 1 (SME, Hộ kinh doanh, HTX, CĐS &amp; OCOP) — không còn lựa chọn
                     phạm vi Tầng 2 / Toàn bộ báo cáo.
                   </p>
                 </div>
 
                 {/* Gợi ý phạm vi dữ liệu theo cấp Dashboard */}
-                <p className="text-[11px] text-slate-400 bg-slate-900/70 border border-white/5 rounded-xl p-2.5 leading-relaxed">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-white/5 rounded-xl p-2.5 leading-relaxed">
                   {exportScopeHint}
                 </p>
 
                 {/* Thanh tiến trình (chặn trần tuyệt đối 100%) */}
                 {(isExporting || exportDone) && (
                   <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-300 mb-1">
+                    <div className="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300 mb-1">
                       <span>{exportDone ? "Tạo file báo cáo thành công!" : "Đang tổng hợp dữ liệu & tạo file..."}</span>
-                      <span className="font-bold tabular-nums text-slate-100">{exportProgress}%</span>
+                      <span className="font-bold tabular-nums text-slate-800 dark:text-slate-100">{exportProgress}%</span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-200 ${
-                          exportDone ? "bg-emerald-400" : "bg-gradient-to-r from-amber-400 to-emerald-400"
+                          exportDone ? "bg-emerald-500" : "bg-gradient-to-r from-amber-400 to-emerald-400"
                         }`}
                         style={{ width: `${exportProgress}%` }}
                       />
@@ -899,18 +899,18 @@ export function LevelMenu({
                 )}
 
                 {exportError && (
-                  <p className="text-[11px] text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl p-2.5">
+                  <p className="text-[11px] text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl p-2.5">
                     {exportError}
                   </p>
                 )}
 
                 {/* Hành động */}
-                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/5">
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-white/5">
                   <button
                     type="button"
                     onClick={handleCloseExportModal}
                     disabled={isExporting}
-                    className="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 disabled:opacity-50"
+                    className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50"
                   >
                     {exportDone ? "Đóng" : "Hủy"}
                   </button>

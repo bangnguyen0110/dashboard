@@ -121,12 +121,12 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative flex flex-col w-full max-w-4xl max-h-[92vh] bg-[#071326] border border-[#1e3a5f] rounded-xl shadow-2xl overflow-hidden text-slate-100">
+      <div className="relative flex flex-col w-full max-w-4xl max-h-[92vh] bg-white dark:bg-[#071326] border border-slate-200 dark:border-[#1e3a5f] rounded-xl shadow-2xl overflow-hidden text-slate-800 dark:text-slate-100">
         
         {/* Header Modal */}
-        <div className="relative shrink-0 px-6 py-4 border-b border-white/10 bg-gradient-to-r from-cyan-950/60 via-[#0a1c38] to-[#071326] flex items-center justify-between gap-4">
+        <div className="relative shrink-0 px-6 py-4 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-gradient-to-r dark:from-cyan-950/60 dark:via-[#0a1c38] dark:to-[#071326] flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
-            <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-600 dark:text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.4)]">
               <Bot size={20} />
               <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
@@ -135,17 +135,17 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="rounded-xl bg-cyan-400/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-cyan-300 border border-cyan-400/30 uppercase">
+                <span className="rounded-xl bg-cyan-50 dark:bg-cyan-400/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-400/30 uppercase">
                   TRỢ LÝ AI ĐIỀU HÀNH
                 </span>
                 {updatedAt && (
-                  <span className="hidden sm:flex items-center gap-1 text-[11px] text-slate-400 font-mono">
+                  <span className="hidden sm:flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                     <Clock size={11} />
                     {new Date(updatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 )}
               </div>
-              <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-white truncate mt-0.5">
+              <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800 dark:text-white truncate mt-0.5">
                 Phân Tích Dữ Liệu & Lời Khuyên Chiến Lược
               </h3>
             </div>
@@ -154,14 +154,14 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
           <button
             type="button"
             onClick={onClose}
-            className="grid h-8 w-8 place-items-center rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 hover:text-white transition"
+            className="grid h-8 w-8 place-items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Toolbar phạm vi phân tích */}
-        <div className="shrink-0 px-6 py-2.5 bg-[#0a1830]/70 border-b border-white/5 flex flex-wrap items-center justify-between gap-3">
+        <div className="shrink-0 px-6 py-2.5 bg-slate-50/70 dark:bg-[#0a1830]/70 border-b border-slate-200 dark:border-white/5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             {[
               { id: "all", label: "Toàn diện", icon: Zap },
@@ -177,11 +177,11 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
                   onClick={() => setSelectedScope(tab.id as any)}
                   className={`inline-flex items-center gap-1 rounded-xl px-3 py-1 text-xs font-bold transition-all ${
                     isActive
-                      ? "bg-[#0d274c] text-[#00d2ff] border border-[#00d2ff]/50"
-                      : "bg-slate-900/60 text-slate-400 border border-white/5 hover:text-white"
+                      ? "bg-cyan-50 dark:bg-[#0d274c] text-cyan-600 dark:text-[#00d2ff] border border-cyan-300 dark:border-[#00d2ff]/50 shadow-xs"
+                      : "bg-slate-100 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/5 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
-                  <Icon size={12} className={isActive ? "text-[#00d2ff]" : "text-slate-400"} />
+                  <Icon size={12} className={isActive ? "text-cyan-600 dark:text-[#00d2ff]" : "text-slate-400"} />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -200,7 +200,7 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
         </div>
 
         {error && (
-          <div className="m-4 mb-0 rounded-xl bg-rose-500/10 p-3 text-xs text-rose-300 flex items-center gap-2">
+          <div className="m-4 mb-0 rounded-xl bg-rose-500/10 p-3 text-xs text-rose-600 dark:text-rose-300 flex items-center gap-2 border border-rose-200 dark:border-rose-500/20">
             <AlertTriangle size={15} />
             <span>{error}</span>
           </div>
@@ -210,30 +210,30 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
           {loading ? (
             <div className="space-y-4 py-8 animate-pulse">
-              <div className="h-4 w-1/3 rounded-xl bg-slate-800" />
-              <div className="h-3 w-full rounded-xl bg-slate-800/60" />
-              <div className="h-3 w-5/6 rounded-xl bg-slate-800/40" />
-              <div className="h-20 w-full rounded-xl bg-slate-900/60 mt-4" />
+              <div className="h-4 w-1/3 rounded-xl bg-slate-200 dark:bg-slate-800" />
+              <div className="h-3 w-full rounded-xl bg-slate-200/60 dark:bg-slate-800/60" />
+              <div className="h-3 w-5/6 rounded-xl bg-slate-200/40 dark:bg-slate-800/40" />
+              <div className="h-20 w-full rounded-xl bg-slate-100 dark:bg-slate-900/60 mt-4" />
             </div>
           ) : analysis ? (
-            <div className="rounded-xl border border-white/5 bg-[#050e1c]/80 p-5 text-slate-200">
-              <div className="flex items-center gap-2 pb-2.5 border-b border-white/10 mb-3 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+            <div className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-[#050e1c]/80 p-5 text-slate-800 dark:text-slate-200 shadow-sm">
+              <div className="flex items-center gap-2 pb-2.5 border-b border-slate-200 dark:border-white/10 mb-3 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider">
                 <CheckCircle2 size={14} />
                 <span>Báo cáo chiến lược do AI trích xuất từ dữ liệu thực tế</span>
               </div>
-              <div className="prose prose-invert max-w-none prose-headings:text-cyan-300 prose-headings:font-bold prose-h3:text-sm prose-h3:mt-4 prose-h3:mb-2 prose-strong:text-emerald-400 prose-p:text-slate-300 prose-p:leading-relaxed whitespace-pre-line text-xs sm:text-sm">
+              <div className="prose dark:prose-invert max-w-none prose-headings:text-cyan-700 dark:prose-headings:text-cyan-300 prose-headings:font-bold prose-h3:text-sm prose-h3:mt-4 prose-h3:mb-2 prose-strong:text-emerald-600 dark:prose-strong:text-emerald-400 prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-relaxed whitespace-pre-line text-xs sm:text-sm">
                 {analysis}
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-slate-700 bg-[#050e1c]/40 p-8 text-center flex flex-col items-center justify-center">
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+            <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-[#050e1c]/40 p-8 text-center flex flex-col items-center justify-center">
+              <span className="grid h-12 w-12 place-items-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                 <Target size={24} />
               </span>
-              <h4 className="text-sm font-bold text-slate-100">
+              <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                 Sẵn sàng phân tích chiến lược cho {dashboard.title}
               </h4>
-              <p className="text-xs text-slate-400 max-w-sm mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
                 Bấm nút "Bắt đầu phân tích" ở trên hoặc chọn các câu hỏi gợi ý bên dưới để AI hỗ trợ ngay.
               </p>
             </div>
@@ -241,24 +241,24 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
 
           {/* Hiển thị phản hồi khi user hỏi đáp riêng */}
           {aiChatResponse && (
-            <div className="rounded-xl border border-cyan-500/40 bg-[#061225] p-5 shadow-2xl relative animate-in fade-in duration-200">
-              <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
-                <h5 className="text-xs font-extrabold uppercase tracking-wide text-cyan-300 flex items-center gap-2">
+            <div className="rounded-xl border border-cyan-200 dark:border-cyan-500/40 bg-slate-50 dark:bg-[#061225] p-5 shadow-sm dark:shadow-2xl relative animate-in fade-in duration-200">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2 mb-3">
+                <h5 className="text-xs font-extrabold uppercase tracking-wide text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
                   <Sparkles size={14} /> Hỏi đáp: &ldquo;{aiChatResponse.question}&rdquo;
                 </h5>
-                <button type="button" onClick={() => setAiChatResponse(null)} className="text-slate-400 hover:text-white">
+                <button type="button" onClick={() => setAiChatResponse(null)} className="text-slate-400 hover:text-slate-700 dark:hover:text-white">
                   <X size={14} />
                 </button>
               </div>
-              <p className="text-xs sm:text-sm leading-relaxed text-slate-200 whitespace-pre-line font-sans">
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-line font-sans">
                 {aiChatResponse.answer}
               </p>
             </div>
           )}
 
           {chatLoading && (
-            <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse">
-              <RefreshCw size={15} className="animate-spin text-cyan-400 shrink-0" />
+            <div className="p-4 rounded-xl border border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-950/30 text-xs text-cyan-700 dark:text-cyan-300 flex items-center gap-3 animate-pulse shadow-xs">
+              <RefreshCw size={15} className="animate-spin text-cyan-600 dark:text-cyan-400 shrink-0" />
               <span>Trợ lý AI đang tra cứu và trả lời câu hỏi của bạn...</span>
             </div>
           )}
@@ -267,11 +267,11 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
         </div>
 
         {/* 🌟 PHẦN Ô NHẬP CÂU HỎI & GỢI Ý NHANH NẰM Ở ĐÁY POPUP */}
-        <div className="shrink-0 p-4 bg-[#050e1c] border-t border-white/10 space-y-2.5">
+        <div className="shrink-0 p-4 bg-slate-50 dark:bg-[#050e1c] border-t border-slate-200 dark:border-white/10 space-y-2.5">
           {/* Gợi ý câu hỏi nhanh */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-            <span className="text-[11px] font-bold text-slate-400 shrink-0 flex items-center gap-1">
-              <Sparkles size={12} className="text-cyan-400" /> Gợi ý nhanh:
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0 flex items-center gap-1">
+              <Sparkles size={12} className="text-cyan-600 dark:text-cyan-400" /> Gợi ý nhanh:
             </span>
             {[
               "Đánh giá điểm yếu lớn nhất của địa bàn?",
@@ -284,7 +284,7 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
                 type="button"
                 disabled={chatLoading}
                 onClick={() => handleAskCustomQuestion(suggestion)}
-                className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-medium text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 transition disabled:opacity-50"
+                className="shrink-0 rounded-full border border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-500/10 px-3 py-1 text-[11px] font-medium text-cyan-700 dark:text-cyan-300 hover:bg-cyan-100 dark:hover:bg-cyan-500/20 hover:border-cyan-400 transition disabled:opacity-50"
               >
                 {suggestion}
               </button>
@@ -303,7 +303,7 @@ export function AiAdvisorModal({ dashboard, open, onClose }: AiAdvisorModalProps
                 }
               }}
               placeholder="Nhập nội dung cần hỏi trợ lý AI về số liệu địa phương..."
-              className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              className="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
             />
             <button
               type="button"

@@ -86,30 +86,30 @@ export function Level3View({
         {/* Thẻ 1: Dự án kêu gọi đầu tư */}
         <div
           {...cardLinkProps(metricLinks["l3_du_an_dau_tu"])}
-          className={`rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_du_an_dau_tu"] ? " cursor-pointer" : ""}`}
+          className={`bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors overflow-hidden${metricLinks["l3_du_an_dau_tu"] ? " cursor-pointer hover:shadow-md hover:-translate-y-0.5" : ""}`}
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
-                <Briefcase size={20} />
+          <div className="p-5 flex justify-between items-start border-b border-slate-100 dark:border-slate-700/50">
+            <div className="flex gap-4">
+              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 rounded-xl border border-amber-200 dark:border-amber-700/50 shrink-0">
+                <Briefcase size={22} />
               </div>
               <div>
-                <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wide text-slate-200">
+                <h4 className="text-slate-800 dark:text-white font-bold uppercase tracking-wide text-xs sm:text-sm">
                   DỰ ÁN KÊU GỌI ĐẦU TƯ
                 </h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                   Danh mục dự án xúc tiến & thu hút đầu tư địa phương
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               {metricLinks["l3_du_an_dau_tu"] && (
                 <a
                   href={metricLinks["l3_du_an_dau_tu"]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                  className="p-2 bg-slate-50 dark:bg-[#0f172a] text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
                   title="Xem web"
                 >
                   <ExternalLink size={13} />
@@ -120,7 +120,7 @@ export function Level3View({
                   <button
                     type="button"
                     onClick={() => handleOpenId("l3_du_an_dau_tu", "Dự án kêu gọi đầu tư")}
-                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                    className="p-2 bg-slate-50 dark:bg-[#0f172a] text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
                     title="Thiết lập ID"
                   >
                     <LinkIcon size={13} />
@@ -136,7 +136,7 @@ export function Level3View({
                         matchTokens: ["dự án kêu gọi đầu tư", "du_an_dau_tu"],
                       })
                     }
-                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    className="p-2 bg-slate-50 dark:bg-[#0f172a] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
                     title="Setup số lượng"
                   >
                     <Edit3 size={13} />
@@ -146,13 +146,13 @@ export function Level3View({
             </div>
           </div>
 
-          <div className="mt-5 flex items-baseline justify-between pt-3 border-t border-white/5">
-            <span className="text-xs font-semibold text-slate-400">Số lượng dự án</span>
+          <div className="p-5 bg-slate-50/50 dark:bg-transparent flex justify-between items-end">
+            <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Số lượng dự án</span>
             <div>
-              <span className="text-2xl sm:text-3xl font-black tabular-nums text-amber-400">
-                {duAnDauTu.toLocaleString("vi-VN")}
+              <span className="text-2xl sm:text-4xl font-black text-amber-500 dark:text-amber-400 tabular-nums">
+                {duAnDauTu.toLocaleString("vi-VN")}{" "}
+                <span className="text-xs sm:text-sm font-bold text-amber-600/70 dark:text-amber-500/70">DỰ ÁN</span>
               </span>
-              <span className="ml-1.5 text-xs font-bold text-slate-400">DỰ ÁN</span>
             </div>
           </div>
         </div>
@@ -160,30 +160,30 @@ export function Level3View({
         {/* Thẻ 2: Thông tin quy hoạch */}
         <div
           {...cardLinkProps(metricLinks["l3_thong_tin_quy_hoach"])}
-          className={`rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_thong_tin_quy_hoach"] ? " cursor-pointer" : ""}`}
+          className={`bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors overflow-hidden${metricLinks["l3_thong_tin_quy_hoach"] ? " cursor-pointer hover:shadow-md hover:-translate-y-0.5" : ""}`}
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
-                <MapPin size={20} />
+          <div className="p-5 flex justify-between items-start border-b border-slate-100 dark:border-slate-700/50">
+            <div className="flex gap-4">
+              <div className="p-3 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 rounded-xl border border-cyan-200 dark:border-cyan-700/50 shrink-0">
+                <MapPin size={22} />
               </div>
               <div>
-                <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wide text-slate-200">
+                <h4 className="text-slate-800 dark:text-white font-bold uppercase tracking-wide text-xs sm:text-sm">
                   THÔNG TIN QUY HOẠCH
                 </h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                   Bản đồ số, quy hoạch phân khu & chỉ tiêu xây dựng
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               {metricLinks["l3_thong_tin_quy_hoach"] && (
                 <a
                   href={metricLinks["l3_thong_tin_quy_hoach"]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                  className="p-2 bg-slate-50 dark:bg-[#0f172a] text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
                   title="Xem web"
                 >
                   <ExternalLink size={13} />
@@ -194,7 +194,7 @@ export function Level3View({
                   <button
                     type="button"
                     onClick={() => handleOpenId("l3_thong_tin_quy_hoach", "Thông tin quy hoạch")}
-                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    className="p-2 bg-slate-50 dark:bg-[#0f172a] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
                     title="Thiết lập ID"
                   >
                     <LinkIcon size={13} />
@@ -210,7 +210,7 @@ export function Level3View({
                         matchTokens: ["thông tin quy hoạch", "thong_tin_quy_hoach"],
                       })
                     }
-                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    className="p-2 bg-slate-50 dark:bg-[#0f172a] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-600 transition-colors"
                     title="Setup số lượng"
                   >
                     <Edit3 size={13} />
@@ -220,36 +220,36 @@ export function Level3View({
             </div>
           </div>
 
-          <div className="mt-5 flex items-baseline justify-between pt-3 border-t border-white/5">
-            <span className="text-xs font-semibold text-slate-400">Số lượng quy hoạch</span>
+          <div className="p-5 bg-slate-50/50 dark:bg-transparent flex justify-between items-end">
+            <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Số lượng quy hoạch</span>
             <div>
-              <span className="text-2xl sm:text-3xl font-black tabular-nums text-cyan-400">
-                {thongTinQuyHoach.toLocaleString("vi-VN")}
+              <span className="text-2xl sm:text-4xl font-black text-cyan-600 dark:text-cyan-400 tabular-nums">
+                {thongTinQuyHoach.toLocaleString("vi-VN")}{" "}
+                <span className="text-xs sm:text-sm font-bold text-cyan-600/70 dark:text-cyan-500/70">THÔNG TIN</span>
               </span>
-              <span className="ml-1.5 text-xs font-bold text-slate-400">THÔNG TIN</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* 2. THẺ 3: BIỂU ĐỒ CỘT NGANG (WIDTH: 100% ĐẶT Ở CUỐI CÙNG) */}
-      <div className="w-full rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 sm:p-6 shadow-xl">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-3">
+      <div className="w-full bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 p-5 sm:p-6 shadow-sm transition-colors overflow-hidden">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700/50 pb-3">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-8 w-8 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
-              <BarChart3 size={16} />
+            <span className="grid h-9 w-9 place-items-center rounded-xl border border-blue-200 dark:border-cyan-500/30 bg-blue-50 dark:bg-cyan-500/10 text-blue-600 dark:text-cyan-400">
+              <BarChart3 size={18} />
             </span>
             <div>
-              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyan-300">
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-white">
                 BIỂU ĐỒ TƯƠNG QUAN DỰ ÁN ĐẦU TƯ & QUY HOẠCH
               </h4>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 So sánh số lượng và tỷ trọng phân bổ giữa 2 hạng mục
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/20">
             <TrendingUp size={13} />
             <span>Tổng cộng: {totalAll.toLocaleString("vi-VN")} mục</span>
           </div>
@@ -260,19 +260,19 @@ export function Level3View({
           {/* Hàng 1: Dự án kêu gọi đầu tư */}
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-between text-xs font-bold">
-              <span className="flex items-center gap-2 text-slate-200">
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-sm" />
+              <span className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-sm" />
                 DỰ ÁN KÊU GỌI ĐẦU TƯ
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-black text-amber-400 tabular-nums">
+                <span className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
                   {duAnDauTu.toLocaleString("vi-VN")} DỰ ÁN
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">({pctDuAn}%)</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">({pctDuAn}%)</span>
               </div>
             </div>
 
-            <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-900 border border-white/5">
+            <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/5">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-400 shadow-md transition-all duration-700"
                 style={{ width: `${widthDuAn}%` }}
@@ -283,19 +283,19 @@ export function Level3View({
           {/* Hàng 2: Thông tin quy hoạch */}
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-between text-xs font-bold">
-              <span className="flex items-center gap-2 text-slate-200">
-                <span className="h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-sm" />
+              <span className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                <span className="h-2.5 w-2.5 rounded-full bg-cyan-500 shadow-sm" />
                 THÔNG TIN QUY HOẠCH
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-black text-cyan-400 tabular-nums">
+                <span className="text-sm font-black text-cyan-600 dark:text-cyan-400 tabular-nums">
                   {thongTinQuyHoach.toLocaleString("vi-VN")} THÔNG TIN
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">({pctQuyHoach}%)</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">({pctQuyHoach}%)</span>
               </div>
             </div>
 
-            <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-900 border border-white/5">
+            <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/5">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 shadow-md transition-all duration-700"
                 style={{ width: `${widthQuyHoach}%` }}

@@ -138,26 +138,26 @@ export function Level4View({
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
         {/* ================= KHỐI 1: CHÍNH SÁCH HỖ TRỢ ================= */}
-        <section className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 flex flex-col justify-between">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e293b] p-5 shadow-sm transition-colors overflow-hidden sm:p-6 flex flex-col justify-between">
           <div>
             {/* Header Khối 1 */}
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-700/50 pb-3">
               <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 shadow-[0_0_15px_-3px_rgba(59,130,246,0.4)]">
+                <span className="p-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-700/50 shadow-sm">
                   <FileText size={18} />
                 </span>
                 <div>
-                  <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-cyan-400">
+                  <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800 dark:text-white">
                     1. CHÍNH SÁCH HỖ TRỢ
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Phân loại đối tượng thụ hưởng chính sách phát triển
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20">
+                <span className="text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-500/20">
                   Tổng: {totalChinhSach} chính sách
                 </span>
               </div>
@@ -166,21 +166,21 @@ export function Level4View({
             {/* 3 THẺ CHỈ SỐ NHÓM 1 */}
             <div className="space-y-3 mb-5">
               {/* Thẻ 1: Doanh nghiệp */}
-              <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-[#0f172a] p-3.5 shadow-sm transition-colors flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-white dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-xs">
                     <Building2 size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
+                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                       Doanh nghiệp
                     </h4>
-                    <p className="text-[11px] text-slate-400">Chính sách hỗ trợ doanh nghiệp</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Chính sách hỗ trợ doanh nghiệp</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-blue-400 tabular-nums">
+                  <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 tabular-nums">
                     {csDoanhNghiep.toLocaleString("vi-VN")}
                   </span>
 
@@ -189,7 +189,7 @@ export function Level4View({
                       href={metricLinks["l4_cs_doanh_nghiep"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="p-1.5 bg-white dark:bg-[#1e293b] text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -201,7 +201,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_cs_doanh_nghiep", "Chính sách - Doanh nghiệp")}
-                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -217,7 +217,7 @@ export function Level4View({
                             matchTokens: ["doanh nghiệp", "cs_doanh_nghiep"],
                           })
                         }
-                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -228,21 +228,21 @@ export function Level4View({
               </div>
 
               {/* Thẻ 2: Hộ kinh doanh */}
-              <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-[#0f172a] p-3.5 shadow-sm transition-colors flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-white dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 shadow-xs">
                     <Store size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
+                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                       Hộ kinh doanh
                     </h4>
-                    <p className="text-[11px] text-slate-400">Chính sách ưu đãi hộ cá thể</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Chính sách ưu đãi hộ cá thể</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-emerald-400 tabular-nums">
+                  <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
                     {csHoKinhDoanh.toLocaleString("vi-VN")}
                   </span>
 
@@ -251,7 +251,7 @@ export function Level4View({
                       href={metricLinks["l4_cs_ho_kinh_doanh"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="p-1.5 bg-white dark:bg-[#1e293b] text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -263,7 +263,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_cs_ho_kinh_doanh", "Chính sách - Hộ kinh doanh")}
-                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -279,7 +279,7 @@ export function Level4View({
                             matchTokens: ["hộ kinh doanh", "cs_ho_kinh_doanh"],
                           })
                         }
-                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -290,21 +290,21 @@ export function Level4View({
               </div>
 
               {/* Thẻ 3: Hợp tác xã */}
-              <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-[#0f172a] p-3.5 shadow-sm transition-colors flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-white dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 shadow-xs">
                     <Users size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
+                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                       Hợp tác xã
                     </h4>
-                    <p className="text-[11px] text-slate-400">Hỗ trợ phát triển kinh tế tập thể</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Hỗ trợ phát triển kinh tế tập thể</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-purple-400 tabular-nums">
+                  <span className="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 tabular-nums">
                     {csHopTacXa.toLocaleString("vi-VN")}
                   </span>
 
@@ -313,7 +313,7 @@ export function Level4View({
                       href={metricLinks["l4_cs_hop_tac_xa"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="p-1.5 bg-white dark:bg-[#1e293b] text-slate-600 hover:text-purple-600 dark:text-slate-300 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -325,7 +325,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_cs_hop_tac_xa", "Chính sách - Hợp tác xã")}
-                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -341,7 +341,7 @@ export function Level4View({
                             matchTokens: ["hợp tác xã", "cs_hop_tac_xa"],
                           })
                         }
-                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -353,11 +353,11 @@ export function Level4View({
             </div>
 
             {/* BIỂU ĐỒ TRÒN (DONUT CHART) CHÍNH SÁCH */}
-            <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
-              <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-2">
+            <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-[#0c1830]/90 p-4 sm:p-5 shadow-sm transition-colors">
+              <div className="mb-3 flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-2">
                 <div className="flex items-center gap-2">
-                  <PieChart size={15} className="text-blue-400" />
-                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyan-300">
+                  <PieChart size={15} className="text-blue-500 dark:text-blue-400" />
+                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-white">
                     BIỂU ĐỒ PHÂN BỔ CHÍNH SÁCH
                   </h4>
                 </div>
@@ -372,8 +372,9 @@ export function Level4View({
                       cy="80"
                       r={radius}
                       fill="none"
-                      stroke="#1e293b"
+                      stroke="currentColor"
                       strokeWidth="20"
+                      className="text-slate-200 dark:text-[#1e293b]"
                     />
 
                     {totalChinhSach > 0 ? (
@@ -404,18 +405,19 @@ export function Level4View({
                         cy="80"
                         r={radius}
                         fill="none"
-                        stroke="#334155"
+                        stroke="currentColor"
                         strokeWidth="20"
                         strokeDasharray="4 4"
+                        className="text-slate-300 dark:text-slate-700"
                       />
                     )}
                   </svg>
 
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                    <span className="text-xl font-black text-slate-100 tabular-nums">
+                    <span className="text-xl font-black text-slate-800 dark:text-slate-100 tabular-nums">
                       {totalChinhSach}
                     </span>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">
                       Chính sách
                     </span>
                   </div>
@@ -430,9 +432,9 @@ export function Level4View({
                     return (
                       <div key={seg.name} className="flex items-center gap-2">
                         <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: seg.color }} />
-                        <span className="text-slate-300 font-medium">{seg.name}:</span>
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">{seg.name}:</span>
                         <strong style={{ color: seg.color }}>{seg.value}</strong>
-                        <span className="text-slate-400 font-mono text-[11px]">({percentage}%)</span>
+                        <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px]">({percentage}%)</span>
                       </div>
                     );
                   })}
@@ -443,26 +445,26 @@ export function Level4View({
         </section>
 
         {/* ================= KHỐI 2: GIẢI ĐÁP KIẾN NGHỊ ================= */}
-        <section className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 flex flex-col justify-between">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e293b] p-5 shadow-sm transition-colors overflow-hidden sm:p-6 flex flex-col justify-between">
           <div>
             {/* Header Khối 2 */}
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-700/50 pb-3">
               <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.4)]">
+                <span className="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-200 dark:border-emerald-700/50 shadow-sm">
                   <MessageSquareText size={18} />
                 </span>
                 <div>
-                  <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-cyan-400">
+                  <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800 dark:text-white">
                     2. GIẢI ĐÁP KIẾN NGHỊ
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Tình hình tiếp nhận & xử lý phản ánh, kiến nghị của nhân dân
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/20">
                   Đã giải quyết: {pctGiaiDapThanhCong}%
                 </span>
               </div>
@@ -471,21 +473,21 @@ export function Level4View({
             {/* 3 THẺ CHỈ SỐ NHÓM 2 */}
             <div className="space-y-3 mb-5">
               {/* Thẻ 1: Đã giải đáp */}
-              <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-[#0f172a] p-3.5 shadow-sm transition-colors flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-white dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 shadow-xs">
                     <CheckCircle2 size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
+                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                       Đã giải đáp
                     </h4>
-                    <p className="text-[11px] text-slate-400">Kiến nghị đã hoàn tất xử lý</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Kiến nghị đã hoàn tất xử lý</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-emerald-400 tabular-nums">
+                  <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
                     {knDaGiaiDap.toLocaleString("vi-VN")}
                   </span>
 
@@ -494,7 +496,7 @@ export function Level4View({
                       href={metricLinks["l4_kn_da_giai_dap"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="p-1.5 bg-white dark:bg-[#1e293b] text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -506,7 +508,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_kn_da_giai_dap", "Kiến nghị - Đã giải đáp")}
-                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -522,7 +524,7 @@ export function Level4View({
                             matchTokens: ["đã giải đáp", "kn_da_giai_dap"],
                           })
                         }
-                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -533,21 +535,21 @@ export function Level4View({
               </div>
 
               {/* Thẻ 2: Chưa giải đáp */}
-              <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-[#0f172a] p-3.5 shadow-sm transition-colors flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-white dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 shadow-xs">
                     <AlertCircle size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
+                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                       Chưa giải đáp
                     </h4>
-                    <p className="text-[11px] text-slate-400">Kiến nghị mới tiếp nhận tồn đọng</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Kiến nghị mới tiếp nhận tồn đọng</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-rose-400 tabular-nums">
+                  <span className="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
                     {knChuaGiaiDap.toLocaleString("vi-VN")}
                   </span>
 
@@ -556,7 +558,7 @@ export function Level4View({
                       href={metricLinks["l4_kn_chua_giai_dap"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="p-1.5 bg-white dark:bg-[#1e293b] text-slate-600 hover:text-rose-600 dark:text-slate-300 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -568,7 +570,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_kn_chua_giai_dap", "Kiến nghị - Chưa giải đáp")}
-                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -584,7 +586,7 @@ export function Level4View({
                             matchTokens: ["chưa giải đáp", "kn_chua_giai_dap"],
                           })
                         }
-                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -595,21 +597,21 @@ export function Level4View({
               </div>
 
               {/* Thẻ 3: Xem xét */}
-              <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-[#0f172a] p-3.5 shadow-sm transition-colors flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-white dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 shadow-xs">
                     <Clock size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200">
+                    <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                       Xem xét
                     </h4>
-                    <p className="text-[11px] text-slate-400">Đang trong quy trình thẩm tra, xác minh</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Đang trong quy trình thẩm tra, xác minh</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl font-black text-amber-400 tabular-nums">
+                  <span className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 tabular-nums">
                     {knXemXet.toLocaleString("vi-VN")}
                   </span>
 
@@ -618,7 +620,7 @@ export function Level4View({
                       href={metricLinks["l4_kn_xem_xet"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="p-1.5 bg-white dark:bg-[#1e293b] text-slate-600 hover:text-amber-600 dark:text-slate-300 dark:hover:text-white rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -630,7 +632,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_kn_xem_xet", "Kiến nghị - Xem xét")}
-                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -646,7 +648,7 @@ export function Level4View({
                             matchTokens: ["xem xét", "kn_xem_xet"],
                           })
                         }
-                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="p-1.5 bg-white dark:bg-[#1e293b] text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-xs"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -658,15 +660,15 @@ export function Level4View({
             </div>
 
             {/* BIỂU ĐỒ CỘT (BAR CHART) GIẢI ĐÁP KIẾN NGHỊ */}
-            <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
-              <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-2">
+            <div className="rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-[#0c1830]/90 p-4 sm:p-5 shadow-sm transition-colors">
+              <div className="mb-3 flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-2">
                 <div className="flex items-center gap-2">
-                  <BarChart3 size={15} className="text-emerald-400" />
-                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyan-300">
+                  <BarChart3 size={15} className="text-emerald-500 dark:text-emerald-400" />
+                  <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-white">
                     TIẾN ĐỘ XỬ LÝ KIẾN NGHỊ
                   </h4>
                 </div>
-                <div className="flex items-center gap-1 text-xs font-bold text-slate-400">
+                <div className="flex items-center gap-1 text-xs font-bold text-slate-500 dark:text-slate-400">
                   <span>Tổng nhận: {totalKienNghi} KN</span>
                 </div>
               </div>
@@ -687,13 +689,13 @@ export function Level4View({
                           <span className={`text-xs sm:text-sm font-black tabular-nums ${bar.color}`}>
                             {bar.value}
                           </span>
-                          <span className="block text-[10px] text-slate-400 font-mono">
+                          <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                             ({bar.rate}%)
                           </span>
                         </div>
 
                         {/* Cột */}
-                        <div className="w-full max-w-[48px] h-[75px] bg-slate-900/80 rounded-t-xl border border-white/10 p-0.5 flex flex-col justify-end shadow-inner">
+                        <div className="w-full max-w-[48px] h-[75px] bg-slate-200/80 dark:bg-slate-900/80 rounded-t-xl border border-slate-200 dark:border-white/10 p-0.5 flex flex-col justify-end shadow-inner">
                           <div
                             className={`w-full rounded-t-xl bg-gradient-to-t ${bar.gradient} shadow-lg transition-all duration-700 group-hover:brightness-125`}
                             style={{ height: `${heightPercent}%` }}
@@ -702,7 +704,7 @@ export function Level4View({
 
                         {/* Nhãn chân cột */}
                         <div className="mt-2 text-center w-full">
-                          <div className="text-[11px] font-bold text-slate-200 truncate">
+                          <div className="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">
                             {bar.label}
                           </div>
                         </div>

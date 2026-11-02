@@ -84,24 +84,24 @@ export function MacroMetricsModal({ dashboard, open, onClose, onSaved }: MacroMe
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative flex flex-col w-full max-w-2xl bg-[#071326] border border-cyan-500/40 rounded-xl shadow-2xl overflow-hidden text-slate-100">
+      <div className="relative flex flex-col w-full max-w-2xl bg-white dark:bg-[#071326] border border-slate-200 dark:border-cyan-500/40 rounded-xl shadow-2xl overflow-hidden text-slate-800 dark:text-slate-100">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/10 bg-gradient-to-r from-emerald-950/60 via-[#0a1c38] to-[#071326] flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-gradient-to-r dark:from-emerald-950/60 dark:via-[#0a1c38] dark:to-[#071326] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
               <TrendingUp size={20} />
             </span>
             <div>
-              <h3 className="text-base font-bold text-white uppercase tracking-wide">
+              <h3 className="text-base font-bold text-slate-800 dark:text-white uppercase tracking-wide">
                 Quản Trị Chỉ Số Vĩ Mô & Động Lực Tầng B
               </h3>
-              <p className="text-xs text-slate-400">
-                Địa bàn: <strong className="text-emerald-300">{dashboard.title}</strong> (Đo lường Kinh tế 02 con số)
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Địa bàn: <strong className="text-emerald-600 dark:text-emerald-300">{dashboard.title}</strong> (Đo lường Kinh tế 02 con số)
               </p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
             <X size={16} />
           </button>
         </div>
@@ -109,29 +109,29 @@ export function MacroMetricsModal({ dashboard, open, onClose, onSaved }: MacroMe
         {/* Form Body */}
         <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto max-h-[70vh] custom-scrollbar">
           {loading ? (
-            <div className="py-12 text-center text-slate-400 flex items-center justify-center gap-2">
-              <RefreshCw size={18} className="animate-spin text-emerald-400" />
+            <div className="py-12 text-center text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
+              <RefreshCw size={18} className="animate-spin text-emerald-500 dark:text-emerald-400" />
               <span>Đang tải dữ liệu vĩ mô...</span>
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     1. Số chủ thể AI First hoạt động thực chất (Chủ thể)
                   </label>
                   <input
                     type="number"
                     value={formData.active_ai_entities}
                     onChange={(e) => setFormData({ ...formData, active_ai_entities: Number(e.target.value) })}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-500"
                     placeholder="VD: 120"
                   />
-                  <p className="text-[11px] text-slate-500 mt-1">Mục tiêu toàn tỉnh: 10.000 chủ thể, bình quân 250tr/năm.</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Mục tiêu toàn tỉnh: 10.000 chủ thể, bình quân 250tr/năm.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     2. Tổng doanh thu TMĐT / Kinh tế GMV (Tỷ VNĐ)
                   </label>
                   <input
@@ -139,14 +139,14 @@ export function MacroMetricsModal({ dashboard, open, onClose, onSaved }: MacroMe
                     step="0.1"
                     value={formData.annual_gmv_billion}
                     onChange={(e) => setFormData({ ...formData, annual_gmv_billion: Number(e.target.value) })}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-500"
                     placeholder="VD: 45.5"
                   />
-                  <p className="text-[11px] text-slate-500 mt-1">Doanh thu giao dịch số quy đổi hằng năm.</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Doanh thu giao dịch số quy đổi hằng năm.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     3. Thời gian khai thác kinh tế đêm (Giờ/ngày)
                   </label>
                   <input
@@ -154,14 +154,14 @@ export function MacroMetricsModal({ dashboard, open, onClose, onSaved }: MacroMe
                     step="0.5"
                     value={formData.night_economy_hours}
                     onChange={(e) => setFormData({ ...formData, night_economy_hours: Number(e.target.value) })}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-500"
                     placeholder="VD: 16.0"
                   />
-                  <p className="text-[11px] text-slate-500 mt-1">Chuẩn cũ 8h nâng lên 16-18h để tối ưu vòng quay tài sản.</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Chuẩn cũ 8h nâng lên 16-18h để tối ưu vòng quay tài sản.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     4. Thời gian lưu trú du lịch trung bình (Ngày)
                   </label>
                   <input
@@ -169,14 +169,14 @@ export function MacroMetricsModal({ dashboard, open, onClose, onSaved }: MacroMe
                     step="0.1"
                     value={formData.avg_tourist_stay_days}
                     onChange={(e) => setFormData({ ...formData, avg_tourist_stay_days: Number(e.target.value) })}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-500"
                     placeholder="VD: 2.2"
                   />
-                  <p className="text-[11px] text-slate-500 mt-1">Mục tiêu chiến lược đến 2030 đạt 2.2 ngày.</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Mục tiêu chiến lược đến 2030 đạt 2.2 ngày.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     5. Tỷ lệ nông sản truy xuất số & chuẩn ESG (%)
                   </label>
                   <input
@@ -184,34 +184,34 @@ export function MacroMetricsModal({ dashboard, open, onClose, onSaved }: MacroMe
                     step="0.1"
                     value={formData.traceable_agri_pct}
                     onChange={(e) => setFormData({ ...formData, traceable_agri_pct: Number(e.target.value) })}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-500"
                     placeholder="VD: 65.0"
                   />
-                  <p className="text-[11px] text-slate-500 mt-1">% nông sản/OCOP dán tem định danh.</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">% nông sản/OCOP dán tem định danh.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     6. Số lượng Hub Xanh / Startup thực chiến (Dự án)
                   </label>
                   <input
                     type="number"
                     value={formData.startup_hub_count}
                     onChange={(e) => setFormData({ ...formData, startup_hub_count: Number(e.target.value) })}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm text-white outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-emerald-500"
                     placeholder="VD: 5"
                   />
-                  <p className="text-[11px] text-slate-500 mt-1">Mạng lưới đổi mới sáng tạo địa phương.</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Mạng lưới đổi mới sáng tạo địa phương.</p>
                 </div>
               </div>
             </>
           )}
 
-          <div className="pt-4 border-t border-white/10 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
+              className="rounded-xl px-4 py-2 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
             >
               Hủy bỏ
             </button>

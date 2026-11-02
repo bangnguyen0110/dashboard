@@ -782,7 +782,7 @@ export function B3RevenueSection({  dashboard,
 
       <div className="p-5 sm:p-6 space-y-6">
         {/* ===== HÀNG 1: 5 THẺ DOANH THU ===== */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
         {cards.map((card) => {
           const isYear = card.key === "b3_yearly";
           const accentBorder = isYear ? "border-l-emerald-500" : "border-l-indigo-500";
@@ -799,7 +799,9 @@ export function B3RevenueSection({  dashboard,
           return (
             <div
               key={card.label}
-              className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none`}
+              className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none ${
+                isYear ? "sm:col-span-2 md:col-span-2" : ""
+              }`}
             >
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${iconBg} dark:bg-[#162b54] dark:border dark:border-[#1d335d] dark:text-blue-400 transition-colors`}>

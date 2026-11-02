@@ -21,6 +21,7 @@ interface B1SectionProps {
   onOpenSetupId?: () => void;
   onOpenMetricId?: (key: string, label: string) => void;
   onSaveMetricId?: (metricKey: string, metricId: string) => Promise<void>;
+  className?: string;
 }
 
 const num = (kpi: KpiRow, key: string): number => Number(kpi[key] ?? 0);
@@ -34,6 +35,7 @@ export function B1Section({
   onOpenQtyModal,
   onOpenMetricId,
   onSaveMetricId,
+  className,
 }: B1SectionProps) {
   const { isAdmin } = useAuth();
   const [showBlockId, setShowBlockId] = useState(false);
@@ -119,7 +121,7 @@ export function B1Section({
   ];
 
   return (
-    <section className="mb-6 w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl">
+    <section className={`w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl ${className || "mb-6"}`}>
       {/* Header Khối B1 */}
       <div className="bg-[#0047db] dark:bg-[#0047db] text-white px-5 py-4 flex justify-between items-center transition-colors">
         <div className="flex items-center gap-3">

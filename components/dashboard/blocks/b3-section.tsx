@@ -45,15 +45,15 @@ export function B3Section({
   return (
     <section className="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:rounded-2xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl h-full flex flex-col justify-between">
       <div>
-        <div className="bg-blue-900 text-white px-5 py-3.5 flex items-center gap-3 dark:bg-transparent dark:border-b dark:border-white/10 dark:text-cyan-400">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-white dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-400 dark:shadow-[0_0_20px_-4px_rgba(6,182,212,0.5)]">
+        <div className="bg-[#0047db] dark:bg-[#0047db] text-white px-5 py-4 flex items-center gap-3 transition-colors">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-white">
             <ShoppingCart size={20} />
           </span>
           <div>
-            <h3 className="text-base font-extrabold uppercase tracking-wide text-white dark:text-cyan-400 sm:text-lg">
+            <h3 className="text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">
               B3: Thương mại điện tử & Khách hàng
             </h3>
-            <p className="text-xs text-blue-100 dark:text-slate-400">Giao thương trực tuyến · Tăng trưởng & Bảo lưu</p>
+            <p className="text-xs text-blue-100">Giao thương trực tuyến · Tăng trưởng & Bảo lưu</p>
           </div>
         </div>
 

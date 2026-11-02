@@ -50,14 +50,14 @@ export function StatCell({
     : "";
   const hasLink = Boolean(resolvedUrl);
 
-  const boxClass = `group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-300 select-none shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:border-l-4 dark:border-l-transparent dark:bg-linear-to-b dark:from-slate-900/90 dark:to-[#0c1830]/90 dark:shadow-none dark:hover:shadow-none w-full ${
+  const boxClass = `group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-300 select-none shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none w-full ${
     fullWidth ? "col-span-full" : ""
-  } ${hasLink ? "hover:-translate-y-0.5 cursor-pointer dark:hover:border-cyan-500/40" : ""}`;
+  } ${hasLink ? "hover:-translate-y-0.5 cursor-pointer dark:hover:border-blue-400" : ""}`;
 
   const inner = (
     <>
       <div
-        className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full opacity-15 blur-2xl dark:opacity-20"
+        className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full opacity-15 blur-2xl dark:opacity-10"
         style={{ background: color }}
       />
 
@@ -65,12 +65,12 @@ export function StatCell({
         <div className="flex items-center gap-2.5 min-w-0">
           {Icon && (
             <span
-              className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${iconBg} dark:border dark:border-slate-700/60 dark:bg-slate-800/80 dark:text-cyan-400 transition-colors`}
+              className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${iconBg} dark:border dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 transition-colors`}
             >
               <Icon size={16} />
             </span>
           )}
-          <p className="text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-300 dark:opacity-75 sm:text-sm truncate">
+          <p className="text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-300 sm:text-sm truncate">
             {label}
           </p>
         </div>
@@ -87,7 +87,7 @@ export function StatCell({
                 }}
                 aria-label={`Thiết lập ID cho ${label}`}
                 title="Thiết lập ID"
-                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-amber-600 hover:bg-slate-100 dark:border-slate-700/60 dark:bg-slate-800/40 dark:text-amber-400/60 dark:hover:text-amber-400 dark:hover:bg-slate-700 transition"
+                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-amber-600 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
               >
                 <Link2 size={14} />
               </button>
@@ -102,7 +102,7 @@ export function StatCell({
                 }}
                 aria-label={`Setup số lượng cho ${label}`}
                 title="Setup số lượng (nhập tay / PDF)"
-                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:border-slate-700/60 dark:bg-slate-800/40 dark:text-cyan-400/60 dark:hover:text-cyan-400 dark:hover:bg-slate-700 transition"
+                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
               >
                 <PencilLine size={14} />
               </button>
@@ -111,10 +111,10 @@ export function StatCell({
         )}
       </div>
 
-      <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-emerald-400 tabular-nums">
+      <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-blue-400 tabular-nums">
         {value.toLocaleString("vi-VN")}
         {unit ? (
-          <span className="ml-1 text-xs font-medium text-slate-500 dark:opacity-60">{unit}</span>
+          <span className="ml-1 text-xs font-medium text-slate-500 dark:text-slate-400">{unit}</span>
         ) : null}
       </p>
 
@@ -125,13 +125,13 @@ export function StatCell({
       ) : null}
 
       {hasLink ? (
-        <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-blue-600 dark:text-cyan-400">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-600 dark:bg-cyan-400" />
+        <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-blue-600 dark:text-blue-400">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-600 dark:bg-blue-400" />
           Bấm ô để mở link
           <ExternalLink size={11} />
         </p>
       ) : (
-        <p className="mt-1.5 text-[11px] text-slate-400 dark:opacity-40">Xem chi tiết</p>
+        <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500">Xem chi tiết</p>
       )}
     </>
   );

@@ -238,208 +238,207 @@ export function Level2View({
           {/* HÀNG TRÊN: A, B, C */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
             
-            {/* THẺ A */}
-            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-              <div className="w-full">
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                    <Server size={18} />
-                  </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-cyan-400 truncate">
-                    A. HẠ TẦNG & SẴN SÀNG
-                  </h4>
-                </div>
+            {/* THẺ A (Tone Cyan) */}
+            <div className="w-full bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors group overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-cyan-100 dark:border-slate-700 bg-cyan-50 dark:bg-cyan-900/20 transition-colors">
+                <span className="p-2 bg-white dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400 rounded-lg border border-cyan-100 dark:border-cyan-800 shadow-sm">
+                  <Server size={18} />
+                </span>
+                <h4 className="font-black text-cyan-900 dark:text-cyan-400 uppercase tracking-wide text-sm truncate">
+                  A. HẠ TẦNG & SẴN SÀNG
+                </h4>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between">
                 <div className="space-y-3 text-xs w-full">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">DN CĐS:</span>
-                    <strong className="text-cyan-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">DN CĐS:</span>
+                    <strong className="text-cyan-600 dark:text-cyan-400 font-mono text-sm">
                       {Number(data["l2_a_dn_cds_year"] ?? data["l2_a_dn_cds"] ?? 211).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Lên Cloud:</span>
-                    <strong className="text-cyan-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Lên Cloud:</span>
+                    <strong className="text-cyan-600 dark:text-cyan-400 font-mono text-sm">
                       {Number(data["l2_a_cloud_year"] ?? data["l2_a_cloud"] ?? 180).toLocaleString("vi-VN")}
                     </strong>
                   </div>
                   <div className="flex justify-between items-center py-1 w-full">
-                    <span className="text-slate-300 font-medium">NetID:</span>
-                    <strong className="text-cyan-400 font-mono text-sm">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">NetID:</span>
+                    <strong className="text-cyan-600 dark:text-cyan-400 font-mono text-sm">
                       {Number(data["l2_a_netid_year"] ?? data["l2_a_netid"] ?? 320).toLocaleString("vi-VN")}
                     </strong>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("A")}
+                  className="mt-5 w-full rounded-xl bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-600 dark:text-cyan-300 transition hover:bg-cyan-500/20"
+                >
+                  Xem chi tiết Nhóm A ➜
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab("A")}
-                className="mt-5 w-full rounded-xl bg-cyan-500/10 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20"
-              >
-                Xem chi tiết Nhóm A ➜
-              </button>
             </div>
 
-            {/* THẺ B */}
-            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-              <div className="w-full">
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30">
-                    <Globe size={18} />
-                  </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-blue-400 truncate">
-                    B. HIỆN DIỆN SỐ & TM
-                  </h4>
-                </div>
+            {/* THẺ B (Tone Blue) */}
+            <div className="w-full bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors group overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-blue-100 dark:border-slate-700 bg-blue-50 dark:bg-blue-900/20 transition-colors">
+                <span className="p-2 bg-white dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg border border-blue-100 dark:border-blue-800 shadow-sm">
+                  <Globe size={18} />
+                </span>
+                <h4 className="font-black text-blue-900 dark:text-blue-400 uppercase tracking-wide text-sm truncate">
+                  B. HIỆN DIỆN SỐ & TM
+                </h4>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between">
                 <div className="space-y-3 text-xs w-full">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Web/E-com:</span>
-                    <strong className="text-blue-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Web/E-com:</span>
+                    <strong className="text-blue-600 dark:text-blue-400 font-mono text-sm">
                       {Number(data["l2_b_web_year"] ?? data["l2_b_web_ecom"] ?? 145).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Đơn hàng:</span>
-                    <strong className="text-blue-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Đơn hàng:</span>
+                    <strong className="text-blue-600 dark:text-blue-400 font-mono text-sm">
                       {Number(data["l2_b_don_hang_year"] ?? data["l2_b_don_hang"] ?? 1250).toLocaleString("vi-VN")}
                     </strong>
                   </div>
                   <div className="flex justify-between items-center py-1 w-full">
-                    <span className="text-slate-300 font-medium">Tăng trưởng:</span>
-                    <strong className="text-emerald-400 font-mono text-sm">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Tăng trưởng:</span>
+                    <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-sm">
                       +{Number(data["l2_b_tang_truong_year"] ?? 18.5)}%
                     </strong>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("B")}
+                  className="mt-5 w-full rounded-xl bg-blue-500/10 py-2.5 text-xs font-bold text-blue-600 dark:text-blue-300 transition hover:bg-blue-500/20"
+                >
+                  Xem chi tiết Nhóm B ➜
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab("B")}
-                className="mt-5 w-full rounded-xl bg-blue-500/10 py-2.5 text-xs font-bold text-blue-300 transition hover:bg-blue-500/20"
-              >
-                Xem chi tiết Nhóm B ➜
-              </button>
             </div>
 
-            {/* THẺ C */}
-            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-              <div className="w-full">
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
-                    <Cpu size={18} />
-                  </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-purple-400 truncate">
-                    C. VẬN HÀNH & NGUỒN LỰC
-                  </h4>
-                </div>
+            {/* THẺ C (Tone Purple) */}
+            <div className="w-full bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors group overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-purple-100 dark:border-slate-700 bg-purple-50 dark:bg-purple-900/20 transition-colors">
+                <span className="p-2 bg-white dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg border border-purple-100 dark:border-purple-800 shadow-sm">
+                  <Cpu size={18} />
+                </span>
+                <h4 className="font-black text-purple-900 dark:text-purple-400 uppercase tracking-wide text-sm truncate">
+                  C. VẬN HÀNH & NGUỒN LỰC
+                </h4>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between">
                 <div className="space-y-3 text-xs w-full">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Hệ thống QLDN:</span>
-                    <strong className="text-purple-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Hệ thống QLDN:</span>
+                    <strong className="text-purple-600 dark:text-purple-400 font-mono text-sm">
                       {Number(data["l2_c_erp_year"] ?? data["l2_c_erp"] ?? 86).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Tổng nhân sự:</span>
-                    <strong className="text-purple-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Tổng nhân sự:</span>
+                    <strong className="text-purple-600 dark:text-purple-400 font-mono text-sm">
                       {Number(data["l2_c_nhan_su_year"] ?? data["l2_c_nhan_su"] ?? 4850).toLocaleString("vi-VN")}
                     </strong>
                   </div>
                   <div className="flex justify-between items-center py-1 w-full">
-                    <span className="text-slate-300 font-medium">Khóa đào tạo:</span>
-                    <strong className="text-purple-400 font-mono text-sm">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Khóa đào tạo:</span>
+                    <strong className="text-purple-600 dark:text-purple-400 font-mono text-sm">
                       {Number(data["l2_c_dao_tao_year"] ?? data["l2_c_dao_tao"] ?? 24).toLocaleString("vi-VN")}
                     </strong>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("C")}
+                  className="mt-5 w-full rounded-xl bg-purple-500/10 py-2.5 text-xs font-bold text-purple-600 dark:text-purple-300 transition hover:bg-purple-500/20"
+                >
+                  Xem chi tiết Nhóm C ➜
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab("C")}
-                className="mt-5 w-full rounded-xl bg-purple-500/10 py-2.5 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20"
-              >
-                Xem chi tiết Nhóm C ➜
-              </button>
             </div>
           </div>
 
           {/* HÀNG DƯỚI: D & E */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
             
-            {/* THẺ D */}
-            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-              <div className="w-full">
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                    <TrendingUp size={18} />
-                  </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-emerald-400 truncate">
-                    D. TƯƠNG TÁC & THỊ TRƯỜNG
-                  </h4>
-                </div>
+            {/* THẺ D (Tone Emerald) */}
+            <div className="w-full bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors group overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-emerald-100 dark:border-slate-700 bg-emerald-50 dark:bg-emerald-900/20 transition-colors">
+                <span className="p-2 bg-white dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-100 dark:border-emerald-800 shadow-sm">
+                  <TrendingUp size={18} />
+                </span>
+                <h4 className="font-black text-emerald-900 dark:text-emerald-400 uppercase tracking-wide text-sm truncate">
+                  D. TƯƠNG TÁC & THỊ TRƯỜNG
+                </h4>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between">
                 <div className="space-y-3 text-xs w-full">
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Tổng tương tác:</span>
-                    <strong className="text-emerald-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Tổng tương tác:</span>
+                    <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_trang_xem_year"] ?? data["l2_d_trang_xem"] ?? 45200).toLocaleString("vi-VN")}
                     </strong>
                   </div>
-                  <div className="flex justify-between items-center py-1 border-b border-white/5 w-full">
-                    <span className="text-slate-300 font-medium">Google SEO:</span>
-                    <strong className="text-emerald-400 font-mono text-sm">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5 w-full">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Google SEO:</span>
+                    <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_seo_year"] ?? data["l2_d_seo"] ?? 10282).toLocaleString("vi-VN")}
                     </strong>
                   </div>
                   <div className="flex justify-between items-center py-1 w-full">
-                    <span className="text-slate-300 font-medium">Tổng doanh thu:</span>
-                    <strong className="text-emerald-400 font-mono text-sm">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">Tổng doanh thu:</span>
+                    <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-sm">
                       {Number(data["l2_d_doanh_thu_year"] ?? 14800).toLocaleString("vi-VN")} TR
                     </strong>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("D")}
+                  className="mt-5 w-full rounded-xl bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-300 transition hover:bg-emerald-500/20"
+                >
+                  Xem chi tiết Nhóm D ➜
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab("D")}
-                className="mt-5 w-full rounded-xl bg-emerald-500/10 py-2.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20"
-              >
-                Xem chi tiết Nhóm D ➜
-              </button>
             </div>
 
-            {/* THẺ E (HIỂN THỊ ĐỘNG CÁC MỤC THỰC TẾ TỪ WEBSITE NGUỒN) */}
-            <div className="w-full lg:col-span-2 block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
-              <div className="w-full">
-                <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                    <FileText size={18} />
-                  </span>
-                  <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-amber-400 truncate">
-                    E. QUẢN LÝ THÔNG TIN ({dynamicEItems.length} mục)
-                  </h4>
-                </div>
-
+            {/* THẺ E (Tone Amber - HIỂN THỊ ĐỘNG CÁC MỤC THỰC TẾ TỪ WEBSITE NGUỒN) */}
+            <div className="w-full lg:col-span-2 bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors group overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-amber-100 dark:border-slate-700 bg-amber-50 dark:bg-amber-900/20 transition-colors">
+                <span className="p-2 bg-white dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-100 dark:border-amber-800 shadow-sm">
+                  <FileText size={18} />
+                </span>
+                <h4 className="font-black text-amber-900 dark:text-amber-400 uppercase tracking-wide text-sm truncate">
+                  E. QUẢN LÝ THÔNG TIN ({dynamicEItems.length} mục)
+                </h4>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between">
                 {dynamicEItems.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs w-full">
                     {dynamicEItems.slice(0, 6).map((item: any) => (
-                      <div key={item.key} className="w-full bg-slate-900/60 p-3.5 rounded-xl border border-white/5 flex justify-between items-center">
-                        <span className="text-slate-300 font-medium truncate pr-2" title={item.title}>{item.title}:</span>
-                        <strong className="text-cyan-300 font-mono text-base shrink-0">
+                      <div key={item.key} className="w-full bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-white/5 flex justify-between items-center">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium truncate pr-2" title={item.title}>{item.title}:</span>
+                        <strong className="text-amber-600 dark:text-cyan-300 font-mono text-base shrink-0">
                           {Number(data[item.key] ?? item.value ?? 0).toLocaleString("vi-VN")}
                         </strong>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 italic py-2">Chưa có dữ liệu Nhóm E. Vui lòng bấm "Thiết lập ID Tầng 2" để đồng bộ từ website nguồn.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 italic py-2">Chưa có dữ liệu Nhóm E. Vui lòng bấm "Thiết lập ID Tầng 2" để đồng bộ từ website nguồn.</p>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("E")}
+                  className="mt-5 w-full rounded-xl bg-amber-500/10 py-2.5 text-xs font-bold text-amber-600 dark:text-amber-300 transition hover:bg-amber-500/20"
+                >
+                  Xem chi tiết Nhóm E ➜
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab("E")}
-                className="mt-5 w-full rounded-xl bg-amber-500/10 py-2.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/20"
-              >
-                Xem chi tiết Nhóm E ➜
-              </button>
             </div>
           </div>
         </div>

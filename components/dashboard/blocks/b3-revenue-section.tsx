@@ -16,6 +16,8 @@ import {
   Zap,
   Calendar,
   Clock,
+  Trophy,
+  AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -301,6 +303,8 @@ export function B3RevenueSection({  dashboard,
   const { isAdmin: isAdminAuth } = useAuth();
   /** Quyền Admin: ưu tiên prop truyền từ cha, fallback về AuthContext. */
   const isAdmin = isAdminProp ?? isAdminAuth;
+  /** State quản lý tab đang active cho Bảng xếp hạng: 'top' hoặc 'bottom' */
+  const [activeTab, setActiveTab] = useState<"top" | "bottom">("top");
   /** Bộ lọc thời gian chung cho Biểu đồ + Bảng xếp hạng (day/week/month/quarter/year). */
   const [timeFilter, setTimeFilter] = useState<B3RangeKey>("day");
   /** Alias tương thích ngược với tên state cũ `chartFilter` / `range`. */
@@ -895,87 +899,100 @@ export function B3RevenueSection({  dashboard,
         </div>
       </div>
 
-      {/* ===== HÀNG 3: BXH TOP 5 (CHỈ Dashboard Tỉnh) ===== */}
+      {/* ===== HÀNG 3: BXH TOP 5 GỘP TAB (CHỈ Dashboard Tỉnh) ===== */}
       {isProvince ? (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-          <div className="border border-slate-200 shadow-sm rounded-xl overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none">
-            <div className="bg-blue-50 dark:bg-[#162b54] border-b border-blue-100 dark:border-[#25427b] px-5 py-4 flex items-center justify-between">
-              <h4 className="text-sm font-extrabold uppercase tracking-wide text-emerald-700 dark:text-blue-400">
-                🏆 Top 5 Doanh Thu Cao Nhất
-              </h4>
+        <div className="bg-white dark:bg-[#0a1830] rounded-2xl shadow-sm border border-slate-200 dark:border-cyan-500/20 overflow-hidden flex flex-col mt-6">
+            
+            {/* HEADER TÍCH HỢP TAB MENU CHIỀU NGANG 100% */}
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col items-center justify-between gap-3 bg-slate-50/50 dark:bg-transparent">
+                <div className="flex bg-slate-200/70 dark:bg-[#050e1c] p-1 rounded-xl w-full">
+                    <button 
+                        type="button"
+                        onClick={() => setActiveTab('top')} 
+                        className={`flex-1 px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                            activeTab === 'top' 
+                            ? 'bg-white dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 shadow-sm' 
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+                        }`}
+                    >
+                        <Trophy size={14}/> Top 5 Doanh Thu Cao Nhất
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => setActiveTab('bottom')} 
+                        className={`flex-1 px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                            activeTab === 'bottom' 
+                            ? 'bg-white dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 shadow-sm' 
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+                        }`}
+                    >
+                        <AlertTriangle size={14}/> Top 5 Doanh Thu Thấp Nhất
+                    </button>
+                </div>
             </div>
-            <div className="bg-white dark:bg-[#0a1830] p-5">
-              {top5Highest.length === 0 ? (
-                <p className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                  Chưa có dữ liệu xếp hạng.
-                </p>
-              ) : (
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <th className="w-10 px-2 py-2">Hạng</th>
-                      <th className="px-2 py-2">Xã/Phường</th>
-                      <th className="px-2 py-2 text-right">Doanh thu</th>
-                      <th className="px-2 py-2 text-right">Tăng trưởng</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <AnimatePresence mode="popLayout" initial={false}>
-                      {top5Highest.map((item, idx) => (
-                        <TopRankRow
-                          key={`${timeFilter}-${item.id}`}
-                          rank={idx + 1}
-                          index={idx}
-                          item={item}
-                          max={topRankingMax}
-                          tone="emerald"
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </tbody>
-                </table>
-              )}
+
+            {/* BODY CONTENT (HIỂN THỊ DỮ LIỆU ĐỘC LẬP THEO TAB ĐƯỢC CHỌN) */}
+            <div className="p-4">
+                
+                {/* TAB 1: TOP 5 CAO NHẤT */}
+                {activeTab === 'top' && (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 px-2 uppercase">
+                            <span>Hạng & Xã/Phường</span>
+                            <span>Doanh thu</span>
+                        </div>
+                        <div className="space-y-2">
+                            {top5Highest.length === 0 ? (
+                                <p className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                                    Chưa có dữ liệu xếp hạng.
+                                </p>
+                            ) : (
+                                top5Highest.map((item, index) => (
+                                    <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0f1f3a] border border-slate-100 dark:border-slate-800">
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-6 font-black text-emerald-600">#{index + 1}</span>
+                                            <span className="font-bold text-sm text-slate-800 dark:text-slate-200">{item.name}</span>
+                                        </div>
+                                        <span className="font-black text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg text-xs">
+                                            {new Intl.NumberFormat('vi-VN').format(item.revenue)} VNĐ
+                                        </span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* TAB 2: TOP 5 THẤP NHẤT */}
+                {activeTab === 'bottom' && (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 px-2 uppercase">
+                            <span>Hạng & Xã/Phường</span>
+                            <span>Doanh thu</span>
+                        </div>
+                        <div className="space-y-2">
+                            {top5Lowest.length === 0 ? (
+                                <p className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                                    Chưa có dữ liệu xếp hạng.
+                                </p>
+                            ) : (
+                                top5Lowest.map((item, index) => (
+                                    <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0f1f3a] border border-slate-100 dark:border-slate-800">
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-6 font-black text-rose-600">#{index + 1}</span>
+                                            <span className="font-bold text-sm text-slate-800 dark:text-slate-200">{item.name}</span>
+                                        </div>
+                                        <span className="font-black text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-2.5 py-1 rounded-lg text-xs">
+                                            {new Intl.NumberFormat('vi-VN').format(item.revenue)} VNĐ
+                                        </span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                )}
+
             </div>
-          </div>
-          <div className="border border-slate-200 shadow-sm rounded-xl overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none">
-            <div className="bg-blue-50 dark:bg-[#162b54] border-b border-blue-100 dark:border-[#25427b] px-5 py-4 flex items-center justify-between">
-              <h4 className="text-sm font-extrabold uppercase tracking-wide text-rose-700 dark:text-blue-400">
-                ⚠️ Top 5 Doanh Thu Thấp Nhất
-              </h4>
-            </div>
-            <div className="bg-white dark:bg-[#0a1830] p-5">
-              {top5Lowest.length === 0 ? (
-                <p className="py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                  Chưa có dữ liệu xếp hạng.
-                </p>
-              ) : (
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <th className="w-10 px-2 py-2">Hạng</th>
-                      <th className="px-2 py-2">Xã/Phường</th>
-                      <th className="px-2 py-2 text-right">Doanh thu</th>
-                      <th className="px-2 py-2 text-right">Tăng trưởng</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <AnimatePresence mode="popLayout" initial={false}>
-                      {top5Lowest.map((item, idx) => (
-                        <TopRankRow
-                          key={`${timeFilter}-${item.id}`}
-                          rank={idx + 1}
-                          index={idx}
-                          item={item}
-                          max={bottomRankingMax}
-                          tone="rose"
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
         </div>
       ) : null}
       </div>

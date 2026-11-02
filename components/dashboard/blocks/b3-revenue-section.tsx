@@ -666,11 +666,11 @@ export function B3RevenueSection({  dashboard,
   ];
 
   return (
-    <section className="mb-6 w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border dark:border-cyan-500/20 dark:bg-[#071326] dark:shadow-2xl dark:backdrop-blur-xl sm:p-6">
+    <section className="mb-6 w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-2xl dark:border dark:border-cyan-500/20 dark:bg-[#071326] dark:shadow-2xl dark:backdrop-blur-xl">
       {/* ===== TIÊU ĐỀ KHỐI + BỘ LỌC THỜI GIAN CHUNG ===== */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-blue-900 text-white p-3.5 sm:px-4 sm:py-3 shadow-sm dark:bg-transparent dark:text-inherit dark:p-0 dark:shadow-none">
+      <div className="bg-blue-900 text-white px-5 py-3.5 flex flex-wrap justify-between items-center gap-3 dark:bg-transparent dark:border-b dark:border-white/10 dark:text-cyan-400">
         <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-400 dark:shadow-[0_0_20px_-4px_rgba(6,182,212,0.5)]">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-white dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-400 dark:shadow-[0_0_20px_-4px_rgba(6,182,212,0.5)]">
             <TrendingUp size={20} />
           </span>
           <div className="min-w-0">
@@ -782,7 +782,8 @@ export function B3RevenueSection({  dashboard,
         </div>
       </div>
 
-      {/* ===== HÀNG 1: 5 THẺ DOANH THU ===== */}
+      <div className="p-5 sm:p-6 space-y-6">
+        {/* ===== HÀNG 1: 5 THẺ DOANH THU ===== */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
         {cards.map((card) => {
           const isYear = card.key === "b3_yearly";
@@ -974,6 +975,7 @@ export function B3RevenueSection({  dashboard,
           </div>
         </div>
       ) : null}
+      </div>
 
       {/* ===== MODAL: THIẾT LẬP DOANH THU (dành cho Admin) ===== */}
       {showSetup ? (

@@ -94,11 +94,11 @@ export function B2Section({
   let accumulatedPercent = 0;
 
   return (
-    <section className="mb-6 w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl sm:p-6">
+    <section className="mb-6 w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-2xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl">
       {/* Header Khối B2 */}
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-blue-900 text-white p-3.5 sm:px-4 sm:py-3 shadow-sm dark:bg-transparent dark:text-inherit dark:p-0 dark:shadow-none">
+      <div className="bg-blue-900 text-white px-5 py-3.5 flex justify-between items-center dark:bg-transparent dark:border-b dark:border-white/10 dark:text-cyan-400">
         <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400 dark:shadow-[0_0_20px_-4px_rgba(245,158,11,0.5)]">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-white dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400 dark:shadow-[0_0_20px_-4px_rgba(245,158,11,0.5)]">
             <Package size={20} />
           </span>
           <div>
@@ -114,14 +114,15 @@ export function B2Section({
           <button
             type="button"
             onClick={() => setShowBlockId(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/20 dark:border-slate-700 dark:bg-slate-900/70 dark:text-cyan-300 dark:hover:text-cyan-200"
+            className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/20 dark:border-slate-700 dark:bg-slate-900/70 dark:text-cyan-300 dark:hover:text-cyan-200"
           >
             <Settings size={14} /> Thiết lập ID
           </button>
         )}
       </div>
 
-      {/* GRID 5 CỘT: CỤM TRÁI 60% (3/5) - BIỂU ĐỒ TRÒN PHẢI 40% (2/5) */}
+      <div className="p-5 sm:p-6">
+        {/* GRID 5 CỘT: CỤM TRÁI 60% (3/5) - BIỂU ĐỒ TRÒN PHẢI 40% (2/5) */}
       <div className="grid w-full grid-cols-1 lg:grid-cols-5 gap-5">
         {/* CỤM TRÁI (60%): 2 KHỐI SỐ LIỆU */}
         <div className="w-full space-y-5 lg:col-span-3">
@@ -416,6 +417,7 @@ export function B2Section({
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {showBlockId && (

@@ -18,7 +18,10 @@ import {
   Download,
   FileSpreadsheet,
   FileType,
+  Moon,
+  Sun,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import type { DashboardRow } from "@/lib/types";
@@ -126,6 +129,31 @@ export function LevelMenu({
   const [isSaving, setIsSaving] = useState(false);
   const [savedUrl, setSavedUrl] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? (resolvedTheme || theme) === "dark" : true;
+
+  const handleToggleTheme = () => {
+    const currentTheme = resolvedTheme || theme || "dark";
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (nextTheme === "dark") {
+        root.classList.add("dark");
+        root.classList.remove("light");
+      } else {
+        root.classList.remove("dark");
+        root.classList.add("light");
+      }
+      localStorage.setItem("theme", nextTheme);
+    }
+  };
 
   // State quản lý Modal Đồng bộ số liệu từ xã/phường
   const [showCommuneSyncModal, setShowCommuneSyncModal] = useState(false);
@@ -473,29 +501,29 @@ export function LevelMenu({
 
         {/* Khung Sidebar */}
         <aside
-          className={`fixed left-0 top-0 z-50 h-screen w-[295px] max-w-[85vw] border-r border-[#14233c] bg-[#071326] text-slate-200 transition-transform duration-300 ease-out flex flex-col justify-between select-none md:translate-x-0 ${
+          className={`fixed left-0 top-0 z-50 h-screen w-[295px] max-w-[85vw] border-r border-slate-200 bg-white text-slate-700 dark:border-[#14233c] dark:bg-[#071326] dark:text-slate-200 transition-transform duration-300 ease-out flex flex-col justify-between select-none md:translate-x-0 ${
             mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
           }`}
         >
           <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
             {/* Header Sidebar */}
-            <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-white/5">
+            <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-slate-200 dark:border-white/5">
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-black text-sm">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600 border border-blue-200 font-black text-sm dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20">
                   D
                 </span>
                 <div className="min-w-0">
-                  <h2 className="truncate text-xs font-black uppercase tracking-wider text-cyan-400">
+                  <h2 className="truncate text-xs font-black uppercase tracking-wider text-blue-600 dark:text-cyan-400">
                     ĐIỀU HÀNH SỐ
                   </h2>
-                  <p className="truncate text-[10px] text-slate-400">Hệ sinh thái địa phương</p>
+                  <p className="truncate text-[10px] text-slate-500 dark:text-slate-400">Hệ sinh thái địa phương</p>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={onCloseMobile}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-800/80 text-slate-300 transition hover:bg-slate-700 hover:text-white md:hidden"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-slate-200 bg-slate-100 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white md:hidden"
                 title="Đóng menu"
               >
                 <X size={16} />
@@ -515,22 +543,22 @@ export function LevelMenu({
                     onClick={() => handleSelectLevel(item.level)}
                     className={`relative w-full text-left transition-colors duration-150 rounded-xl group px-3.5 py-3 flex items-start gap-3.5 ${
                       active
-                        ? "bg-[#0d274c] text-white border-l-[3.5px] border-[#00d2ff]"
-                        : "bg-transparent hover:bg-[#0c1f38] text-slate-300 hover:text-white border-l-[3.5px] border-transparent"
+                        ? "bg-blue-600 text-white border-l-[3.5px] border-blue-500 shadow-md shadow-blue-600/20 dark:bg-[#0d274c] dark:text-white dark:border-[#00d2ff] dark:shadow-none"
+                        : "bg-transparent text-slate-600 hover:bg-blue-50/50 hover:text-slate-900 border-l-[3.5px] border-transparent dark:bg-transparent dark:hover:bg-[#0c1f38] dark:text-slate-300 dark:hover:text-white"
                     }`}
                   >
                     <Icon
                       size={20}
                       className={`shrink-0 mt-0.5 transition-colors ${
                         active
-                          ? "text-[#00d2ff]"
-                          : "text-slate-400 group-hover:text-[#00d2ff]"
+                          ? "text-white dark:text-[#00d2ff]"
+                          : "text-slate-400 group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-[#00d2ff]"
                       }`}
                     />
                     <div className="min-w-0 flex-1">
                       <h4
                         className={`text-[13.5px] font-bold leading-snug tracking-tight ${
-                          active ? "text-white" : "text-slate-200 group-hover:text-white"
+                          active ? "text-white dark:text-white" : "text-slate-700 group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white"
                         }`}
                       >
                         {item.title}
@@ -538,8 +566,8 @@ export function LevelMenu({
                       <p
                         className={`text-[11px] mt-0.5 leading-normal truncate ${
                           active
-                            ? "text-[#7ea3cc] font-medium"
-                            : "text-slate-400 group-hover:text-slate-300 font-normal"
+                            ? "text-blue-100 font-medium dark:text-[#7ea3cc]"
+                            : "text-slate-500 group-hover:text-slate-600 font-normal dark:text-slate-400 dark:group-hover:text-slate-300"
                         }`}
                       >
                         {item.desc}
@@ -554,18 +582,18 @@ export function LevelMenu({
                 <button
                   type="button"
                   onClick={handleClickDocMenu}
-                  className="w-full text-left transition-colors duration-150 rounded-xl bg-transparent hover:bg-[#0c1f38] text-slate-300 hover:text-white border-l-[3.5px] border-transparent px-3.5 py-3 flex items-start gap-3.5"
+                  className="w-full text-left transition-colors duration-150 rounded-xl bg-transparent hover:bg-blue-50/50 text-slate-600 hover:text-slate-900 border-l-[3.5px] border-transparent px-3.5 py-3 flex items-start gap-3.5 dark:hover:bg-[#0c1f38] dark:text-slate-300 dark:hover:text-white"
                 >
                   <FileText
                     size={20}
-                    className="shrink-0 mt-0.5 text-slate-400 group-hover:text-[#00d2ff]"
+                    className="shrink-0 mt-0.5 text-slate-400 group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-[#00d2ff]"
                   />
                   <div className="min-w-0 flex-1 pr-6">
-                    <h4 className="text-[13.5px] font-bold leading-snug text-slate-200 group-hover:text-white">
+                    <h4 className="text-[13.5px] font-bold leading-snug text-slate-700 group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white">
                       Tài liệu Chuyển đổi số cho doanh nghiệp
                     </h4>
                     {savedUrl && (
-                      <p className="text-[11px] mt-0.5 text-[#00d2ff]/80 truncate font-normal">
+                      <p className="text-[11px] mt-0.5 text-blue-600/80 truncate font-normal dark:text-[#00d2ff]/80">
                         {savedUrl.replace(/^https?:\/\//, "")}
                       </p>
                     )}
@@ -576,7 +604,7 @@ export function LevelMenu({
                   <button
                     type="button"
                     onClick={handleOpenSetupLink}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border border-slate-700 bg-slate-800/80 p-1.5 text-slate-400 transition hover:border-[#00d2ff]/50 hover:bg-[#00d2ff]/10 hover:text-[#00d2ff]"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white p-1.5 text-slate-400 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:border-[#00d2ff]/50 dark:hover:bg-[#00d2ff]/10 dark:hover:text-[#00d2ff]"
                     title="Thiết lập link tài liệu"
                   >
                     <LinkIcon size={12} />
@@ -586,13 +614,13 @@ export function LevelMenu({
             </div>
 
             {/* Footer Sidebar */}
-            <div className="p-3 border-t border-white/5 shrink-0 space-y-2">
+            <div className="p-3 border-t border-slate-200 dark:border-white/5 shrink-0 space-y-2">
               {/* 🌟 NÚT DÀNH CHO ADMIN: Xuất bảng báo cáo (Đặt TRÊN nút Đồng bộ số liệu) */}
               {isAdmin && (
                 <button
                   type="button"
                   onClick={handleOpenExportModal}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/20"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-50 px-3.5 py-2.5 text-xs font-bold text-amber-700 transition hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20"
                   title="Xuất báo cáo dữ liệu ra file Word / PDF / Excel"
                 >
                   <Download size={14} />
@@ -605,7 +633,7 @@ export function LevelMenu({
                 <button
                   type="button"
                   onClick={handleOpenCommuneSyncModal}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3.5 py-2.5 text-xs font-bold text-purple-300 transition hover:bg-purple-500/20"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-purple-500/30 bg-purple-50 px-3.5 py-2.5 text-xs font-bold text-purple-700 transition hover:bg-purple-100 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300 dark:hover:bg-purple-500/20"
                   title="Tổng sum số liệu từ tất cả xã/phường trực thuộc về Tỉnh"
                 >
                   <GitMerge size={14} />
@@ -618,23 +646,27 @@ export function LevelMenu({
                 type="button"
                 onClick={handleSmartRefresh}
                 disabled={isSyncing || refreshing}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-50 px-3.5 py-2.5 text-xs font-bold text-cyan-800 transition hover:bg-cyan-100 disabled:opacity-50 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300 dark:hover:bg-cyan-500/20"
                 title="Làm mới toàn bộ số liệu mới nhất ngay tại thời điểm hiện tại"
               >
-                <RefreshCw size={14} className={isSyncing || refreshing ? "animate-spin text-cyan-400" : ""} />
+                <RefreshCw size={14} className={isSyncing || refreshing ? "animate-spin text-cyan-600 dark:text-cyan-400" : ""} />
                 <span>{isSyncing || refreshing ? "Đang cập nhật..." : "Làm mới dữ liệu"}</span>
               </button>
 
-              {isAdmin && onOpenImportPdf && (
-                <button
-                  type="button"
-                  onClick={onOpenImportPdf}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-medium text-blue-300 transition hover:bg-blue-500/20"
-                >
-                  <FileUp size={14} />
-                  <span>Import PDF</span>
-                </button>
-              )}
+              {/* 🌟 3. NÚT CHUYỂN GIAO DIỆN (THEME TOGGLE) */}
+              <button
+                type="button"
+                onClick={handleToggleTheme}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 shadow-sm transition hover:bg-blue-100 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300 dark:hover:bg-blue-500/20 px-3.5 py-2.5 text-xs font-bold"
+                title={isDark ? "Chuyển sang giao diện Sáng" : "Chuyển sang giao diện Tối"}
+              >
+                {isDark ? (
+                  <Sun size={14} className="text-amber-400" />
+                ) : (
+                  <Moon size={14} className="text-blue-600" />
+                )}
+                <span>{isDark ? "Giao diện sáng" : "Giao diện tối"}</span>
+              </button>
             </div>
           </div>
         </aside>

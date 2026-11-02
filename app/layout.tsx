@@ -26,7 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-[#e8f1fa] text-slate-800 dark:bg-[#0a1124] dark:text-slate-100 transition-colors duration-200">
         <Providers>
           <AuthProvider>{children}</AuthProvider>
         </Providers>

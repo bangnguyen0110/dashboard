@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -1483,7 +1483,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   if (state === "loading") {
     return (
-      <div className="relative min-h-screen">
+      <div className="relative min-h-screen bg-[#e8f1fa] dark:bg-[#0a1124]">
         <div className="dashboard-bg" />
         <main className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6">
           <div className="glass h-40 animate-pulse rounded-3xl" />
@@ -1494,7 +1494,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
 
   if (state === "missing" || !dashboard) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center p-4">
+      <div className="relative flex min-h-screen items-center justify-center p-4 bg-[#e8f1fa] dark:bg-[#0a1124]">
         <div className="dashboard-bg" />
         <div className="glass w-full max-w-md rounded-3xl p-8 text-center">
           <h1 className="text-xl font-bold">Không tìm thấy Dashboard</h1>
@@ -1525,14 +1525,14 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     : null;
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen bg-[#e8f1fa] dark:bg-[#0a1124]">
       <div className="dashboard-bg" />
 
       {/* ICON 3 GẠCH CỐ ĐỊNH Ở GÓC TRÊN PHẢI MÀN HÌNH MOBILE */}
       <button
         type="button"
         onClick={() => setMobileMenuOpen(true)}
-        className="fixed top-3.5 right-4 z-50 grid h-10 w-10 place-items-center rounded-xl border border-cyan-500/40 bg-[#071326]/90 text-cyan-400 shadow-xl backdrop-blur-md transition active:scale-95 md:hidden"
+        className="fixed top-3.5 right-4 z-50 grid h-10 w-10 place-items-center rounded-xl border border-blue-500/40 bg-white/90 text-blue-600 shadow-xl backdrop-blur-md transition active:scale-95 dark:border-cyan-500/40 dark:bg-[#071326]/90 dark:text-cyan-400 md:hidden"
         title="Mở menu điều hành"
       >
         <Menu size={22} />
@@ -1555,7 +1555,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       {/* KHUNG NỘI DUNG CHÍNH */}
       <div className="min-h-screen transition-all duration-300 md:pl-[295px]">
         {/* HEADER TOP BAR */}
-        <header className="glass-strong sticky top-0 z-40 border-b border-white/5">
+        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-[#0a1124]/90">
           <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <button

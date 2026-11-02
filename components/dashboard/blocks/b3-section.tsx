@@ -43,17 +43,17 @@ export function B3Section({
   };
 
   return (
-    <section className="mb-6 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 h-full flex flex-col justify-between">
+    <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl sm:p-6 h-full flex flex-col justify-between">
       <div>
-        <div className="mb-5 flex items-center gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-[0_0_20px_-4px_rgba(6,182,212,0.5)]">
+        <div className="mb-5 flex items-center gap-3 rounded-xl bg-blue-900 text-white p-3.5 sm:px-4 sm:py-3 shadow-sm dark:bg-transparent dark:text-inherit dark:p-0 dark:shadow-none">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-400 dark:shadow-[0_0_20px_-4px_rgba(6,182,212,0.5)]">
             <ShoppingCart size={20} />
           </span>
           <div>
-            <h3 className="text-base font-extrabold uppercase tracking-wide text-cyan-400 sm:text-lg">
+            <h3 className="text-base font-extrabold uppercase tracking-wide text-white dark:text-cyan-400 sm:text-lg">
               B3: Thương mại điện tử & Khách hàng
             </h3>
-            <p className="text-xs text-slate-400">Giao thương trực tuyến · Tăng trưởng & Bảo lưu</p>
+            <p className="text-xs text-blue-100 dark:text-slate-400">Giao thương trực tuyến · Tăng trưởng & Bảo lưu</p>
           </div>
         </div>
 
@@ -64,6 +64,9 @@ export function B3Section({
             value={Number(data["doanh_thu"] ?? 0)}
             unit="TR VNĐ"
             color="#06b6d4"
+            accentBorder="border-l-indigo-500"
+            iconBg="bg-indigo-50 text-indigo-600"
+            icon={ShoppingCart}
             targetUrl={metricLinks["b3_doanh_thu"]}
             onEditLink={() => handleOpenId("b3_doanh_thu", "Doanh thu giao thương")}
             onEditQuantity={() =>
@@ -79,6 +82,9 @@ export function B3Section({
             value={Number(data["don_hang"] ?? 0)}
             unit="ĐƠN"
             color="#3b82f6"
+            accentBorder="border-l-indigo-500"
+            iconBg="bg-indigo-50 text-indigo-600"
+            icon={ShoppingCart}
             targetUrl={metricLinks["b3_don_hang"]}
             onEditLink={() => handleOpenId("b3_don_hang", "Đơn hàng hoàn tất")}
             onEditQuantity={() =>
@@ -94,6 +100,9 @@ export function B3Section({
             value={Number(data["khach_hang_moi"] ?? 0)}
             unit="KH"
             color="#10b981"
+            accentBorder="border-l-indigo-500"
+            iconBg="bg-indigo-50 text-indigo-600"
+            icon={ShoppingCart}
             targetUrl={metricLinks["b3_khach_hang_moi"]}
             onEditLink={() => handleOpenId("b3_khach_hang_moi", "Khách hàng mới")}
             onEditQuantity={() =>
@@ -109,6 +118,9 @@ export function B3Section({
             value={Number(data["ty_le_mua_lap"] ?? 0)}
             unit="%"
             color="#f59e0b"
+            accentBorder="border-l-indigo-500"
+            iconBg="bg-indigo-50 text-indigo-600"
+            icon={ShoppingCart}
             targetUrl={metricLinks["b3_ty_le_mua_lap"]}
             onEditLink={() => handleOpenId("b3_ty_le_mua_lap", "Tỷ lệ mua lặp lại")}
             onEditQuantity={() =>
@@ -125,6 +137,9 @@ export function B3Section({
               value={Number(data["aov"] ?? 0)}
               unit="K VNĐ"
               color="#a855f7"
+              accentBorder="border-l-emerald-500"
+              iconBg="bg-emerald-50 text-emerald-600"
+              icon={ShoppingCart}
               targetUrl={metricLinks["b3_aov"]}
               onEditLink={() => handleOpenId("b3_aov", "Giá trị trung bình/Đơn")}
               onEditQuantity={() =>

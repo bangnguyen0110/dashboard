@@ -1643,7 +1643,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
               {/* BƯỚC 2: REDESIGN 4 Ô KPI ĐẦU TIÊN */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Tỷ lệ CĐS Toàn Tỉnh */}
-                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                <div className="bg-gradient-to-br from-blue-50 to-white dark:from-[#0f1f3a] dark:to-[#0a1830] p-5 rounded-2xl border border-blue-200 dark:border-blue-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
                   <div className="flex justify-between items-start mb-6">
                     <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
                       <TrendingUp size={20} />
@@ -1670,7 +1670,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 2. Tỷ lệ Sản phẩm OCOP */}
-                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                <div className="bg-gradient-to-br from-amber-50 to-white dark:from-[#1f160a] dark:to-[#0a1830] p-5 rounded-2xl border border-amber-200 dark:border-amber-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
                   <div className="flex justify-between items-start mb-6">
                     <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800">
                       <Package size={20} />
@@ -1697,7 +1697,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 3. Tăng trưởng DT (Tháng) */}
-                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-[#0a1f16] dark:to-[#0a1830] p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
                   <div className="flex justify-between items-start mb-6">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">
                       <BarChart3 size={20} />
@@ -1724,7 +1724,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 4. Tăng trưởng 02 con số */}
-                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                <div className="bg-gradient-to-br from-purple-50 to-white dark:from-[#1a0f2e] dark:to-[#0a1830] p-5 rounded-2xl border border-purple-200 dark:border-purple-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
                   <div className="flex justify-between items-start mb-6">
                     <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800">
                       <Target size={20} />
@@ -1750,10 +1750,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
               {/* BƯỚC 3: THÊM 5 Ô KPI DOANH NGHIỆP */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4 mb-6">
                 {/* 1. Số DN Công nghệ số */}
-                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-indigo-200 dark:border-indigo-800/50 shadow hover:shadow-lg hover:-translate-y-1 transform transition-all duration-300 flex flex-col justify-between group">
                   <div>
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN Công nghệ số</h6>
-                    <span className="text-2xl font-black text-slate-800 dark:text-white">128</span>
+                    <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">128</span>
                   </div>
                   <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <button
@@ -1782,10 +1782,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 2. Số DN được tập huấn */}
-                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-rose-200 dark:border-rose-800/50 shadow hover:shadow-lg hover:-translate-y-1 transform transition-all duration-300 flex flex-col justify-between group">
                   <div>
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN được tập huấn</h6>
-                    <span className="text-2xl font-black text-slate-800 dark:text-white">1.450</span>
+                    <span className="text-3xl font-black text-rose-600 dark:text-rose-400">1.450</span>
                   </div>
                   <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <button
@@ -1814,10 +1814,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 3. Số DN tham gia sàn TMĐT */}
-                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-sky-200 dark:border-sky-800/50 shadow hover:shadow-lg hover:-translate-y-1 transform transition-all duration-300 flex flex-col justify-between group">
                   <div>
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN tham gia sàn TMĐT</h6>
-                    <span className="text-2xl font-black text-slate-800 dark:text-white">2.180</span>
+                    <span className="text-3xl font-black text-sky-600 dark:text-sky-400">2.180</span>
                   </div>
                   <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <button
@@ -1846,10 +1846,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 4. Số DN có tên miền .vn */}
-                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-violet-200 dark:border-violet-800/50 shadow hover:shadow-lg hover:-translate-y-1 transform transition-all duration-300 flex flex-col justify-between group">
                   <div>
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN có tên miền .vn</h6>
-                    <span className="text-2xl font-black text-slate-800 dark:text-white">865</span>
+                    <span className="text-3xl font-black text-violet-600 dark:text-violet-400">865</span>
                   </div>
                   <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <button
@@ -1878,10 +1878,10 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 5. TOP các SP tốt nhất */}
-                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-orange-200 dark:border-orange-800/50 shadow hover:shadow-lg hover:-translate-y-1 transform transition-all duration-300 flex flex-col justify-between group">
                   <div>
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">TOP các SP tốt nhất</h6>
-                    <span className="text-2xl font-black text-slate-800 dark:text-white">45</span>
+                    <span className="text-3xl font-black text-orange-600 dark:text-orange-400">45</span>
                   </div>
                   <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <button

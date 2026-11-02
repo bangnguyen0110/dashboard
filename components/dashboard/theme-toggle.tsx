@@ -13,7 +13,7 @@ export function ThemeToggle() {
   }, []);
 
   const toggleTheme = () => {
-    const currentTheme = resolvedTheme || theme || "dark";
+    const currentTheme = resolvedTheme || theme || "light";
     const nextTheme = currentTheme === "dark" ? "light" : "dark";
     
     setTheme(nextTheme);

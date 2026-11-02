@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Settings } from "lucide-react";
 import { StatCell } from "./stat-cell";
 import { CellQuantityModal } from "./cell-quantity-modal";
 import { MetricIdModal } from "./metric-id-modal";
+import { useAuth } from "@/context/AuthContext";
 import type { DashboardRow, KpiRow } from "@/lib/types";
 import { getStoredMetricId } from "@/lib/card-link";
 
@@ -27,6 +28,7 @@ export function B3Section({
   onSaveMetricId,
   onSaveQuantity,
 }: B3SectionProps) {
+  const { isAdmin } = useAuth();
   const [qtyTarget, setQtyTarget] = useState<{ key: string; label: string; current: number } | null>(null);
   const [metricIdTarget, setMetricIdTarget] = useState<{ key: string; label: string; id: string } | null>(null);
 
@@ -45,16 +47,26 @@ export function B3Section({
   return (
     <section className="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:rounded-xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl h-full flex flex-col justify-between">
       <div>
-        <div className="bg-[#0047db] dark:bg-[#0047db] text-white px-5 py-4 flex items-center gap-3 transition-colors">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white">
-            <ShoppingCart size={20} />
-          </span>
-          <div>
-            <h3 className="text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">
-              B3: Thương mại điện tử & Khách hàng
-            </h3>
-            <p className="text-xs text-blue-100">Giao thương trực tuyến · Tăng trưởng & Bảo lưu</p>
+        <div className="bg-[#0047db] dark:bg-[#0047db] text-white px-5 py-4 flex items-center justify-between gap-3 transition-colors">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white">
+              <ShoppingCart size={20} />
+            </span>
+            <div>
+              <h3 className="text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">
+                B3: Thương mại điện tử & Khách hàng
+              </h3>
+              <p className="text-xs text-blue-100">Giao thương trực tuyến · Tăng trưởng & Bảo lưu</p>
+            </div>
           </div>
+          {isAdmin && (
+            <button
+              type="button"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-medium border border-white/20 transition-colors"
+            >
+              <Settings size={14} /> Thiết lập ID
+            </button>
+          )}
         </div>
 
         <div className="p-5 sm:p-6">

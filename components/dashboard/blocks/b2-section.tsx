@@ -114,7 +114,7 @@ export function B2Section({
           <button
             type="button"
             onClick={() => setShowBlockId(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/20"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-medium border border-white/20 transition-colors"
           >
             <Settings size={14} /> Thiết lập ID
           </button>

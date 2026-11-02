@@ -169,10 +169,10 @@ export function LevelMenu({
     };
   }, [showAdminDropdown]);
 
-  const isDark = mounted ? (resolvedTheme || theme) === "dark" : true;
+  const isDark = mounted ? (resolvedTheme || theme) === "dark" : false;
 
   const handleToggleTheme = () => {
-    const currentTheme = resolvedTheme || theme || "dark";
+    const currentTheme = resolvedTheme || theme || "light";
     const nextTheme = currentTheme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     if (typeof document !== "undefined") {

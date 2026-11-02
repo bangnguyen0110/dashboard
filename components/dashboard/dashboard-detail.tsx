@@ -1645,18 +1645,19 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
               {/* BƯỚC 2: REDESIGN 4 Ô KPI ĐẦU TIÊN */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Tỷ lệ CĐS Toàn Tỉnh */}
-                <div className="bg-gradient-to-br from-blue-50 to-white dark:from-[#0f1f3a] dark:to-[#0a1830] p-5 rounded-2xl border border-blue-200 dark:border-blue-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
+                <div
+                  onClick={() => setIsCdsModalOpen(true)}
+                  className="bg-gradient-to-br from-blue-50 to-white dark:from-[#0f1f3a] dark:to-[#0a1830] p-5 rounded-2xl border border-blue-200 dark:border-blue-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
+                >
                   <div className="flex justify-between items-start mb-6">
                     <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
                       <TrendingUp size={20} />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsCdsModalOpen(true)}
-                      className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors"
+                    <span
+                      className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors"
                     >
                       Chi tiết <ArrowUpRight size={14} />
-                    </button>
+                    </span>
                   </div>
                   <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                     Tỷ lệ CĐS {isProvince ? "Toàn Tỉnh" : "Địa phương"}
@@ -1672,18 +1673,19 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 2. Tỷ lệ Sản phẩm OCOP */}
-                <div className="bg-gradient-to-br from-amber-50 to-white dark:from-[#1f160a] dark:to-[#0a1830] p-5 rounded-2xl border border-amber-200 dark:border-amber-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
+                <div
+                  onClick={() => setIsOcopModalOpen(true)}
+                  className="bg-gradient-to-br from-amber-50 to-white dark:from-[#1f160a] dark:to-[#0a1830] p-5 rounded-2xl border border-amber-200 dark:border-amber-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
+                >
                   <div className="flex justify-between items-start mb-6">
                     <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800">
                       <Package size={20} />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsOcopModalOpen(true)}
-                      className="flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-lg border border-amber-100 dark:border-amber-800 hover:bg-amber-100 transition-colors"
+                    <span
+                      className="flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-lg border border-amber-100 dark:border-amber-800 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors"
                     >
                       Chi tiết <ArrowUpRight size={14} />
-                    </button>
+                    </span>
                   </div>
                   <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                     Tỷ lệ Sản phẩm OCOP
@@ -1699,18 +1701,19 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
 
                 {/* 3. Tăng trưởng DT (Tháng) */}
-                <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-[#0a1f16] dark:to-[#0a1830] p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
+                <div
+                  onClick={() => setIsRevenueModalOpen(true)}
+                  className="bg-gradient-to-br from-emerald-50 to-white dark:from-[#0a1f16] dark:to-[#0a1830] p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
+                >
                   <div className="flex justify-between items-start mb-6">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">
                       <BarChart3 size={20} />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsRevenueModalOpen(true)}
-                      className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-800 hover:bg-emerald-100 transition-colors"
+                    <span
+                      className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors"
                     >
                       Chi tiết <ArrowUpRight size={14} />
-                    </button>
+                    </span>
                   </div>
                   <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                     Tăng trưởng DT (Tháng)
@@ -1757,30 +1760,32 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN Công nghệ số</h6>
                     <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">128</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setTopEntIdModal({ key: "b1_tech_biz", label: "Số DN Công nghệ số" })}
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Thiết lập ID
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setB1QtyTarget({
-                          metricKey: "b1_tech_biz",
-                          fields: ["b1_tech_biz"],
-                          label: "Số DN Công nghệ số",
-                          current: 128,
-                          matchTokens: ["công nghệ số", "tech"],
-                        })
-                      }
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Setup số lượng
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setTopEntIdModal({ key: "b1_tech_biz", label: "Số DN Công nghệ số" })}
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Thiết lập ID
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setB1QtyTarget({
+                            metricKey: "b1_tech_biz",
+                            fields: ["b1_tech_biz"],
+                            label: "Số DN Công nghệ số",
+                            current: 128,
+                            matchTokens: ["công nghệ số", "tech"],
+                          })
+                        }
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Setup số lượng
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* 2. Số DN được tập huấn */}
@@ -1789,30 +1794,32 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN được tập huấn</h6>
                     <span className="text-3xl font-black text-rose-600 dark:text-rose-400">1.450</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setTopEntIdModal({ key: "b1_trained_biz", label: "Số DN được tập huấn" })}
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Thiết lập ID
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setB1QtyTarget({
-                          metricKey: "b1_trained_biz",
-                          fields: ["b1_trained_biz"],
-                          label: "Số DN được tập huấn",
-                          current: 1450,
-                          matchTokens: ["tập huấn", "trained"],
-                        })
-                      }
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Setup số lượng
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setTopEntIdModal({ key: "b1_trained_biz", label: "Số DN được tập huấn" })}
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Thiết lập ID
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setB1QtyTarget({
+                            metricKey: "b1_trained_biz",
+                            fields: ["b1_trained_biz"],
+                            label: "Số DN được tập huấn",
+                            current: 1450,
+                            matchTokens: ["tập huấn", "trained"],
+                          })
+                        }
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Setup số lượng
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* 3. Số DN tham gia sàn TMĐT */}
@@ -1821,30 +1828,32 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN tham gia sàn TMĐT</h6>
                     <span className="text-3xl font-black text-sky-600 dark:text-sky-400">2.180</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setTopEntIdModal({ key: "b1_ecom_biz", label: "Số DN tham gia sàn TMĐT" })}
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Thiết lập ID
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setB1QtyTarget({
-                          metricKey: "b1_ecom_biz",
-                          fields: ["b1_ecom_biz"],
-                          label: "Số DN tham gia sàn TMĐT",
-                          current: 2180,
-                          matchTokens: ["sàn tmđt", "ecom"],
-                        })
-                      }
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Setup số lượng
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setTopEntIdModal({ key: "b1_ecom_biz", label: "Số DN tham gia sàn TMĐT" })}
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Thiết lập ID
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setB1QtyTarget({
+                            metricKey: "b1_ecom_biz",
+                            fields: ["b1_ecom_biz"],
+                            label: "Số DN tham gia sàn TMĐT",
+                            current: 2180,
+                            matchTokens: ["sàn tmđt", "ecom"],
+                          })
+                        }
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Setup số lượng
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* 4. Số DN có tên miền .vn */}
@@ -1853,30 +1862,32 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN có tên miền .vn</h6>
                     <span className="text-3xl font-black text-violet-600 dark:text-violet-400">865</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setTopEntIdModal({ key: "b1_domain_vn_biz", label: "Số DN có tên miền .vn" })}
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Thiết lập ID
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setB1QtyTarget({
-                          metricKey: "b1_domain_vn_biz",
-                          fields: ["b1_domain_vn_biz"],
-                          label: "Số DN có tên miền .vn",
-                          current: 865,
-                          matchTokens: ["tên miền .vn", "domain"],
-                        })
-                      }
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Setup số lượng
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setTopEntIdModal({ key: "b1_domain_vn_biz", label: "Số DN có tên miền .vn" })}
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Thiết lập ID
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setB1QtyTarget({
+                            metricKey: "b1_domain_vn_biz",
+                            fields: ["b1_domain_vn_biz"],
+                            label: "Số DN có tên miền .vn",
+                            current: 865,
+                            matchTokens: ["tên miền .vn", "domain"],
+                          })
+                        }
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Setup số lượng
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* 5. TOP các SP tốt nhất */}
@@ -1885,30 +1896,32 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">TOP các SP tốt nhất</h6>
                     <span className="text-3xl font-black text-orange-600 dark:text-orange-400">45</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setTopEntIdModal({ key: "b2_top_products", label: "TOP các SP tốt nhất" })}
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Thiết lập ID
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setB1QtyTarget({
-                          metricKey: "b2_top_products",
-                          fields: ["b2_top_products"],
-                          label: "TOP các SP tốt nhất",
-                          current: 45,
-                          matchTokens: ["sản phẩm tốt nhất", "top sp"],
-                        })
-                      }
-                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
-                    >
-                      Setup số lượng
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setTopEntIdModal({ key: "b2_top_products", label: "TOP các SP tốt nhất" })}
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Thiết lập ID
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setB1QtyTarget({
+                            metricKey: "b2_top_products",
+                            fields: ["b2_top_products"],
+                            label: "TOP các SP tốt nhất",
+                            current: 45,
+                            matchTokens: ["sản phẩm tốt nhất", "top sp"],
+                          })
+                        }
+                        className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                      >
+                        Setup số lượng
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 

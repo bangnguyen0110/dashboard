@@ -114,13 +114,13 @@ export function CompareEmptyState({
   description?: string;
 }) {
   return (
-    <div className="glass flex flex-col items-center justify-center gap-3 rounded-xl px-6 py-14 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-xl border border-white/10 bg-white/5">
-        <Inbox size={26} className="opacity-60" />
+    <div className="bg-white dark:bg-[#0a1830] border border-[#bfd7ee] dark:border-[#25427b] shadow-sm flex flex-col items-center justify-center gap-3 rounded-xl px-6 py-14 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-blue-50 dark:bg-white/5 text-blue-600 dark:text-blue-400">
+        <Inbox size={26} className="opacity-80" />
       </div>
-      <p className="text-sm font-semibold sm:text-base">{title}</p>
+      <p className="text-sm font-semibold sm:text-base text-slate-800 dark:text-slate-100">{title}</p>
       {description && (
-        <p className="max-w-xl text-xs leading-relaxed opacity-70 sm:text-sm">{description}</p>
+        <p className="max-w-xl text-xs leading-relaxed text-slate-500 dark:text-slate-400 sm:text-sm">{description}</p>
       )}
     </div>
   );
@@ -190,18 +190,22 @@ export function CompareTableCard({
   loading: boolean;
 }) {
   return (
-    <section className="glass flex h-full flex-col rounded-xl p-4 sm:p-5">
-      <header className="mb-3 flex items-start gap-2 border-b border-white/5 pb-3">
-        <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-accent">
+    <section className="bg-white dark:bg-[#0a1830] rounded-xl flex flex-col overflow-hidden border border-[#bfd7ee] dark:border-[#25427b] shadow-sm h-full">
+      {/* Card Header với độ tương phản cao */}
+      <header className="bg-blue-100 dark:bg-[#1a3263] px-5 py-3.5 border-b border-[#bfd7ee] dark:border-[#25427b] flex items-start gap-2.5">
+        <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-white/70 dark:bg-white/5 text-blue-700 dark:text-cyan-400">
           <Table2 size={15} />
         </span>
-        <div className="min-w-0">
-          <h4 className="text-[11px] font-bold uppercase tracking-wider text-accent sm:text-xs">
+        <div className="min-w-0 flex-1">
+          <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-900 dark:text-blue-100">
             {title}
           </h4>
-          {subtitle && <p className="mt-0.5 text-[11px] leading-relaxed opacity-60">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 text-[11px] leading-relaxed text-blue-600 dark:text-blue-400">{subtitle}</p>}
         </div>
       </header>
+
+      {/* Card Body */}
+      <div className="p-5 flex-1 flex flex-col justify-between">
 
       {loading ? (
         <PanelSkeleton rows={6} />
@@ -253,6 +257,7 @@ export function CompareTableCard({
           </table>
         </div>
       )}
+      </div>
     </section>
   );
 }
@@ -285,18 +290,22 @@ export function CompareDiffCard({
   }));
 
   return (
-    <section className="glass flex h-full flex-col rounded-xl p-4 sm:p-5">
-      <header className="mb-3 flex items-start gap-2 border-b border-white/5 pb-3">
-        <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-amber-400">
+    <section className="bg-white dark:bg-[#0a1830] rounded-xl flex flex-col overflow-hidden border border-[#bfd7ee] dark:border-[#25427b] shadow-sm h-full">
+      {/* Card Header với độ tương phản cao */}
+      <header className="bg-blue-100 dark:bg-[#1a3263] px-5 py-3.5 border-b border-[#bfd7ee] dark:border-[#25427b] flex items-start gap-2.5">
+        <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-white/70 dark:bg-white/5 text-amber-600 dark:text-amber-400">
           <BarChart3 size={15} />
         </span>
-        <div className="min-w-0">
-          <h4 className="text-[11px] font-bold uppercase tracking-wider text-amber-400 sm:text-xs">
+        <div className="min-w-0 flex-1">
+          <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-900 dark:text-blue-100">
             {title}
           </h4>
-          {subtitle && <p className="mt-0.5 text-[11px] leading-relaxed opacity-60">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 text-[11px] leading-relaxed text-blue-600 dark:text-blue-400">{subtitle}</p>}
         </div>
       </header>
+
+      {/* Card Body */}
+      <div className="p-5 flex-1 flex flex-col justify-between">
 
       {loading ? (
         <PanelSkeleton rows={4} withChart />
@@ -402,6 +411,7 @@ export function CompareDiffCard({
           </p>
         </div>
       )}
+      </div>
     </section>
   );
 }

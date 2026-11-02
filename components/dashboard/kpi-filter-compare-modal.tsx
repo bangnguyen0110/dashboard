@@ -550,7 +550,7 @@ export function KpiFilterCompareModal({ open, dashboard, onClose }: KpiFilterCom
 
       <div className="glass-strong relative z-50 flex h-[95vh] w-full max-w-[1500px] flex-col overflow-hidden rounded-xl p-3.5 shadow-2xl sm:p-6">
         {/* Header */}
-        <div className="mb-3 flex shrink-0 items-start justify-between gap-3 border-b border-white/5 pb-3">
+        <div className="mb-3 flex shrink-0 items-start justify-between gap-3 border-b border-[#bfd7ee] dark:border-white/5 pb-3">
           <div className="min-w-0">
             <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-accent sm:text-base">
               <SlidersHorizontal size={17} className="shrink-0" />
@@ -761,10 +761,10 @@ function FilterBar({
   capturedPeriod,
 }: FilterBarProps) {
   return (
-    <div className="glass rounded-xl p-3 sm:p-4">
+    <div className="bg-white/80 dark:glass rounded-xl p-3 sm:p-4 border border-[#bfd7ee] dark:border-white/10 shadow-sm">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         {/* Nhóm nút chuyển nhanh */}
-        <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+        <div className="flex items-center gap-1 rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-slate-50 dark:bg-white/5 p-1">
           {KIND_OPTIONS.map((option) => (
             <button
               key={option.value}
@@ -792,7 +792,7 @@ function FilterBar({
             <select
               value={unitFilter}
               onChange={(event) => onUnitFilterChange(event.target.value)}
-              className="glass w-full max-w-[280px] appearance-none rounded-xl py-2 pl-8 pr-8 text-[11px] outline-none focus:ring-2 focus:ring-accent sm:text-xs"
+              className="w-full max-w-[280px] appearance-none rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-white dark:bg-slate-900 py-2 pl-8 pr-8 text-[11px] text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-accent sm:text-xs shadow-xs"
               aria-label="Lọc theo đơn vị xã/phường trực thuộc"
             >
               <option value="">
@@ -812,7 +812,7 @@ function FilterBar({
         )}
 
         {/* Mốc so sánh: Từ / Đến */}
-        <div className="glass flex flex-wrap items-center gap-1.5 rounded-xl px-2.5 py-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-white dark:bg-slate-900 px-2.5 py-1.5 shadow-xs">
           <CalendarRange size={14} className="shrink-0 opacity-60" />
           <span className="text-[10px] uppercase tracking-wider opacity-60">Từ</span>
           <input
@@ -820,7 +820,7 @@ function FilterBar({
             value={fromMonth}
             max={toMonth || undefined}
             onChange={(event) => onFromMonthChange(event.target.value)}
-            className="bg-transparent text-[11px] outline-none sm:text-xs"
+            className="bg-transparent text-[11px] outline-none sm:text-xs text-slate-800 dark:text-slate-100"
             aria-label="Mốc so sánh từ tháng"
           />
           <span className="text-[10px] uppercase tracking-wider opacity-60">Đến</span>
@@ -828,7 +828,7 @@ function FilterBar({
             type="month"
             value={toMonth}
             onChange={(event) => onToMonthChange(event.target.value)}
-            className="bg-transparent text-[11px] outline-none sm:text-xs"
+            className="bg-transparent text-[11px] outline-none sm:text-xs text-slate-800 dark:text-slate-100"
             aria-label="Mốc so sánh đến tháng"
           />
         </div>

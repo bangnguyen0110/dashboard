@@ -20,9 +20,9 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
         onClick={onClose}
         aria-hidden
       />
-      <div className="glass-strong relative w-full max-w-md rounded-xl p-6">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold">{title}</h3>
+      <div className="bg-white dark:bg-[#0c1830] border border-[#bfd7ee] dark:border-slate-700 shadow-2xl relative w-full max-w-md rounded-xl p-6 text-slate-800 dark:text-slate-100">
+        <div className="mb-4 flex items-center justify-between gap-3 border-b border-[#bfd7ee] dark:border-white/10 pb-3">
+          <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">{title}</h3>
           <button
             type="button"
             onClick={onClose}

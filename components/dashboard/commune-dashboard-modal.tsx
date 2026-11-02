@@ -129,7 +129,7 @@ export function CommuneDashboardModal({
       {/* Modal Container */}
       <div className="relative z-50 flex flex-col w-full max-w-6xl h-[92vh] max-h-[92vh] rounded-xl glass-strong p-3.5 sm:p-6 shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2 shrink-0">
+        <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2 shrink-0 border-b border-[#bfd7ee] dark:border-white/5 pb-3">
           <h3 className="text-xs sm:text-base font-bold uppercase tracking-wider text-accent truncate">
             DANH SÁCH DASHBOARD XÃ, PHƯỜNG THUỘC {provinceName.toUpperCase()}
           </h3>
@@ -158,7 +158,7 @@ export function CommuneDashboardModal({
                 setPage(1);
               }}
               placeholder="Tìm tên xã / phường / đặc khu..."
-              className="w-full rounded-xl border border-white/10 bg-transparent py-2 pl-9 pr-3 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-accent"
+              className="w-full rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-white dark:bg-transparent py-2 pl-9 pr-3 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
@@ -170,7 +170,7 @@ export function CommuneDashboardModal({
                 setRateFilter(v === "" ? null : Number(v));
                 setPage(1);
               }}
-              className="glass rounded-xl px-3 py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-accent flex-1 sm:flex-none"
+              className="rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-white dark:bg-[#0c1830] px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-accent flex-1 sm:flex-none"
             >
               <option value="">Tất cả tỷ lệ</option>
               {RATE_OPTIONS.filter((r) => r > 0).map((r) => (
@@ -198,102 +198,104 @@ export function CommuneDashboardModal({
                 return (
                   <div
                     key={commune.id}
-                    className="glass group relative w-full rounded-xl p-3.5 sm:p-4 text-left transition hover:-translate-y-0.5 hover:shadow-glass flex flex-col justify-between"
+                    className="bg-white dark:bg-[#0a1830] rounded-xl flex flex-col overflow-hidden border border-[#bfd7ee] dark:border-[#25427b] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md group relative w-full text-left"
                   >
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold truncate text-slate-100">
-                            {commune.unit?.name ?? commune.title}
-                          </p>
-                          <p className="mt-0.5 line-clamp-1 text-xs opacity-60">
-                            {commune.title}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => onViewDashboard(commune)}
-                          className="glass shrink-0 rounded-xl p-1.5 text-foreground/60 transition hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
-                          aria-label="Xem Dashboard"
-                          title="Xem Dashboard"
-                        >
-                          <ExternalLink size={14} />
-                        </button>
+                    {/* Card Header với độ tương phản cao */}
+                    <div className="bg-blue-100 dark:bg-[#1a3263] px-5 py-3.5 border-b border-[#bfd7ee] dark:border-[#25427b] flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold truncate text-blue-900 dark:text-blue-100">
+                          {commune.unit?.name ?? commune.title}
+                        </p>
+                        <p className="mt-0.5 line-clamp-1 text-xs text-blue-600 dark:text-blue-400">
+                          {commune.title}
+                        </p>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => onViewDashboard(commune)}
+                        className="rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-white/70 dark:bg-white/5 p-1.5 text-blue-700 dark:text-foreground/60 transition hover:bg-white hover:text-blue-900 dark:hover:text-accent shrink-0 sm:opacity-0 sm:group-hover:opacity-100"
+                        aria-label="Xem Dashboard"
+                        title="Xem Dashboard"
+                      >
+                        <ExternalLink size={14} />
+                      </button>
+                    </div>
 
-                      <div className="mt-3 space-y-1.5 border-t border-white/5 pt-3 w-full">
+                    {/* Card Body */}
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div className="space-y-1.5 w-full">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="opacity-60">Tỉ lệ CĐS Đơn vị KD</span>
-                          <span className="font-semibold text-cyan-400">
+                          <span className="text-slate-600 dark:text-slate-400">Tỉ lệ CĐS Đơn vị KD</span>
+                          <span className="font-semibold text-blue-600 dark:text-cyan-400">
                             {stats.ratioB1}%
                           </span>
                         </div>
-                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/15 border border-[#bfd7ee]/50 dark:border-transparent">
                           <div
-                            className="h-full rounded-full bg-cyan-400 transition-all"
+                            className="h-full rounded-full bg-blue-600 dark:bg-cyan-400 transition-all"
                             style={{ width: `${stats.ratioB1}%` }}
                           />
                         </div>
 
                         <div className="flex items-center justify-between text-xs pt-1">
-                          <span className="opacity-60">Tỉ lệ CĐS Sản phẩm</span>
-                          <span className="font-semibold text-amber-400">
+                          <span className="text-slate-600 dark:text-slate-400">Tỉ lệ CĐS Sản phẩm</span>
+                          <span className="font-semibold text-amber-600 dark:text-amber-400">
                             {stats.ratioB2}%
                           </span>
                         </div>
-                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/15 border border-[#bfd7ee]/50 dark:border-transparent">
                           <div
-                            className="h-full rounded-full bg-amber-400 transition-all"
+                            className="h-full rounded-full bg-amber-500 dark:bg-amber-400 transition-all"
                             style={{ width: `${stats.ratioB2}%` }}
                           />
                         </div>
 
                         <div className="flex items-center justify-between text-xs pt-1">
-                          <span className="opacity-60">Tổng số đơn vị KD</span>
-                          <span className="font-semibold">
+                          <span className="text-slate-600 dark:text-slate-400">Tổng số đơn vị KD</span>
+                          <span className="font-semibold text-slate-800 dark:text-slate-100">
                             {stats.totalBusiness.toLocaleString("vi-VN")}
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="opacity-60">Tổng số sản phẩm</span>
-                          <span className="font-semibold">
+                          <span className="text-slate-600 dark:text-slate-400">Tổng số sản phẩm</span>
+                          <span className="font-semibold text-slate-800 dark:text-slate-100">
                             {stats.totalProducts.toLocaleString("vi-VN")}
                           </span>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="mt-3.5 flex items-center justify-end gap-1.5 border-t border-white/5 pt-3 w-full">
-                      {isAdmin && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => onEditLink(commune)}
-                            className="glass rounded-xl p-1.5 text-foreground/60 transition hover:text-accent"
-                            aria-label="Thiết lập link"
-                            title="Thiết lập link"
-                          >
-                            <Link2 size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onEditQuantity(commune)}
-                            className="glass rounded-xl p-1.5 text-foreground/60 transition hover:text-accent"
-                            aria-label="Setup số lượng"
-                            title="Setup số lượng"
-                          >
-                            <PencilLine size={14} />
-                          </button>
-                        </>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => onViewDashboard(commune)}
-                        className="glass rounded-xl px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:text-accent hover:bg-accent/20"
-                        aria-label="Xem Dashboard"
-                      >
-                        Xem
-                      </button>
+                      <div className="mt-3.5 flex items-center justify-end gap-1.5 border-t border-[#bfd7ee]/70 dark:border-white/5 pt-3 w-full">
+                        {isAdmin && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => onEditLink(commune)}
+                              className="rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-slate-50 dark:bg-white/5 p-1.5 text-slate-600 dark:text-slate-300 transition hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 dark:hover:text-accent"
+                              aria-label="Thiết lập link"
+                              title="Thiết lập link"
+                            >
+                              <Link2 size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onEditQuantity(commune)}
+                              className="rounded-xl border border-[#bfd7ee] dark:border-white/10 bg-slate-50 dark:bg-white/5 p-1.5 text-slate-600 dark:text-slate-300 transition hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 dark:hover:text-accent"
+                              aria-label="Setup số lượng"
+                              title="Setup số lượng"
+                            >
+                              <PencilLine size={14} />
+                            </button>
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onViewDashboard(commune)}
+                          className="rounded-xl border border-[#bfd7ee] dark:border-blue-700/50 bg-blue-50 dark:bg-blue-900/40 px-2.5 py-1 text-xs font-bold text-blue-700 dark:text-blue-300 transition hover:bg-blue-100 dark:hover:bg-blue-800/50"
+                          aria-label="Xem Dashboard"
+                        >
+                          Xem
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

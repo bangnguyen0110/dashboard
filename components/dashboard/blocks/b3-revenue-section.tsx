@@ -493,10 +493,8 @@ export function B3RevenueSection({  dashboard,
     }
   };
 
-  // Tiêu đề khối B3 theo cấp đơn vị (Tỉnh vs Xã/Phường)
-  const title = isProvince
-    ? `B3: DÒNG CHẢY DOANH THU - TỈNH ${unitName.toUpperCase()}`
-    : `B3: DÒNG CHẢY DOANH THU - ${unitName}`;
+  // Tiêu đề khối B3 rút gọn
+  const title = "B3: DÒNG CHẢY DOANH THU";
 
   // YÊU CẦU 1: Dashboard Tỉnh không cài đặt/cào — chỉ hiển thị dòng nhắc nhở.
   const note = isProvince

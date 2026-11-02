@@ -822,6 +822,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [isCdsModalOpen, setIsCdsModalOpen] = useState(false);
   const [isOcopModalOpen, setIsOcopModalOpen] = useState(false);
   const [isRevenueModalOpen, setIsRevenueModalOpen] = useState(false);
+  const [topEntIdModal, setTopEntIdModal] = useState<{ key: string; label: string } | null>(null);
 
   const [b1QtyTarget, setB1QtyTarget] = useState<{
     metricKey: string;
@@ -1567,16 +1568,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-2 mt-2 text-xs text-blue-100 dark:text-slate-300">
           <span>{dashboard.unit?.name ?? ""}, Việt Nam</span>
-          <span className="opacity-40">•</span>
-          <span className="flex items-center gap-2 px-3 py-1 bg-emerald-500/15 border border-emerald-400/30 rounded-full text-emerald-100 dark:text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-            </span>
-            <span className="font-semibold tracking-wide text-[11px] md:text-xs">
-              Cập nhật lúc: {syncTimeFormatted || "14:58 31/10/2026"}
-            </span>
-          </span>
         </div>
       </header>
 
@@ -1605,143 +1596,316 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     <h2 className="mt-1 text-lg sm:text-2xl font-bold">Tầng 1: Bộ tiêu chí kinh tế số {isProvince ? "UBND Tỉnh" : "UBDN xã/phường"}</h2>
                     <p className="mt-1 text-xs opacity-60">{isProvince ? "Dashboard Tỉnh" : "Dashboard Xã/Phường"}</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {isAdmin && (
+                  <div className="flex flex-col items-start sm:items-end gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => setShowLink(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+                        >
+                          <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
+                        </button>
+                      )}
+                      {/* Nút Bộ lọc — đặt NGAY BÊN TRÁI nút "Danh sách xã/phường" */}
                       <button
                         type="button"
-                        onClick={() => setShowLink(true)}
+                        onClick={() => setShowFilterCompare(true)}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+                        title="Bộ lọc và so sánh thông tin"
                       >
-                        <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
+                        <SlidersHorizontal size={14} className="text-blue-600 dark:text-blue-400" /> Bộ lọc
                       </button>
-                    )}
-                    {/* Nút Bộ lọc — đặt NGAY BÊN TRÁI nút "Danh sách xã/phường" */}
-                    <button
-                      type="button"
-                      onClick={() => setShowFilterCompare(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
-                      title="Bộ lọc và so sánh thông tin"
-                    >
-                      <SlidersHorizontal size={14} className="text-blue-600 dark:text-blue-400" /> Bộ lọc
-                    </button>
-                    {isProvince && (
-                      <button
-                        type="button"
-                        onClick={() => setShowCommuneList(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
-                      >
-                        <Building2 size={14} className="text-blue-600 dark:text-blue-400" /> Danh sách xã/phường ({communes.length})
-                      </button>
-                    )}
+                      {isProvince && (
+                        <button
+                          type="button"
+                          onClick={() => setShowCommuneList(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+                        >
+                          <Building2 size={14} className="text-blue-600 dark:text-blue-400" /> Danh sách xã/phường ({communes.length})
+                        </button>
+                      )}
+                    </div>
+                    {/* BƯỚC 1: BADGE THỜI GIAN THỰC ĐẶT BÊN DƯỚI CỤM 3 NÚT */}
+                    <div className="flex items-center gap-2 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-lg text-emerald-700 dark:text-emerald-400 shadow-sm mt-2">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                      </span>
+                      <span className="font-bold text-sm tracking-wide">
+                        Cập nhật lúc: {syncTimeFormatted || "14:58 31/10/2026"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </section>
 
-              {/* BƯỚC 2: HÀNG KPI TRÊN CÙNG (4 Ô) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {/* BƯỚC 2: REDESIGN 4 Ô KPI ĐẦU TIÊN */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Tỷ lệ CĐS Toàn Tỉnh */}
-                <div
-                  onClick={() => setIsCdsModalOpen(true)}
-                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-blue-400 dark:hover:border-blue-500 group relative overflow-hidden flex flex-col justify-between"
-                  title="Click để xem chi tiết tỷ lệ chuyển đổi số"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-[#bfd7ee] dark:border-white/10 group-hover:scale-105 transition-transform">
+                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
                       <TrendingUp size={20} />
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full border border-[#bfd7ee] dark:border-blue-800 opacity-80 group-hover:opacity-100 transition-opacity">
-                      Chi tiết <ArrowUpRight size={12} />
-                    </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsCdsModalOpen(true)}
+                      className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-800 hover:bg-blue-100 transition-colors"
+                    >
+                      Chi tiết <ArrowUpRight size={14} />
+                    </button>
                   </div>
-                  <div className="mt-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Tỷ lệ CĐS {isProvince ? "Toàn Tỉnh" : "Địa phương"}
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-extrabold text-blue-600 dark:text-blue-400 tabular-nums mt-1">
+                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                    Tỷ lệ CĐS {isProvince ? "Toàn Tỉnh" : "Địa phương"}
+                  </h6>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
                       {topCdsRate}%
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
-                      {topTotalDx.toLocaleString("vi-VN")} / {topTotalUnits.toLocaleString("vi-VN")} đơn vị
-                    </p>
+                    </span>
                   </div>
+                  <p className="text-xs text-slate-400 font-medium mt-1">
+                    {topTotalDx.toLocaleString("vi-VN")} / {topTotalUnits.toLocaleString("vi-VN")} đơn vị
+                  </p>
                 </div>
 
                 {/* 2. Tỷ lệ Sản phẩm OCOP */}
-                <div
-                  onClick={() => setIsOcopModalOpen(true)}
-                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-amber-400 dark:hover:border-amber-500 group relative overflow-hidden flex flex-col justify-between"
-                  title="Click để xem chi tiết tỷ lệ sản phẩm OCOP"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-white/10 group-hover:scale-105 transition-transform">
+                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800">
                       <Package size={20} />
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 opacity-80 group-hover:opacity-100 transition-opacity">
-                      Chi tiết <ArrowUpRight size={12} />
-                    </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsOcopModalOpen(true)}
+                      className="flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-lg border border-amber-100 dark:border-amber-800 hover:bg-amber-100 transition-colors"
+                    >
+                      Chi tiết <ArrowUpRight size={14} />
+                    </button>
                   </div>
-                  <div className="mt-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Tỷ lệ Sản phẩm OCOP
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums mt-1">
+                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                    Tỷ lệ Sản phẩm OCOP
+                  </h6>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight">
                       {topOcopRate}%
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
-                      {topTotalOcop.toLocaleString("vi-VN")} / {topTotalAll.toLocaleString("vi-VN")} sản phẩm
-                    </p>
+                    </span>
                   </div>
+                  <p className="text-xs text-slate-400 font-medium mt-1">
+                    {topTotalOcop.toLocaleString("vi-VN")} / {topTotalAll.toLocaleString("vi-VN")} sản phẩm
+                  </p>
                 </div>
 
                 {/* 3. Tăng trưởng DT (Tháng) */}
-                <div
-                  onClick={() => setIsRevenueModalOpen(true)}
-                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-emerald-400 dark:hover:border-emerald-500 group relative overflow-hidden flex flex-col justify-between"
-                  title="Click để xem chi tiết tăng trưởng doanh thu"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-white/10 group-hover:scale-105 transition-transform">
+                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">
                       <BarChart3 size={20} />
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-blue-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 opacity-80 group-hover:opacity-100 transition-opacity">
-                      Chi tiết <ArrowUpRight size={12} />
-                    </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsRevenueModalOpen(true)}
+                      className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-800 hover:bg-emerald-100 transition-colors"
+                    >
+                      Chi tiết <ArrowUpRight size={14} />
+                    </button>
                   </div>
-                  <div className="mt-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Tăng trưởng DT (Tháng)
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums mt-1">
+                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                    Tăng trưởng DT (Tháng)
+                  </h6>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
                       +10.71%
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
-                      DT: {formatVnNumber(topB3Rev.monthly)} VNĐ
-                    </p>
+                    </span>
                   </div>
+                  <p className="text-xs text-slate-400 font-medium mt-1">
+                    DT: {formatVnNumber(topB3Rev.monthly)} VNĐ
+                  </p>
                 </div>
 
                 {/* 4. Tăng trưởng 02 con số */}
-                <div
-                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 flex flex-col justify-between"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-white/10">
+                <div className="bg-white dark:bg-[#0a1830] p-5 rounded-2xl border border-[#bfd7ee] dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow relative group">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800">
                       <Target size={20} />
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+                    </div>
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg border border-purple-100 dark:border-purple-800">
                       Mục tiêu
                     </span>
                   </div>
-                  <div className="mt-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Tăng trưởng 02 con số
-                    </p>
-                    <p className="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 tabular-nums mt-1">
+                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                    Tăng trưởng 02 con số
+                  </h6>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight">
                       10.71%
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
-                      Mục tiêu KT số Đề án 2030
-                    </p>
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-medium mt-1">
+                    Mục tiêu KT số Đề án 2030
+                  </p>
+                </div>
+              </div>
+
+              {/* BƯỚC 3: THÊM 5 Ô KPI DOANH NGHIỆP */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4 mb-6">
+                {/* 1. Số DN Công nghệ số */}
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN Công nghệ số</h6>
+                    <span className="text-2xl font-black text-slate-800 dark:text-white">128</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setTopEntIdModal({ key: "b1_tech_biz", label: "Số DN Công nghệ số" })}
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Thiết lập ID
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setB1QtyTarget({
+                          metricKey: "b1_tech_biz",
+                          fields: ["b1_tech_biz"],
+                          label: "Số DN Công nghệ số",
+                          current: 128,
+                          matchTokens: ["công nghệ số", "tech"],
+                        })
+                      }
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Setup số lượng
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Số DN được tập huấn */}
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN được tập huấn</h6>
+                    <span className="text-2xl font-black text-slate-800 dark:text-white">1.450</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setTopEntIdModal({ key: "b1_trained_biz", label: "Số DN được tập huấn" })}
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Thiết lập ID
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setB1QtyTarget({
+                          metricKey: "b1_trained_biz",
+                          fields: ["b1_trained_biz"],
+                          label: "Số DN được tập huấn",
+                          current: 1450,
+                          matchTokens: ["tập huấn", "trained"],
+                        })
+                      }
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Setup số lượng
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. Số DN tham gia sàn TMĐT */}
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN tham gia sàn TMĐT</h6>
+                    <span className="text-2xl font-black text-slate-800 dark:text-white">2.180</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setTopEntIdModal({ key: "b1_ecom_biz", label: "Số DN tham gia sàn TMĐT" })}
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Thiết lập ID
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setB1QtyTarget({
+                          metricKey: "b1_ecom_biz",
+                          fields: ["b1_ecom_biz"],
+                          label: "Số DN tham gia sàn TMĐT",
+                          current: 2180,
+                          matchTokens: ["sàn tmđt", "ecom"],
+                        })
+                      }
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Setup số lượng
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Số DN có tên miền .vn */}
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Số DN có tên miền .vn</h6>
+                    <span className="text-2xl font-black text-slate-800 dark:text-white">865</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setTopEntIdModal({ key: "b1_domain_vn_biz", label: "Số DN có tên miền .vn" })}
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Thiết lập ID
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setB1QtyTarget({
+                          metricKey: "b1_domain_vn_biz",
+                          fields: ["b1_domain_vn_biz"],
+                          label: "Số DN có tên miền .vn",
+                          current: 865,
+                          matchTokens: ["tên miền .vn", "domain"],
+                        })
+                      }
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Setup số lượng
+                    </button>
+                  </div>
+                </div>
+
+                {/* 5. TOP các SP tốt nhất */}
+                <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">TOP các SP tốt nhất</h6>
+                    <span className="text-2xl font-black text-slate-800 dark:text-white">45</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setTopEntIdModal({ key: "b2_top_products", label: "TOP các SP tốt nhất" })}
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Thiết lập ID
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setB1QtyTarget({
+                          metricKey: "b2_top_products",
+                          fields: ["b2_top_products"],
+                          label: "TOP các SP tốt nhất",
+                          current: 45,
+                          matchTokens: ["sản phẩm tốt nhất", "top sp"],
+                        })
+                      }
+                      className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                    >
+                      Setup số lượng
+                    </button>
                   </div>
                 </div>
               </div>
@@ -2198,6 +2362,24 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
             await handleSaveQuantity(b1QtyTarget.metricKey, value);
           }}
           onClose={() => setB1QtyTarget(null)}
+          onSaved={refetchAfterSave}
+        />
+      )}
+
+      {topEntIdModal && dashboard && (
+        <MetricIdModal
+          dashboard={dashboard}
+          metricKey={topEntIdModal.key}
+          metricLabel={topEntIdModal.label}
+          label={topEntIdModal.label}
+          baseDomain={dashboard.base_domain || dashboard.metadata?.base_domain || dashboard.domain_link || ""}
+          currentId={metricIds[topEntIdModal.key] || ""}
+          initialId={metricIds[topEntIdModal.key] || ""}
+          onClose={() => setTopEntIdModal(null)}
+          onSave={async (key, id) => {
+            await handleSaveMetricId(key, id);
+            setTopEntIdModal(null);
+          }}
           onSaved={refetchAfterSave}
         />
       )}

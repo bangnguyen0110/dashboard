@@ -128,7 +128,7 @@ export function B1Section({
           </span>
           <div>
             <h3 className="text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">
-              B1: Đơn vị kinh doanh trên địa bàn - {dashboard.unit?.name ?? "Địa phương"}
+              B1: Đơn vị kinh doanh
             </h3>
             <p className="text-xs text-blue-100">
               Doanh nghiệp SME · Hộ kinh doanh · Hợp tác xã

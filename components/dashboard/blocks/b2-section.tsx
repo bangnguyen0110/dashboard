@@ -103,7 +103,7 @@ export function B2Section({
           </span>
           <div>
             <h3 className="text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">
-              B2: Thông tin sản phẩm trên địa bàn - {dashboard.unit?.name ?? "Địa phương"}
+              B2: Thông tin sản phẩm
             </h3>
             <p className="text-xs text-blue-100">
               Sản phẩm OCOP · Sản phẩm thường · Dịch vụ

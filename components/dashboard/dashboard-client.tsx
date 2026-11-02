@@ -511,7 +511,7 @@ export function DashboardClient(init: DashboardInit) {
     <div className="relative min-h-screen">
       <div className="dashboard-bg" />
       <header className="glass-strong sticky top-0 z-40 border-b border-white/5">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="w-full flex h-16 items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-blue-600 text-white shadow-lg shadow-accent/30">
               <BarChart3 size={20} />
@@ -542,7 +542,7 @@ export function DashboardClient(init: DashboardInit) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <main className="w-full px-4 py-6 sm:px-6">
         {/* Menu 5 tầng */}
         <nav className="glass sticky top-20 z-30 mb-6 flex gap-1 overflow-x-auto rounded-2xl p-1.5">
           {MENU_ITEMS.map((item) => {

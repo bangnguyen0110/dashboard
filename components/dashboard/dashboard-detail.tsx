@@ -1485,7 +1485,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     return (
       <div className="relative min-h-screen bg-[#e8f1fa] dark:bg-[#0a1124]">
         <div className="dashboard-bg" />
-        <main className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6">
+        <main className="w-full px-4 py-10 sm:px-6">
           <div className="glass h-40 animate-pulse rounded-3xl" />
         </main>
       </div>
@@ -1528,23 +1528,29 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     <div className="relative min-h-screen bg-[#e8f1fa] dark:bg-[#0a1124]">
       <div className="dashboard-bg" />
 
-      {/* ICON 3 GẠCH CỐ ĐỊNH Ở GÓC TRÊN PHẢI MÀN HÌNH MOBILE */}
-      <button
-        type="button"
-        onClick={() => setMobileMenuOpen(true)}
-        className="fixed top-3.5 right-4 z-50 grid h-10 w-10 place-items-center rounded-xl border border-blue-500/40 bg-white/90 text-blue-600 shadow-xl backdrop-blur-md transition active:scale-95 dark:border-cyan-500/40 dark:bg-[#071326]/90 dark:text-cyan-400 md:hidden"
-        title="Mở menu điều hành"
-      >
-        <Menu size={22} />
-      </button>
+      {/* 1. TOP HEADER (Căn giữa) */}
+      <header className="bg-[#0047db] dark:bg-[#050e1c] text-white py-4 px-6 flex flex-col items-center justify-center relative z-50 border-b border-blue-800 dark:border-white/5 transition-colors text-center">
+        <h1 className="text-lg sm:text-2xl font-black uppercase tracking-wider text-white">
+          {cleanDashboardTitle(dashboard.title)}
+        </h1>
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-1 text-xs text-blue-100 dark:text-slate-300">
+          <span>{dashboard.unit?.name ?? ""}, Việt Nam</span>
+          {syncTimeFormatted && (
+            <>
+              <span className="opacity-40">•</span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-[11px] bg-white/10 dark:bg-white/5 px-2.5 py-0.5 rounded-full border border-white/15">
+                <Clock size={12} className="shrink-0 text-cyan-300" />
+                <span>Dữ liệu đồng bộ lúc: {syncTimeFormatted}</span>
+              </span>
+            </>
+          )}
+        </div>
+      </header>
 
-      {/* SIDEBAR DRAWER */}
+      {/* 2. THANH MENU TAB NGANG (STICKY) */}
       <LevelMenu
         value={currentLevel}
         onChange={setLevel}
-        variant="sidebar"
-        mobileOpen={mobileMenuOpen}
-        onCloseMobile={() => setMobileMenuOpen(false)}
         dashboard={dashboard}
         onChanged={refetchAfterSave}
         onSyncLive={() => handleLiveSync(false)}
@@ -1552,64 +1558,8 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         onOpenImportPdf={() => setShowImportPdf(true)}
       />
 
-      {/* KHUNG NỘI DUNG CHÍNH */}
-      <div className="min-h-screen transition-all duration-300 md:pl-[295px]">
-        {/* HEADER TOP BAR */}
-        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-[#0a1124]/90">
-          <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6">
-            <div className="flex min-w-0 items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  router.push(backHref);
-                }}
-                aria-label="Quay lại"
-                className="glass grid h-10 w-10 shrink-0 place-items-center rounded-xl text-foreground transition hover:text-accent"
-                title="Quay lại danh sách"
-              >
-                <ArrowLeft size={18} />
-              </button>
-
-              <div className="min-w-0 pr-12 md:pr-0">
-                <h1 className="truncate text-sm sm:text-base font-bold font-sans tracking-wide text-foreground">
-                  {cleanDashboardTitle(dashboard.title)}
-                </h1>
-
-                <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                  <p className="truncate text-[11px] sm:text-xs opacity-60 font-sans">
-                    {dashboard.unit?.name ?? ""}, Việt Nam
-                  </p>
-
-                  {syncTimeFormatted && (
-                    <>
-                      <span className="text-[10px] opacity-30">•</span>
-                      <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-cyan-400 font-mono font-medium bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20">
-                        <Clock size={11} className="shrink-0" />
-                        <span>Dữ liệu đồng bộ lúc: {syncTimeFormatted}</span>
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="hidden md:flex items-center gap-2">
-              {headerLink && (
-                <a
-                  href={headerLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="glass inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs text-foreground/70 transition hover:text-accent"
-                >
-                  <Globe size={14} />
-                  {headerLink.replace(/^https?:\/\//, "")}
-                </a>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
+      {/* 3. NỘI DUNG CHÍNH (FULL WIDTH 100%) */}
+      <main className="w-full px-4 py-6 sm:px-6">
           {/* ================= TẦNG 1 ================= */}
           {currentLevel === 1 ? (
             <div className="space-y-6">
@@ -1950,7 +1900,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
             </section>
           )}
         </main>
-      </div>
 
       {/* 👉 NÚT AI FLOATING CỐ ĐỊNH Ở GÓC DƯỚI PHẢI MÀN HÌNH */}
       {dashboard && (

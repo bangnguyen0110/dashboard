@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Package, PieChart, Settings, Link as LinkIcon, Edit3 } from "lucide-react";
+import { Package, PieChart, Settings, Link as LinkIcon, Edit3, Award, QrCode } from "lucide-react";
 import { StatCell } from "./stat-cell";
 import { CellQuantityModal } from "./cell-quantity-modal";
 import { BlockIdModal } from "./block-id-modal";
@@ -413,6 +413,34 @@ export function B2Section({
                   );
                 })}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* HÀNG 2 THẺ: TOP SP VÀ TỶ LỆ MÃ SỐ (50% - 50%) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          {/* Thẻ 1: TOP các SP tốt nhất */}
+          <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-orange-200 dark:border-orange-800/50 shadow flex justify-between items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <h6 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">TOP các SP tốt nhất</h6>
+              <span className="text-3xl font-black text-orange-600 dark:text-orange-400">42</span>
+            </div>
+            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-xl shrink-0">
+              <Award className="w-7 h-7 text-orange-500" />
+            </div>
+          </div>
+
+          {/* Thẻ 2: Tỷ lệ sản phẩm sử dụng mã số */}
+          <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/50 shadow flex justify-between items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <h6 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Tỷ lệ SP sử dụng mã số</h6>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">100%</span>
+                <span className="text-xs text-slate-400">(511/511 sản phẩm)</span>
+              </div>
+            </div>
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl shrink-0">
+              <QrCode className="w-7 h-7 text-emerald-500" />
             </div>
           </div>
         </div>

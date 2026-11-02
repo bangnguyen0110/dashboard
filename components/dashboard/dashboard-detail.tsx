@@ -31,6 +31,9 @@ import {
   ShoppingCart,
   Award,
   AlignLeft,
+  Sprout,
+  Factory,
+  Store,
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import { supabase } from "@/lib/supabase";
@@ -1936,23 +1939,33 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       )}
                     </div>
 
-                    {/* THẺ 5: TOP SP (Nằm trải ngang 2 cột) */}
-                    <div className="col-span-2 bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-orange-200 dark:border-orange-800/50 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-                      <div className="flex justify-between items-center gap-4">
+                    {/* THẺ 5 (TOP SP) đã được chuyển sang Khối B2 */}
+                  </div>
+
+                  {/* 2. THANH TIÊU ĐỀ LOẠI HÌNH DN */}
+                  <div className="mt-2 px-4 py-2.5 bg-blue-100 dark:bg-[#1a3263] border-b border-blue-200 dark:border-[#25427b] rounded-xl flex items-center gap-2">
+                    <h4 className="font-bold text-[13px] text-slate-800 dark:text-white uppercase tracking-wide">LOẠI HÌNH DOANH NGHIỆP</h4>
+                  </div>
+
+                  {/* 3. CỤM 3 THẺ LOẠI HÌNH */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Thẻ Nông nghiệp */}
+                    <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-teal-200 dark:border-teal-800/50 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                      <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
-                          <h6 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">TOP các SP tốt nhất</h6>
-                          <span className="text-3xl font-black text-orange-600 dark:text-orange-400">42</span>
+                          <h6 className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">Nông nghiệp, LN & TS</h6>
+                          <span className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">4.120</span>
                         </div>
-                        <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-xl shrink-0">
-                          <Award className="w-8 h-8 text-orange-500 dark:text-orange-400" />
+                        <div className="p-2 bg-teal-50 dark:bg-teal-500/10 rounded-lg shrink-0">
+                          <Sprout className="w-5 lg:w-6 h-5 lg:h-6 text-teal-500 dark:text-teal-400" />
                         </div>
                       </div>
                       {isAdmin && (
-                        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
                           <button
                             type="button"
-                            onClick={() => setTopEntIdModal({ key: "b2_top_products", label: "TOP các SP tốt nhất" })}
-                            className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                            onClick={() => setTopEntIdModal({ key: "b1_sector_agri", label: "Nông nghiệp, LN & TS" })}
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
                           >
                             Thiết lập ID
                           </button>
@@ -1960,42 +1973,97 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                             type="button"
                             onClick={() =>
                               setB1QtyTarget({
-                                metricKey: "b2_top_products",
-                                fields: ["b2_top_products"],
-                                label: "TOP các SP tốt nhất",
-                                current: 42,
-                                matchTokens: ["sản phẩm tốt nhất", "top sp"],
+                                metricKey: "b1_sector_agri",
+                                fields: ["b1_sector_agri"],
+                                label: "Nông nghiệp, LN & TS",
+                                current: 4120,
+                                matchTokens: ["nông nghiệp", "agri"],
                               })
                             }
-                            className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
                           >
                             Setup số lượng
                           </button>
                         </div>
                       )}
                     </div>
-                  </div>
 
-                  {/* 2. THANH TIÊU ĐỀ LOẠI HÌNH DN */}
-                  <div className="mt-2 mb-1 flex items-center gap-3 border-b border-slate-200 dark:border-slate-700/50 pb-2">
-                    <h4 className="font-bold text-[13px] text-slate-800 dark:text-white uppercase tracking-wide">LOẠI HÌNH DOANH NGHIỆP</h4>
-                  </div>
-
-                  {/* 3. CỤM 3 THẺ LOẠI HÌNH */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-teal-200 dark:border-teal-800/50 shadow hover:shadow-lg transition-all duration-300">
-                      <h6 className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Nông nghiệp, LN & TS</h6>
-                      <span className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">4.120</span>
-                    </div>
-                    <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-cyan-200 dark:border-cyan-800/50 shadow hover:shadow-lg transition-all duration-300">
-                      <h6 className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Công nghiệp & Xây dựng</h6>
-                      <span className="text-2xl sm:text-3xl font-black text-cyan-600 dark:text-cyan-400">7.845</span>
-                    </div>
-                    <div className="col-span-2 bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-fuchsia-200 dark:border-fuchsia-800/50 shadow hover:shadow-lg transition-all duration-300 flex justify-between items-center">
-                      <div>
-                        <h6 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Thương mại & Dịch vụ</h6>
-                        <span className="text-3xl font-black text-fuchsia-600 dark:text-fuchsia-400">11.132</span>
+                    {/* Thẻ Công nghiệp */}
+                    <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-cyan-200 dark:border-cyan-800/50 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h6 className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">Công nghiệp & Xây dựng</h6>
+                          <span className="text-2xl sm:text-3xl font-black text-cyan-600 dark:text-cyan-400">7.845</span>
+                        </div>
+                        <div className="p-2 bg-cyan-50 dark:bg-cyan-500/10 rounded-lg shrink-0">
+                          <Factory className="w-5 lg:w-6 h-5 lg:h-6 text-cyan-500 dark:text-cyan-400" />
+                        </div>
                       </div>
+                      {isAdmin && (
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => setTopEntIdModal({ key: "b1_sector_indus", label: "Công nghiệp & Xây dựng" })}
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                          >
+                            Thiết lập ID
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setB1QtyTarget({
+                                metricKey: "b1_sector_indus",
+                                fields: ["b1_sector_indus"],
+                                label: "Công nghiệp & Xây dựng",
+                                current: 7845,
+                                matchTokens: ["công nghiệp", "xây dựng", "indus"],
+                              })
+                            }
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                          >
+                            Setup số lượng
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Thẻ Thương mại */}
+                    <div className="col-span-1 sm:col-span-2 bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-fuchsia-200 dark:border-fuchsia-800/50 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                      <div className="flex justify-between items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h6 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">Thương mại & Dịch vụ</h6>
+                          <span className="text-3xl font-black text-fuchsia-600 dark:text-fuchsia-400">11.132</span>
+                        </div>
+                        <div className="p-2.5 bg-fuchsia-50 dark:bg-fuchsia-500/10 rounded-lg shrink-0">
+                          <Store className="w-6 lg:w-7 h-6 lg:h-7 text-fuchsia-500 dark:text-fuchsia-400" />
+                        </div>
+                      </div>
+                      {isAdmin && (
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => setTopEntIdModal({ key: "b1_sector_service", label: "Thương mại & Dịch vụ" })}
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                          >
+                            Thiết lập ID
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setB1QtyTarget({
+                                metricKey: "b1_sector_service",
+                                fields: ["b1_sector_service"],
+                                label: "Thương mại & Dịch vụ",
+                                current: 11132,
+                                matchTokens: ["thương mại", "dịch vụ", "trade"],
+                              })
+                            }
+                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                          >
+                            Setup số lượng
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 

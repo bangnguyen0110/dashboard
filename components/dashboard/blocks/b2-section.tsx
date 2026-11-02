@@ -121,11 +121,9 @@ export function B2Section({
         )}
       </div>
 
-      <div className="p-5 sm:p-6">
-        {/* GRID 5 CỘT: CỤM TRÁI 60% (3/5) - BIỂU ĐỒ TRÒN PHẢI 40% (2/5) */}
-      <div className="grid w-full grid-cols-1 lg:grid-cols-5 gap-5">
-        {/* CỤM TRÁI (60%): 2 KHỐI SỐ LIỆU */}
-        <div className="w-full space-y-5 lg:col-span-3">
+      <div className="p-5 flex flex-col gap-6">
+        {/* CỤM TRÊN: 2 KHỐI SỐ LIỆU */}
+        <div className="w-full space-y-5">
           {/* Cụm 1: OCOP */}
           <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
             <BannerTag1 {...bannerProps1} className="block">
@@ -331,8 +329,8 @@ export function B2Section({
           </div>
         </div>
 
-        {/* CỤM PHẢI (40%): BIỂU ĐỒ TRÒN PHÂN BỔ SẢN PHẨM (DONUT / PIE CHART) */}
-        <div className="w-full rounded-xl border border-slate-200 shadow-sm overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none lg:col-span-2 flex flex-col justify-between">
+        {/* CỤM DƯỚI: BIỂU ĐỒ TRÒN PHÂN BỔ SẢN PHẨM (DONUT / PIE CHART) */}
+        <div className="w-full min-h-[250px] rounded-xl border border-slate-200 shadow-sm overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none flex flex-col justify-between">
           {/* Header của thẻ con */}
           <div className="bg-blue-50 dark:bg-[#162b54] border-b border-blue-100 dark:border-[#25427b] px-5 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -418,7 +416,6 @@ export function B2Section({
             </div>
           </div>
         </div>
-      </div>
       </div>
 
       {showBlockId && (

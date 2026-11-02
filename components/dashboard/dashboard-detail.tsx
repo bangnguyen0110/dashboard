@@ -23,21 +23,26 @@ import {
   Lightbulb,
   SearchCode,
   SlidersHorizontal,
+  ArrowUpRight,
+  Package,
+  BarChart3,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { DashboardRow, KpiRow } from "@/lib/types";
 import { getValidUrl } from "@/lib/card-link";
+import { formatVnNumber } from "@/lib/revenue-sync";
 import { LevelMenu, LEVELS, useLevelParam } from "./level-menu";
 import { LinkModal } from "./link-modal";
 import { ImportPdfModal } from "./import-pdf-modal";
 import { CommuneDashboardModal } from "./commune-dashboard-modal";
 import { KpiFilterCompareModal } from "./kpi-filter-compare-modal";
+import { CdsDetailModal, OcopDetailModal, RevenueDetailModal } from "./kpi-detail-modals";
 import { CellQuantityModal } from "./blocks/cell-quantity-modal";
 import { MetricIdModal } from "./blocks/metric-id-modal";
 import { MacroMetricsModal } from "./blocks/macro-metrics-modal"; // Import modal vĩ mô tầng B
 import { B1Section } from "./blocks/b1-section";
 import { B2Section } from "./blocks/b2-section";
-import { B3RevenueSection } from "./blocks/b3-revenue-section";
+import { B3RevenueSection, readB3Revenue } from "./blocks/b3-revenue-section";
 import { B3Section } from "./blocks/b3-section";
 import { B4Section } from "./blocks/b4-section";
 import { B5Section } from "./blocks/b5-section";
@@ -813,6 +818,11 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const [showAiModal, setShowAiModal] = useState(false);
   const [showMacroModal, setShowMacroModal] = useState(false); // State quản lý modal vĩ mô
 
+  // [BƯỚC 1: KHAI BÁO STATE CHO MODAL]
+  const [isCdsModalOpen, setIsCdsModalOpen] = useState(false);
+  const [isOcopModalOpen, setIsOcopModalOpen] = useState(false);
+  const [isRevenueModalOpen, setIsRevenueModalOpen] = useState(false);
+
   const [b1QtyTarget, setB1QtyTarget] = useState<{
     metricKey: string;
     fields: string[];
@@ -1524,6 +1534,28 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       })
     : null;
 
+  // Dữ liệu tính toán cho 4 ô KPI hàng đầu (BƯỚC 2)
+  const topSmeTotal = Number(b1.sme_total ?? 0);
+  const topHkdTotal = Number(b1.hkd_total ?? 0);
+  const topHtxTotal = Number(b1.htx_total ?? 0);
+  const topTotalUnits = topSmeTotal + topHkdTotal + topHtxTotal;
+  const topSmeDx = Number(b1.sme_dx ?? b1.sme_cds ?? 0);
+  const topHkdDx = Number(b1.hkd_dx ?? b1.hkd_cds ?? 0);
+  const topHtxDx = Number(b1.htx_dx ?? b1.htx_cds ?? 0);
+  const topTotalDx = topSmeDx + topHkdDx + topHtxDx;
+  const topCdsRate = topTotalUnits > 0 ? ((topTotalDx / topTotalUnits) * 100).toFixed(1) : "0.0";
+
+  const topOcop3 = Number(b2.ocop_3star ?? 0);
+  const topOcop4 = Number(b2.ocop_4star ?? 0);
+  const topOcop5 = Number(b2.ocop_5star ?? 0);
+  const topTotalOcop = topOcop3 + topOcop4 + topOcop5;
+  const topSpThuong = Number(b2.sp_thuong ?? 0);
+  const topDichVu = Number(b2.dich_vu ?? 0);
+  const topTotalAll = topTotalOcop + topSpThuong + topDichVu;
+  const topOcopRate = topTotalAll > 0 ? ((topTotalOcop / topTotalAll) * 100).toFixed(1) : "0.0";
+
+  const topB3Rev = readB3Revenue(b3);
+
   return (
     <div className="relative min-h-screen bg-[#e8f1fa] dark:bg-[#0a1124]">
       <div className="dashboard-bg" />
@@ -1605,43 +1637,150 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 </div>
               </section>
 
-              {/* LƯỚI TẦNG 1 (B1 - B9) */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
-                <div className="w-full xl:col-span-2">
-                  <B1Section
-                    dashboard={dashboard}
-                    b1={b1}
-                    metricLinks={metricLinks}
-                    metricIds={metricIds}
-                    onChanged={refetchAfterSave}
-                    onOpenQtyModal={handleOpenB1Qty}
-                    onSaveMetricId={handleSaveMetricId}
-                  />
+              {/* BƯỚC 2: HÀNG KPI TRÊN CÙNG (4 Ô) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {/* 1. Tỷ lệ CĐS Toàn Tỉnh */}
+                <div
+                  onClick={() => setIsCdsModalOpen(true)}
+                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-blue-400 dark:hover:border-blue-500 group relative overflow-hidden flex flex-col justify-between"
+                  title="Click để xem chi tiết tỷ lệ chuyển đổi số"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-[#bfd7ee] dark:border-white/10 group-hover:scale-105 transition-transform">
+                      <TrendingUp size={20} />
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full border border-[#bfd7ee] dark:border-blue-800 opacity-80 group-hover:opacity-100 transition-opacity">
+                      Chi tiết <ArrowUpRight size={12} />
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Tỷ lệ CĐS {isProvince ? "Toàn Tỉnh" : "Địa phương"}
+                    </p>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-blue-600 dark:text-blue-400 tabular-nums mt-1">
+                      {topCdsRate}%
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+                      {topTotalDx.toLocaleString("vi-VN")} / {topTotalUnits.toLocaleString("vi-VN")} đơn vị
+                    </p>
+                  </div>
                 </div>
 
-                <div className="w-full xl:col-span-2">
-                  <B2Section
-                    dashboard={dashboard}
-                    b2={b2}
-                    metricLinks={metricLinks}
-                    metricIds={metricIds}
-                    onChanged={refetchAfterSave}
-                    onSaveMetricId={handleSaveMetricId}
-                  />
+                {/* 2. Tỷ lệ Sản phẩm OCOP */}
+                <div
+                  onClick={() => setIsOcopModalOpen(true)}
+                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-amber-400 dark:hover:border-amber-500 group relative overflow-hidden flex flex-col justify-between"
+                  title="Click để xem chi tiết tỷ lệ sản phẩm OCOP"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-white/10 group-hover:scale-105 transition-transform">
+                      <Package size={20} />
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 opacity-80 group-hover:opacity-100 transition-opacity">
+                      Chi tiết <ArrowUpRight size={12} />
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Tỷ lệ Sản phẩm OCOP
+                    </p>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums mt-1">
+                      {topOcopRate}%
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+                      {topTotalOcop.toLocaleString("vi-VN")} / {topTotalAll.toLocaleString("vi-VN")} sản phẩm
+                    </p>
+                  </div>
                 </div>
-                <div className="w-full xl:col-span-2">
-                  <B3RevenueSection
-                    dashboard={dashboard}
-                    data={b3}
-                    metricLinks={metricLinks}
-                    metricIds={metricIds}
-                    onSaveMetricId={handleSaveMetricId}
-                    onSaveQuantity={handleSaveQuantity}
-                    onChanged={refetchAfterSave}
-                    historyDashboardIds={b3HistoryIds}
-                    communesData={communes}
-                  />
+
+                {/* 3. Tăng trưởng DT (Tháng) */}
+                <div
+                  onClick={() => setIsRevenueModalOpen(true)}
+                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-emerald-400 dark:hover:border-emerald-500 group relative overflow-hidden flex flex-col justify-between"
+                  title="Click để xem chi tiết tăng trưởng doanh thu"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-white/10 group-hover:scale-105 transition-transform">
+                      <BarChart3 size={20} />
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-blue-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 opacity-80 group-hover:opacity-100 transition-opacity">
+                      Chi tiết <ArrowUpRight size={12} />
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Tăng trưởng DT (Tháng)
+                    </p>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums mt-1">
+                      +10.71%
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+                      DT: {formatVnNumber(topB3Rev.monthly)} VNĐ
+                    </p>
+                  </div>
                 </div>
+
+                {/* 4. Tăng trưởng 02 con số */}
+                <div
+                  className="bg-white dark:bg-[#0a1830] rounded-xl border border-[#bfd7ee] dark:border-[#25427b] p-4 sm:p-5 shadow-sm transition-all duration-200 flex flex-col justify-between"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-white/10">
+                      <Target size={20} />
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+                      Mục tiêu
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Tăng trưởng 02 con số
+                    </p>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 tabular-nums mt-1">
+                      10.71%
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+                      Mục tiêu KT số Đề án 2030
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* BƯỚC 3: BỌC KHỐI B1 VÀ B2 CHUNG HÀNG (50/50) */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+                <B1Section
+                  dashboard={dashboard}
+                  b1={b1}
+                  metricLinks={metricLinks}
+                  metricIds={metricIds}
+                  onChanged={refetchAfterSave}
+                  onOpenQtyModal={handleOpenB1Qty}
+                  onSaveMetricId={handleSaveMetricId}
+                />
+                <B2Section
+                  dashboard={dashboard}
+                  b2={b2}
+                  metricLinks={metricLinks}
+                  metricIds={metricIds}
+                  onChanged={refetchAfterSave}
+                  onSaveMetricId={handleSaveMetricId}
+                />
+              </div>
+
+              {/* BƯỚC 4: BLOCK B3 DÒNG CHẢY DOANH THU (100% WIDTH) */}
+              <div className="w-full mb-6">
+                <B3RevenueSection
+                  dashboard={dashboard}
+                  data={b3}
+                  metricLinks={metricLinks}
+                  metricIds={metricIds}
+                  onSaveMetricId={handleSaveMetricId}
+                  onSaveQuantity={handleSaveQuantity}
+                  onChanged={refetchAfterSave}
+                  historyDashboardIds={b3HistoryIds}
+                  communesData={communes}
+                />
+              </div>
 
               <div className="andata">
                 <div className="w-full flex flex-col">
@@ -1724,7 +1863,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     onSaveQuantity={handleSaveQuantity}
                   />
                 </div>
-              </div>
               </div>
             </div>
           ) : currentLevel === 2 ? (
@@ -2063,6 +2201,26 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           onSaved={refetchAfterSave}
         />
       )}
+
+      {/* ================= 3 MODAL CHI TIẾT TỶ LỆ CĐS, OCOP, DOANH THU (BƯỚC 5) ================= */}
+      <CdsDetailModal
+        open={isCdsModalOpen}
+        onClose={() => setIsCdsModalOpen(false)}
+        b1={b1}
+        locationName={dashboard?.unit?.name ?? dashboard?.title ?? (isProvince ? "Toàn Tỉnh" : "Địa phương")}
+      />
+      <OcopDetailModal
+        open={isOcopModalOpen}
+        onClose={() => setIsOcopModalOpen(false)}
+        b2={b2}
+        locationName={dashboard?.unit?.name ?? dashboard?.title ?? (isProvince ? "Toàn Tỉnh" : "Địa phương")}
+      />
+      <RevenueDetailModal
+        open={isRevenueModalOpen}
+        onClose={() => setIsRevenueModalOpen(false)}
+        b3={b3}
+        locationName={dashboard?.unit?.name ?? dashboard?.title ?? (isProvince ? "Toàn Tỉnh" : "Địa phương")}
+      />
     </div>
   );
 }

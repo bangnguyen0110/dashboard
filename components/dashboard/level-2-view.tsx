@@ -79,6 +79,76 @@ export function Level2View({
     setMetricIdTarget({ key, label, id });
   };
 
+  type GroupTone = "cyan" | "blue" | "purple" | "emerald" | "amber";
+
+  const GROUP_THEME_STYLES: Record<
+    GroupTone,
+    {
+      container: string;
+      header: string;
+      title: string;
+      btn: string;
+      iconBox: string;
+      value: string;
+    }
+  > = {
+    cyan: {
+      container:
+        "bg-white dark:bg-[#1e293b] rounded-2xl border border-cyan-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors overflow-hidden",
+      header:
+        "flex justify-between items-center px-5 py-4 border-b border-cyan-100 dark:border-slate-700 bg-cyan-50 dark:bg-cyan-900/20 transition-colors",
+      title: "font-bold text-cyan-900 dark:text-cyan-400 uppercase tracking-wide text-sm",
+      btn: "p-1.5 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-800/50 rounded-md border border-cyan-200 dark:border-cyan-700 bg-white dark:bg-transparent shadow-sm dark:shadow-none",
+      iconBox:
+        "p-2 bg-white dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400 rounded-lg border border-cyan-100 dark:border-cyan-800 shadow-sm",
+      value: "text-cyan-600 dark:text-cyan-400 font-black text-lg",
+    },
+    blue: {
+      container:
+        "bg-white dark:bg-[#1e293b] rounded-2xl border border-blue-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors overflow-hidden",
+      header:
+        "flex justify-between items-center px-5 py-4 border-b border-blue-100 dark:border-slate-700 bg-blue-50 dark:bg-blue-900/20 transition-colors",
+      title: "font-bold text-blue-900 dark:text-blue-400 uppercase tracking-wide text-sm",
+      btn: "p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-md border border-blue-200 dark:border-blue-700 bg-white dark:bg-transparent shadow-sm dark:shadow-none",
+      iconBox:
+        "p-2 bg-white dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg border border-blue-100 dark:border-blue-800 shadow-sm",
+      value: "text-blue-600 dark:text-blue-400 font-black text-lg",
+    },
+    purple: {
+      container:
+        "bg-white dark:bg-[#1e293b] rounded-2xl border border-purple-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors overflow-hidden",
+      header:
+        "flex justify-between items-center px-5 py-4 border-b border-purple-100 dark:border-slate-700 bg-purple-50 dark:bg-purple-900/20 transition-colors",
+      title: "font-bold text-purple-900 dark:text-purple-400 uppercase tracking-wide text-sm",
+      btn: "p-1.5 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-800/50 rounded-md border border-purple-200 dark:border-purple-700 bg-white dark:bg-transparent shadow-sm dark:shadow-none",
+      iconBox:
+        "p-2 bg-white dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg border border-purple-100 dark:border-purple-800 shadow-sm",
+      value: "text-purple-600 dark:text-purple-400 font-black text-lg",
+    },
+    emerald: {
+      container:
+        "bg-white dark:bg-[#1e293b] rounded-2xl border border-emerald-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors overflow-hidden",
+      header:
+        "flex justify-between items-center px-5 py-4 border-b border-emerald-100 dark:border-slate-700 bg-emerald-50 dark:bg-emerald-900/20 transition-colors",
+      title: "font-bold text-emerald-900 dark:text-emerald-400 uppercase tracking-wide text-sm",
+      btn: "p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-md border border-emerald-200 dark:border-emerald-700 bg-white dark:bg-transparent shadow-sm dark:shadow-none",
+      iconBox:
+        "p-2 bg-white dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-100 dark:border-emerald-800 shadow-sm",
+      value: "text-emerald-600 dark:text-emerald-400 font-black text-lg",
+    },
+    amber: {
+      container:
+        "bg-white dark:bg-[#1e293b] rounded-2xl border border-amber-200 dark:border-slate-700 flex flex-col shadow-sm transition-colors overflow-hidden",
+      header:
+        "flex justify-between items-center px-5 py-4 border-b border-amber-100 dark:border-slate-700 bg-amber-50 dark:bg-amber-900/20 transition-colors",
+      title: "font-bold text-amber-900 dark:text-amber-400 uppercase tracking-wide text-sm",
+      btn: "p-1.5 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-800/50 rounded-md border border-amber-200 dark:border-amber-700 bg-white dark:bg-transparent shadow-sm dark:shadow-none",
+      iconBox:
+        "p-2 bg-white dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-100 dark:border-amber-800 shadow-sm",
+      value: "text-amber-600 dark:text-amber-400 font-black text-lg",
+    },
+  };
+
   /** Render thẻ chi tiết (width: 100%) */
   const renderMetricCard = ({
     title,
@@ -86,106 +156,111 @@ export function Level2View({
     keyYear,
     unit = "",
     icon: Icon = Layers,
-    colorClass = "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+    color = "cyan",
   }: {
     title: string;
     keyMonth: string;
     keyYear: string;
     unit?: string;
     icon?: React.ElementType;
+    color?: GroupTone;
     colorClass?: string;
   }) => {
     const valMonth = Number(data[keyMonth] ?? 0);
     const valYear = Number(data[keyYear] ?? 0);
+    const theme = GROUP_THEME_STYLES[color];
 
     return (
       <div
         {...cardLinkProps(metricLinks[keyYear])}
-        className={`w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all hover:border-white/20 ${metricLinks[keyYear] ? "cursor-pointer" : ""}`}
+        className={`w-full block group transition-all duration-300 ${theme.container} ${
+          metricLinks[keyYear] ? "cursor-pointer hover:shadow-md hover:-translate-y-0.5" : ""
+        }`}
       >
-        <div className="w-full">
-          <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border ${colorClass}`}>
-                <Icon size={18} />
-              </span>
-              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wide text-slate-100 truncate">
-                {title}
-              </h4>
-            </div>
+        <div className={theme.header}>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className={theme.iconBox}>
+              <Icon size={18} />
+            </span>
+            <h4 className={`${theme.title} truncate`} title={title}>
+              {title}
+            </h4>
+          </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-              {metricLinks[keyYear] && (
-                <a
-                  href={metricLinks[keyYear]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
-                  title="Xem link"
+          <div className="flex items-center gap-1.5 shrink-0 z-10">
+            {metricLinks[keyYear] && (
+              <a
+                href={metricLinks[keyYear]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={theme.btn}
+                title="Xem link"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink size={13} />
+              </a>
+            )}
+            {isAdmin && (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleOpenId(keyYear, title);
+                  }}
+                  className={theme.btn}
+                  title="Thiết lập ID"
                 >
-                  <ExternalLink size={13} />
-                </a>
-              )}
-              {isAdmin && (
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenId(keyYear, title);
-                    }}
-                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
-                    title="Thiết lập ID"
-                  >
-                    <LinkIcon size={13} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setQtyTarget({
-                        key: keyYear,
-                        field: keyYear.replace("l2_", ""),
-                        label: `${title} (Trong ${currentYearStr})`,
-                        current: valYear,
-                        matchTokens: [title.toLowerCase()],
-                      });
-                    }}
-                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
-                    title="Setup số lượng"
-                  >
-                    <Edit3 size={13} />
-                  </button>
-                </div>
-              )}
+                  <LinkIcon size={13} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setQtyTarget({
+                      key: keyYear,
+                      field: keyYear.replace("l2_", ""),
+                      label: `${title} (Trong ${currentYearStr})`,
+                      current: valYear,
+                      matchTokens: [title.toLowerCase()],
+                    });
+                  }}
+                  className={theme.btn}
+                  title="Setup số lượng"
+                >
+                  <Edit3 size={13} />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="p-5 flex flex-col gap-3 bg-white dark:bg-transparent">
+          <div className="bg-slate-50 dark:bg-[#0f172a] rounded-xl px-4 py-3 flex justify-between items-center border border-slate-100 dark:border-slate-700/50 transition-colors">
+            <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm font-medium">
+              <Calendar size={14} className="text-emerald-500" />
+              Trong {currentMonthStr}:
+            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums text-base">
+                +{valMonth.toLocaleString("vi-VN")}
+              </span>
+              {unit && <span className="text-xs text-slate-500 dark:text-slate-400">{unit}</span>}
             </div>
           </div>
 
-          <div className="mt-3.5 space-y-2.5 text-xs w-full">
-            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5 w-full">
-              <span className="flex items-center gap-1.5 text-slate-400">
-                <Calendar size={13} className="text-emerald-400" />
-                Trong {currentMonthStr}:
+          <div className="bg-slate-50 dark:bg-[#0f172a] rounded-xl px-4 py-3 flex justify-between items-center border border-slate-100 dark:border-slate-700/50 transition-colors">
+            <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm font-medium">
+              <Calendar size={14} />
+              Trong {currentYearStr}:
+            </span>
+            <div className="flex items-baseline gap-1">
+              <span className={`${theme.value} tabular-nums`}>
+                {valYear.toLocaleString("vi-VN")}
               </span>
-              <div className="flex items-baseline gap-1">
-                <span className="font-extrabold text-emerald-400 tabular-nums text-sm">
-                  +{valMonth.toLocaleString("vi-VN")}
-                </span>
-                {unit && <span className="text-[11px] text-slate-400">{unit}</span>}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl bg-slate-900/60 p-2.5 border border-white/5 w-full">
-              <span className="flex items-center gap-1.5 text-slate-300 font-medium">
-                <Calendar size={13} className="text-cyan-400" />
-                Trong {currentYearStr}:
-              </span>
-              <div className="flex items-baseline gap-1">
-                <span className="font-black text-cyan-300 tabular-nums text-base">
-                  {valYear.toLocaleString("vi-VN")}
-                </span>
-                {unit && <span className="text-[11px] text-slate-400 font-semibold">{unit}</span>}
-              </div>
+              {unit && <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{unit}</span>}
             </div>
           </div>
         </div>
@@ -202,7 +277,7 @@ export function Level2View({
   return (
     <div className="space-y-6 w-full block">
       {/* THANH ĐIỀU HƯỚNG TAB */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-white/5 pb-3 w-full">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-white/5 pb-3 w-full">
         {[
           { id: "all", label: "Tổng quan Nhóm A-E", icon: Layers },
           { id: "A", label: "A - (Hạ tầng)", icon: Server },
@@ -220,11 +295,11 @@ export function Level2View({
               onClick={() => setActiveTab(tab.id as any)}
               className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
                 isActive
-                  ? "bg-[#0d274c] text-[#00d2ff] border border-[#00d2ff]/40 shadow-sm"
-                  : "glass opacity-70 hover:opacity-100 text-slate-300"
+                  ? "bg-blue-50 dark:bg-[#0d274c] text-blue-600 dark:text-[#00d2ff] border border-blue-200 dark:border-[#00d2ff]/40 shadow-sm"
+                  : "bg-white dark:glass border border-slate-200 dark:border-white/10 hover:border-slate-300 text-slate-600 dark:text-slate-300"
               }`}
             >
-              <Icon size={15} className={isActive ? "text-[#00d2ff]" : "text-slate-400"} />
+              <Icon size={15} className={isActive ? "text-blue-600 dark:text-[#00d2ff]" : "text-slate-400"} />
               <span>{tab.label}</span>
             </button>
           );
@@ -453,7 +528,7 @@ export function Level2View({
             keyYear: "l2_a_dn_cds_year",
             unit: "DN",
             icon: Server,
-            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+            color: "cyan",
           })}
           {renderMetricCard({
             title: "Tổng DN lên Cloud",
@@ -461,7 +536,7 @@ export function Level2View({
             keyYear: "l2_a_cloud_year",
             unit: "DN",
             icon: Server,
-            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+            color: "cyan",
           })}
           {renderMetricCard({
             title: "DN số hóa toàn diện",
@@ -469,7 +544,7 @@ export function Level2View({
             keyYear: "l2_a_toan_dien_year",
             unit: "DN",
             icon: Server,
-            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+            color: "cyan",
           })}
           {renderMetricCard({
             title: "Card điện tử NetID",
@@ -477,7 +552,7 @@ export function Level2View({
             keyYear: "l2_a_netid_year",
             unit: "Card",
             icon: Server,
-            colorClass: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+            color: "cyan",
           })}
         </div>
       )}
@@ -491,7 +566,7 @@ export function Level2View({
             keyYear: "l2_b_web_year",
             unit: "Website",
             icon: Globe,
-            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
+            color: "blue",
           })}
           {renderMetricCard({
             title: "Sản phẩm / Dịch vụ CĐS",
@@ -499,7 +574,7 @@ export function Level2View({
             keyYear: "l2_b_sp_cds_year",
             unit: "SP",
             icon: Globe,
-            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
+            color: "blue",
           })}
           {renderMetricCard({
             title: "Tổng đơn hàng",
@@ -507,7 +582,7 @@ export function Level2View({
             keyYear: "l2_b_don_hang_year",
             unit: "Đơn",
             icon: Globe,
-            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
+            color: "blue",
           })}
           {renderMetricCard({
             title: "Tốc độ tăng trưởng",
@@ -515,7 +590,7 @@ export function Level2View({
             keyYear: "l2_b_tang_truong_year",
             unit: "%",
             icon: Globe,
-            colorClass: "text-blue-400 border-blue-500/30 bg-blue-500/10",
+            color: "blue",
           })}
         </div>
       )}
@@ -529,7 +604,7 @@ export function Level2View({
             keyYear: "l2_c_erp_year",
             unit: "hệ thống",
             icon: Cpu,
-            colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+            color: "purple",
           })}
           {renderMetricCard({
             title: "Tổng nhân sự toàn hệ thống",
@@ -537,7 +612,7 @@ export function Level2View({
             keyYear: "l2_c_nhan_su_year",
             unit: "Nhân sự",
             icon: Cpu,
-            colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+            color: "purple",
           })}
           {renderMetricCard({
             title: "Khóa đào tạo",
@@ -545,7 +620,7 @@ export function Level2View({
             keyYear: "l2_c_dao_tao_year",
             unit: "Khóa",
             icon: Cpu,
-            colorClass: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+            color: "purple",
           })}
         </div>
       )}
@@ -553,16 +628,16 @@ export function Level2View({
       {/* ================= 5. TAB D CHI TIẾT ================= */}
       {activeTab === "D" && (
         <div className="space-y-5 w-full">
-          <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
+          <div className="rounded-2xl border border-emerald-200 dark:border-slate-700 bg-white dark:bg-[#1e293b] p-5 shadow-sm transition-colors overflow-hidden w-full">
             <div className="flex items-center gap-3 w-full">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+              <span className="p-2.5 bg-emerald-50 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-200 dark:border-emerald-800 shadow-sm">
                 <TrendingUp size={20} />
               </span>
               <div>
-                <span className="rounded-xl bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300 border border-emerald-500/30">
+                <span className="rounded-lg bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
                   Tab: D (Thị trường)
                 </span>
-                <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
+                <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800 dark:text-slate-100 mt-1">
                   Chỉ số Tương tác & Thị trường (Nhóm D)
                 </h3>
               </div>
@@ -576,7 +651,7 @@ export function Level2View({
               keyYear: "l2_d_trang_xem_year",
               unit: "Lượt",
               icon: TrendingUp,
-              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+              color: "emerald",
             })}
             {renderMetricCard({
               title: "Tổng số người xem",
@@ -584,7 +659,7 @@ export function Level2View({
               keyYear: "l2_d_nguoi_xem_year",
               unit: "Người",
               icon: TrendingUp,
-              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+              color: "emerald",
             })}
             {renderMetricCard({
               title: "Tổng số Google SEO hàng tháng",
@@ -592,7 +667,7 @@ export function Level2View({
               keyYear: "l2_d_seo_year",
               unit: "Lượt",
               icon: TrendingUp,
-              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+              color: "emerald",
             })}
             {renderMetricCard({
               title: "Khách hàng",
@@ -600,7 +675,7 @@ export function Level2View({
               keyYear: "l2_d_khach_hang_year",
               unit: "Khách",
               icon: TrendingUp,
-              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+              color: "emerald",
             })}
             {renderMetricCard({
               title: "Tổng doanh thu",
@@ -608,7 +683,7 @@ export function Level2View({
               keyYear: "l2_d_doanh_thu_year",
               unit: "TR VNĐ",
               icon: TrendingUp,
-              colorClass: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+              color: "emerald",
             })}
           </div>
         </div>
@@ -617,16 +692,16 @@ export function Level2View({
       {/* ================= 6. TAB E CHI TIẾT (HIỂN THỊ ĐỘNG 100% CÁC MỤC THỰC TẾ) ================= */}
       {activeTab === "E" && (
         <div className="space-y-5 w-full">
-          <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
+          <div className="rounded-2xl border border-amber-200 dark:border-slate-700 bg-white dark:bg-[#1e293b] p-5 shadow-sm transition-colors overflow-hidden w-full">
             <div className="flex items-center gap-3 w-full">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
+              <span className="p-2.5 bg-amber-50 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-xl border border-amber-200 dark:border-amber-800 shadow-sm">
                 <Info size={20} />
               </span>
               <div>
-                <span className="rounded-xl bg-cyan-500/20 px-2 py-0.5 text-[11px] font-bold text-cyan-300 border border-cyan-500/30">
+                <span className="rounded-lg bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
                   Tab: E (Thông tin)
                 </span>
-                <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
+                <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800 dark:text-slate-100 mt-1">
                   Chỉ số theo dõi Hệ sinh thái (Nhóm E - {dynamicEItems.length} mục thực tế)
                 </h3>
               </div>
@@ -644,30 +719,31 @@ export function Level2View({
                 );
                 const targetUrl = metricLinks[item.key] || item.url || "";
                 const hasLink = Boolean(targetUrl);
+                const theme = GROUP_THEME_STYLES.amber;
 
                 return (
                   <div
                     key={item.key}
                     {...cardLinkProps(targetUrl)}
-                    className={`w-full block group relative overflow-hidden rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
-                      hasLink ? "cursor-pointer hover:border-cyan-500/40 hover:-translate-y-0.5 hover:bg-[#0f1f3d]" : ""
+                    className={`w-full block group relative transition-all duration-300 ${theme.container} ${
+                      hasLink ? "cursor-pointer hover:shadow-md hover:-translate-y-0.5" : ""
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
+                    <div className={theme.header}>
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-emerald-400 text-sm font-bold shrink-0">✅</span>
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-200 truncate group-hover:text-cyan-300 transition" title={item.title}>
+                        <span className="text-emerald-500 text-sm font-bold shrink-0">✅</span>
+                        <h4 className={`${theme.title} truncate`} title={item.title}>
                           {item.title}
                         </h4>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0 z-10">
+                      <div className="flex items-center gap-1.5 shrink-0 z-10">
                         {hasLink && (
                           <a
                             href={targetUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                            className={theme.btn}
                             title="Xem link"
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -683,7 +759,7 @@ export function Level2View({
                                 e.stopPropagation();
                                 handleOpenId(item.key, item.title);
                               }}
-                              className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                              className={theme.btn}
                               title="Thiết lập ID"
                             >
                               <LinkIcon size={13} />
@@ -701,7 +777,7 @@ export function Level2View({
                                   matchTokens: [item.title.toLowerCase()],
                                 });
                               }}
-                              className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                              className={theme.btn}
                               title="Setup số lượng"
                             >
                               <Edit3 size={13} />
@@ -711,30 +787,35 @@ export function Level2View({
                       </div>
                     </div>
 
-                    <div className="mt-3.5 flex items-baseline gap-1.5 w-full">
-                      <span className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-cyan-300">
-                        {val.toLocaleString("vi-VN")}
-                      </span>
-                    </div>
-
-                    <div className="mt-3 flex items-center justify-between text-[11px] border-t border-white/5 pt-2 w-full">
-                      {hasLink ? (
-                        <span className="flex items-center gap-1 text-cyan-400 font-medium">
-                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
-                          Bấm để mở link
-                          <ExternalLink size={11} />
+                    <div className="p-5 flex flex-col gap-3 bg-white dark:bg-transparent">
+                      <div className="bg-slate-50 dark:bg-[#0f172a] rounded-xl px-4 py-3 flex justify-between items-center border border-slate-100 dark:border-slate-700/50 transition-colors">
+                        <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm font-medium">
+                          Số lượng thực tế:
                         </span>
-                      ) : (
-                        <span className="text-slate-500">Chưa cài link</span>
-                      )}
+                        <span className="text-2xl font-black font-mono tracking-tight text-amber-600 dark:text-amber-400">
+                          {val.toLocaleString("vi-VN")}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-800 w-full">
+                        {hasLink ? (
+                          <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
+                            Bấm để mở link
+                            <ExternalLink size={11} />
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 dark:text-slate-500">Chưa cài link</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="glass rounded-xl p-8 text-center text-slate-400 text-xs">
-              Chưa có dữ liệu Nhóm E. Vui lòng bấm vào nút <strong className="text-cyan-300">"Thiết lập ID Tầng 2"</strong> ở góc trên để hệ thống tự động bóc tách từ website nguồn.
+            <div className="rounded-xl p-8 text-center text-slate-500 dark:text-slate-400 text-xs bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700">
+              Chưa có dữ liệu Nhóm E. Vui lòng bấm vào nút <strong className="text-amber-600 dark:text-amber-400">"Thiết lập ID Tầng 2"</strong> ở góc trên để hệ thống tự động bóc tách từ website nguồn.
             </div>
           )}
         </div>

@@ -95,7 +95,7 @@ export function Level5View({
           {/* THẺ 1: TỔNG ĐIỂM BÁN XANH */}
           <div
             {...cardLinkProps(metricLinks["l5_diem_ban_xanh"])}
-            className={`flex-1 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15${metricLinks["l5_diem_ban_xanh"] ? " cursor-pointer" : ""}`}
+            className={`flex-1 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15${metricLinks["l5_diem_ban_xanh"] ? " cursor-pointer" : ""}`}
           >
             <div>
               <div className="flex items-start justify-between gap-2">
@@ -107,7 +107,7 @@ export function Level5View({
                     <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-slate-100">
                       1. TỔNG ĐIỂM BÁN XANH
                     </h4>
-                    <span className="mt-0.5 inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/20">
+                    <span className="mt-0.5 inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/20">
                       <CheckCircle2 size={11} /> Đang hoạt động
                     </span>
                   </div>
@@ -119,7 +119,7 @@ export function Level5View({
                       href={metricLinks["l5_diem_ban_xanh"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
                       title="Xem link"
                     >
                       <ExternalLink size={13} />
@@ -130,7 +130,7 @@ export function Level5View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l5_diem_ban_xanh", "Tổng Điểm bán Xanh")}
-                        className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={13} />
@@ -146,7 +146,7 @@ export function Level5View({
                             matchTokens: ["điểm bán xanh", "diem_ban_xanh"],
                           })
                         }
-                        className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={13} />
@@ -171,7 +171,7 @@ export function Level5View({
           {/* THẺ 2: HUB XANH (CẤP XÃ/PHƯỜNG) */}
           <div
             {...cardLinkProps(metricLinks["l5_hub_xanh"])}
-            className={`flex-1 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15${metricLinks["l5_hub_xanh"] ? " cursor-pointer" : ""}`}
+            className={`flex-1 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl flex flex-col justify-between transition hover:border-white/15${metricLinks["l5_hub_xanh"] ? " cursor-pointer" : ""}`}
           >
             <div>
               <div className="flex items-start justify-between gap-2">
@@ -183,7 +183,7 @@ export function Level5View({
                     <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-slate-100">
                       2. HUB XANH (XÃ/PHƯỜNG)
                     </h4>
-                    <span className="mt-0.5 inline-flex items-center gap-1 rounded-md bg-cyan-500/10 px-2 py-0.5 text-[11px] font-bold text-cyan-400 border border-cyan-500/20">
+                    <span className="mt-0.5 inline-flex items-center gap-1 rounded-xl bg-cyan-500/10 px-2 py-0.5 text-[11px] font-bold text-cyan-400 border border-cyan-500/20">
                       <MapPin size={11} /> Phủ sóng Xã/Phường
                     </span>
                   </div>
@@ -195,7 +195,7 @@ export function Level5View({
                       href={metricLinks["l5_hub_xanh"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
                       title="Xem link"
                     >
                       <ExternalLink size={13} />
@@ -206,7 +206,7 @@ export function Level5View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l5_hub_xanh", "Hub Xanh (Cấp Xã/Phường)")}
-                        className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={13} />
@@ -222,7 +222,7 @@ export function Level5View({
                             matchTokens: ["hub xanh", "hub_xanh"],
                           })
                         }
-                        className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={13} />
@@ -246,7 +246,7 @@ export function Level5View({
         </div>
 
         {/* ================= CỘT PHẢI (65%): THẺ 3 - HIỆU QUẢ THƯƠNG MẠI O2O ================= */}
-        <div className="w-full lg:w-[65%] rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 sm:p-6 shadow-xl flex flex-col justify-between">
+        <div className="w-full lg:w-[65%] rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 sm:p-6 shadow-xl flex flex-col justify-between">
           <div>
             {/* Header Thẻ 3 */}
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
@@ -280,7 +280,7 @@ export function Level5View({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
                       <Percent size={15} />
                     </span>
                     <div>
@@ -301,7 +301,7 @@ export function Level5View({
                         href={metricLinks["l5_do_phu"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -312,7 +312,7 @@ export function Level5View({
                         <button
                           type="button"
                           onClick={() => handleOpenId("l5_do_phu", "Độ Phủ Mạng Lưới")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -328,7 +328,7 @@ export function Level5View({
                               matchTokens: ["độ phủ", "do_phu"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup số lượng"
                         >
                           <Edit3 size={12} />
@@ -354,7 +354,7 @@ export function Level5View({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
                       <ShoppingBag size={15} />
                     </span>
                     <div>
@@ -376,7 +376,7 @@ export function Level5View({
                         href={metricLinks["l5_don_hang_hub"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -387,7 +387,7 @@ export function Level5View({
                         <button
                           type="button"
                           onClick={() => handleOpenId("l5_don_hang_hub", "Đơn Hàng Xử Lý (Hub)")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -403,7 +403,7 @@ export function Level5View({
                               matchTokens: ["đơn hàng hub", "don_hang_hub"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup số lượng"
                         >
                           <Edit3 size={12} />
@@ -421,7 +421,7 @@ export function Level5View({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
                       <DollarSign size={15} />
                     </span>
                     <div>
@@ -443,7 +443,7 @@ export function Level5View({
                         href={metricLinks["l5_doanh_thu_o2o"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -454,7 +454,7 @@ export function Level5View({
                         <button
                           type="button"
                           onClick={() => handleOpenId("l5_doanh_thu_o2o", "Doanh Thu Giao Dịch O2O")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -470,7 +470,7 @@ export function Level5View({
                               matchTokens: ["doanh thu o2o", "doanh_thu_o2o"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup số lượng"
                         >
                           <Edit3 size={12} />

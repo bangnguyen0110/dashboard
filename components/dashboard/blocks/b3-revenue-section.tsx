@@ -273,7 +273,7 @@ function TopRankRow({
         {item.name}
       </td>
       <td className="px-2 py-2.5 text-right">
-        <span className={`relative inline-block min-w-[110px] overflow-hidden rounded-lg px-2.5 py-1.5 text-right font-bold tabular-nums ${cell}`}>
+        <span className={`relative inline-block min-w-[110px] overflow-hidden rounded-xl px-2.5 py-1.5 text-right font-bold tabular-nums ${cell}`}>
           <span className={`pointer-events-none absolute inset-y-0 left-0 ${bar}`} style={{ width: `${pct}%` }} />
           <span className="relative">{numberFmt.format(item.revenue)} VNĐ</span>
         </span>
@@ -666,11 +666,11 @@ export function B3RevenueSection({  dashboard,
   ];
 
   return (
-    <section className="mb-6 w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-2xl dark:border dark:border-cyan-500/20 dark:bg-[#071326] dark:shadow-2xl dark:backdrop-blur-xl">
+    <section className="mb-6 w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-xl dark:border dark:border-cyan-500/20 dark:bg-[#071326] dark:shadow-2xl dark:backdrop-blur-xl">
       {/* ===== TIÊU ĐỀ KHỐI + BỘ LỌC THỜI GIAN CHUNG ===== */}
       <div className="bg-[#0047db] dark:bg-[#0047db] text-white px-5 py-4 flex flex-wrap justify-between items-center gap-3 transition-colors">
         <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-white">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white">
             <TrendingUp size={20} />
           </span>
           <div className="min-w-0">
@@ -684,7 +684,7 @@ export function B3RevenueSection({  dashboard,
         <div className="flex flex-wrap items-center gap-1.5">
           {/* Badge trạng thái kết nối Realtime */}
           <span
-            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold ${
+            className={`inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[11px] font-semibold ${
               realtimeConnected
                 ? "border-emerald-300/40 bg-emerald-500/20 text-emerald-100"
                 : status === "error"
@@ -708,14 +708,14 @@ export function B3RevenueSection({  dashboard,
             <button
               type="button"
               onClick={() => setShowHistory(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20"
             >
               <History size={13} /> Lịch sử
             </button>
           ) : null}
 
           {scrapeMsg ? (
-            <span className="inline-flex items-center rounded-lg border border-emerald-300/40 bg-emerald-500/20 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-100">
+            <span className="inline-flex items-center rounded-xl border border-emerald-300/40 bg-emerald-500/20 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-100">
               {scrapeMsg}
             </span>
           ) : null}
@@ -727,7 +727,7 @@ export function B3RevenueSection({  dashboard,
               onClick={handleSyncAllRevenue}
               disabled={isSyncing}
               title="Quét lại doanh thu của tất cả xã/phường trực thuộc và cộng dồn lũy kế"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSyncing ? (
                 <Loader2 size={13} className="animate-spin" />
@@ -743,7 +743,7 @@ export function B3RevenueSection({  dashboard,
             <button
               type="button"
               onClick={() => setShowSetup(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20"
             >
               <Settings2 size={13} /> Thiết lập doanh thu
             </button>
@@ -754,7 +754,7 @@ export function B3RevenueSection({  dashboard,
               type="button"
               onClick={handleScrapeNow}
               disabled={scraping}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Zap size={13} className={scraping ? "animate-pulse" : undefined} />
               {scraping ? "Đang cào..." : "Đồng bộ"}
@@ -769,7 +769,7 @@ export function B3RevenueSection({  dashboard,
                 type="button"
                 onClick={() => setTimeFilter(opt.key)}
                 aria-pressed={timeFilter === opt.key}
-                className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition ${
+                className={`rounded-xl border px-3 py-1.5 text-[11px] font-bold transition ${
                   timeFilter === opt.key
                     ? "bg-white text-[#0047db] border-white shadow-xs"
                     : "border-white/20 bg-white/10 text-white hover:bg-white/20"
@@ -801,10 +801,10 @@ export function B3RevenueSection({  dashboard,
           return (
             <div
               key={card.label}
-              className={`relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-300 shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none`}
+              className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none`}
             >
               <div className="flex items-center justify-between gap-2 mb-2">
-                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${iconBg} dark:bg-[#162b54] dark:border dark:border-[#1d335d] dark:text-blue-400 transition-colors`}>
+                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${iconBg} dark:bg-[#162b54] dark:border dark:border-[#1d335d] dark:text-blue-400 transition-colors`}>
                   <IconComponent size={16} />
                 </span>
                 {isAdmin && onSaveMetricId ? (
@@ -813,7 +813,7 @@ export function B3RevenueSection({  dashboard,
                     onClick={() => handleOpenId(card.key, card.label)}
                     title={`Thiết lập ID: ${card.label}`}
                     aria-label={`Thiết lập ID ${card.label}`}
-                    className="z-10 grid h-6 w-6 place-items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
+                    className="z-10 grid h-6 w-6 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
                   >
                     <Link2 size={12} />
                   </button>
@@ -898,7 +898,7 @@ export function B3RevenueSection({  dashboard,
       {/* ===== HÀNG 3: BXH TOP 5 (CHỈ Dashboard Tỉnh) ===== */}
       {isProvince ? (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-          <div className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none">
+          <div className="border border-slate-200 shadow-sm rounded-xl overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none">
             <div className="bg-blue-50 dark:bg-[#162b54] border-b border-blue-100 dark:border-[#25427b] px-5 py-4 flex items-center justify-between">
               <h4 className="text-sm font-extrabold uppercase tracking-wide text-emerald-700 dark:text-blue-400">
                 🏆 Top 5 Doanh Thu Cao Nhất
@@ -937,7 +937,7 @@ export function B3RevenueSection({  dashboard,
               )}
             </div>
           </div>
-          <div className="border border-slate-200 shadow-sm rounded-2xl overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none">
+          <div className="border border-slate-200 shadow-sm rounded-xl overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none">
             <div className="bg-blue-50 dark:bg-[#162b54] border-b border-blue-100 dark:border-[#25427b] px-5 py-4 flex items-center justify-between">
               <h4 className="text-sm font-extrabold uppercase tracking-wide text-rose-700 dark:text-blue-400">
                 ⚠️ Top 5 Doanh Thu Thấp Nhất

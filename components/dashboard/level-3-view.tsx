@@ -86,7 +86,7 @@ export function Level3View({
         {/* Thẻ 1: Dự án kêu gọi đầu tư */}
         <div
           {...cardLinkProps(metricLinks["l3_du_an_dau_tu"])}
-          className={`rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_du_an_dau_tu"] ? " cursor-pointer" : ""}`}
+          className={`rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_du_an_dau_tu"] ? " cursor-pointer" : ""}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -109,7 +109,7 @@ export function Level3View({
                   href={metricLinks["l3_du_an_dau_tu"]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                  className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
                   title="Xem web"
                 >
                   <ExternalLink size={13} />
@@ -120,7 +120,7 @@ export function Level3View({
                   <button
                     type="button"
                     onClick={() => handleOpenId("l3_du_an_dau_tu", "Dự án kêu gọi đầu tư")}
-                    className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
                     title="Thiết lập ID"
                   >
                     <LinkIcon size={13} />
@@ -136,7 +136,7 @@ export function Level3View({
                         matchTokens: ["dự án kêu gọi đầu tư", "du_an_dau_tu"],
                       })
                     }
-                    className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                     title="Setup số lượng"
                   >
                     <Edit3 size={13} />
@@ -160,7 +160,7 @@ export function Level3View({
         {/* Thẻ 2: Thông tin quy hoạch */}
         <div
           {...cardLinkProps(metricLinks["l3_thong_tin_quy_hoach"])}
-          className={`rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_thong_tin_quy_hoach"] ? " cursor-pointer" : ""}`}
+          className={`rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 shadow-xl transition hover:border-white/15 flex flex-col justify-between${metricLinks["l3_thong_tin_quy_hoach"] ? " cursor-pointer" : ""}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -183,7 +183,7 @@ export function Level3View({
                   href={metricLinks["l3_thong_tin_quy_hoach"]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                  className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
                   title="Xem web"
                 >
                   <ExternalLink size={13} />
@@ -194,7 +194,7 @@ export function Level3View({
                   <button
                     type="button"
                     onClick={() => handleOpenId("l3_thong_tin_quy_hoach", "Thông tin quy hoạch")}
-                    className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                     title="Thiết lập ID"
                   >
                     <LinkIcon size={13} />
@@ -210,7 +210,7 @@ export function Level3View({
                         matchTokens: ["thông tin quy hoạch", "thong_tin_quy_hoach"],
                       })
                     }
-                    className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                     title="Setup số lượng"
                   >
                     <Edit3 size={13} />
@@ -233,10 +233,10 @@ export function Level3View({
       </div>
 
       {/* 2. THẺ 3: BIỂU ĐỒ CỘT NGANG (WIDTH: 100% ĐẶT Ở CUỐI CÙNG) */}
-      <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 sm:p-6 shadow-xl">
+      <div className="w-full rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-5 sm:p-6 shadow-xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-3">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-8 w-8 place-items-center rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
+            <span className="grid h-8 w-8 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
               <BarChart3 size={16} />
             </span>
             <div>

@@ -43,10 +43,10 @@ export function B3Section({
   };
 
   return (
-    <section className="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:rounded-2xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl h-full flex flex-col justify-between">
+    <section className="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:rounded-xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl h-full flex flex-col justify-between">
       <div>
         <div className="bg-[#0047db] dark:bg-[#0047db] text-white px-5 py-4 flex items-center gap-3 transition-colors">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-white">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white">
             <ShoppingCart size={20} />
           </span>
           <div>

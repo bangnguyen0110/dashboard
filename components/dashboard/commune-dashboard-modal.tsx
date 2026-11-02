@@ -127,7 +127,7 @@ export function CommuneDashboardModal({
       />
 
       {/* Modal Container */}
-      <div className="relative z-50 flex flex-col w-full max-w-6xl h-[92vh] max-h-[92vh] rounded-2xl glass-strong p-3.5 sm:p-6 shadow-2xl overflow-hidden">
+      <div className="relative z-50 flex flex-col w-full max-w-6xl h-[92vh] max-h-[92vh] rounded-xl glass-strong p-3.5 sm:p-6 shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2 shrink-0">
           <h3 className="text-xs sm:text-base font-bold uppercase tracking-wider text-accent truncate">
@@ -136,7 +136,7 @@ export function CommuneDashboardModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-foreground/60 transition hover:bg-white/10 hover:text-foreground shrink-0"
+            className="rounded-xl p-1.5 text-foreground/60 transition hover:bg-white/10 hover:text-foreground shrink-0"
             aria-label="Đóng"
           >
             <X size={18} />
@@ -198,7 +198,7 @@ export function CommuneDashboardModal({
                 return (
                   <div
                     key={commune.id}
-                    className="glass group relative w-full rounded-2xl p-3.5 sm:p-4 text-left transition hover:-translate-y-0.5 hover:shadow-glass flex flex-col justify-between"
+                    className="glass group relative w-full rounded-xl p-3.5 sm:p-4 text-left transition hover:-translate-y-0.5 hover:shadow-glass flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2">
@@ -213,7 +213,7 @@ export function CommuneDashboardModal({
                         <button
                           type="button"
                           onClick={() => onViewDashboard(commune)}
-                          className="glass shrink-0 rounded-lg p-1.5 text-foreground/60 transition hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
+                          className="glass shrink-0 rounded-xl p-1.5 text-foreground/60 transition hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
                           aria-label="Xem Dashboard"
                           title="Xem Dashboard"
                         >
@@ -269,7 +269,7 @@ export function CommuneDashboardModal({
                           <button
                             type="button"
                             onClick={() => onEditLink(commune)}
-                            className="glass rounded-lg p-1.5 text-foreground/60 transition hover:text-accent"
+                            className="glass rounded-xl p-1.5 text-foreground/60 transition hover:text-accent"
                             aria-label="Thiết lập link"
                             title="Thiết lập link"
                           >
@@ -278,7 +278,7 @@ export function CommuneDashboardModal({
                           <button
                             type="button"
                             onClick={() => onEditQuantity(commune)}
-                            className="glass rounded-lg p-1.5 text-foreground/60 transition hover:text-accent"
+                            className="glass rounded-xl p-1.5 text-foreground/60 transition hover:text-accent"
                             aria-label="Setup số lượng"
                             title="Setup số lượng"
                           >
@@ -289,7 +289,7 @@ export function CommuneDashboardModal({
                       <button
                         type="button"
                         onClick={() => onViewDashboard(commune)}
-                        className="glass rounded-lg px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:text-accent hover:bg-accent/20"
+                        className="glass rounded-xl px-2.5 py-1 text-xs font-medium text-foreground/80 transition hover:text-accent hover:bg-accent/20"
                         aria-label="Xem Dashboard"
                       >
                         Xem

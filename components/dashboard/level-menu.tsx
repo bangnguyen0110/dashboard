@@ -21,6 +21,7 @@ import {
   Moon,
   Sun,
   MoreVertical,
+  TrendingUp,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/context/AuthContext";
@@ -33,6 +34,8 @@ export const MAX_LEVEL = 5;
 export interface LevelItem {
   level: number;
   label: string;
+  shortText: string;
+  longText: string;
   title: string;
   desc: string;
   icon: React.ElementType;
@@ -42,6 +45,8 @@ export const LEVELS: LevelItem[] = [
   {
     level: 1,
     label: "Tầng 1",
+    shortText: "Tầng 1",
+    longText: ": Bộ tiêu chí kinh tế số",
     title: "Tầng 1: Bộ tiêu chí kinh tế số UBND cấp xã",
     desc: "DEI 68% (Kinh tế & Xã hội)",
     icon: ShieldCheck,
@@ -49,6 +54,8 @@ export const LEVELS: LevelItem[] = [
   {
     level: 2,
     label: "Tầng 2",
+    shortText: "Tầng 2",
+    longText: ": Tiêu chí nền tảng kinh tế số",
     title: "Tầng 2: Tiêu chí nền tảng kinh tế số",
     desc: "5 nhóm A-E khai thác từ Nền tảng",
     icon: Building2,
@@ -56,6 +63,8 @@ export const LEVELS: LevelItem[] = [
   {
     level: 3,
     label: "Tầng 3",
+    shortText: "Tầng 3",
+    longText: ": Dự án kêu gọi đầu tư - Quy hoạch",
     title: "Tầng 3: Dự án kêu gọi đầu tư - Quy hoạch",
     desc: "Kêu gọi đầu tư, quy hoạch",
     icon: Landmark,
@@ -63,6 +72,8 @@ export const LEVELS: LevelItem[] = [
   {
     level: 4,
     label: "Tầng 4",
+    shortText: "Tầng 4",
+    longText: ": Chính sách & Giải đáp kiến nghị",
     title: "Tầng 4: Chính sách & Giải đáp kiến nghị",
     desc: "Hỗ trợ doanh nghiệp, các góp ý kiến nghị",
     icon: Briefcase,
@@ -70,6 +81,8 @@ export const LEVELS: LevelItem[] = [
   {
     level: 5,
     label: "Tầng 5",
+    shortText: "Tầng 5",
+    longText: ": Điểm trưng bày/Hội quán",
     title: "Tầng 5: Điểm trưng bày/Hội quán",
     desc: "Điểm bán Xanh, Doanh thu",
     icon: Network,
@@ -110,6 +123,7 @@ interface LevelMenuProps {
   onSyncLive?: () => void;
   isSyncing?: boolean;
   onOpenImportPdf?: () => void;
+  onOpenMacroModal?: () => void;
 }
 
 export function LevelMenu({
@@ -123,6 +137,7 @@ export function LevelMenu({
   onSyncLive,
   isSyncing = false,
   onOpenImportPdf,
+  onOpenMacroModal,
 }: LevelMenuProps) {
   const { isAdmin } = useAuth();
   const [showDocModal, setShowDocModal] = useState(false);
@@ -517,15 +532,15 @@ export function LevelMenu({
         >
           {LEVELS.map((item) => {
             const Icon = item.icon;
-            const active = value === item.level;
+            const isActive = value === item.level;
 
             return (
               <button
                 key={item.level}
                 type="button"
                 onClick={() => handleSelectLevel(item.level)}
-                className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-bold transition ${
-                  active
+                className={`whitespace-nowrap transition-all flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${
+                  isActive
                     ? "bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700/50"
                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent"
                 }`}
@@ -533,10 +548,11 @@ export function LevelMenu({
                 <Icon
                   size={16}
                   className={`shrink-0 ${
-                    active ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
+                    isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
                   }`}
                 />
-                <span>{item.title}</span>
+                <span>{item.shortText}</span>
+                <span className={isActive ? "inline" : "hidden"}>{item.longText}</span>
               </button>
             );
           })}
@@ -546,7 +562,7 @@ export function LevelMenu({
             <button
               type="button"
               onClick={handleClickDocMenu}
-              className="flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent transition"
+              className="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent transition"
             >
               <FileText size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
               <span>Tài liệu CĐS</span>
@@ -555,7 +571,7 @@ export function LevelMenu({
               <button
                 type="button"
                 onClick={handleOpenSetupLink}
-                className="ml-1 rounded-md border border-slate-200 bg-white p-1 text-slate-400 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:border-[#00d2ff]/50 dark:hover:bg-[#00d2ff]/10 dark:hover:text-[#00d2ff]"
+                className="ml-1 rounded-xl border border-slate-200 bg-white p-1 text-slate-400 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:border-[#00d2ff]/50 dark:hover:bg-[#00d2ff]/10 dark:hover:text-[#00d2ff]"
                 title="Thiết lập link tài liệu"
               >
                 <LinkIcon size={12} />
@@ -570,7 +586,7 @@ export function LevelMenu({
           <button
             type="button"
             onClick={handleToggleTheme}
-            className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition shadow-xs"
+            className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition shadow-xs"
             title={isDark ? "Chuyển sang giao diện Sáng" : "Chuyển sang giao diện Tối"}
           >
             {isDark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-blue-600" />}
@@ -581,23 +597,37 @@ export function LevelMenu({
             <button
               type="button"
               onClick={() => setShowAdminDropdown((prev) => !prev)}
-              className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition shadow-xs"
+              className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition shadow-xs"
               title="Menu chức năng"
             >
               <MoreVertical size={17} />
             </button>
 
             {showAdminDropdown && (
-              <div className="absolute right-0 mt-2 w-48 z-50 bg-white dark:bg-[#0a1830] rounded-xl shadow-xl border border-slate-200 dark:border-blue-800 py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 mt-2 w-56 z-50 bg-white dark:bg-[#0a1830] rounded-xl shadow-xl border border-slate-200 dark:border-blue-800 py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                {isAdmin && onOpenMacroModal && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAdminDropdown(false);
+                      onOpenMacroModal();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-blue-100 hover:bg-slate-50 dark:hover:bg-blue-900/30 transition-colors"
+                  >
+                    <TrendingUp size={16} className="text-emerald-500 shrink-0" />
+                    <span>Cấu hình Vĩ mô Tầng B</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={() => {
                     setShowAdminDropdown(false);
                     handleOpenExportModal();
                   }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-200 dark:hover:bg-blue-900/40 dark:hover:text-blue-400 transition"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-blue-100 hover:bg-slate-50 dark:hover:bg-blue-900/30 transition-colors"
                 >
-                  <Download size={15} className="text-amber-500" />
+                  <Download size={16} className="text-amber-500 shrink-0" />
                   <span>Xuất bảng báo cáo</span>
                 </button>
 
@@ -608,11 +638,11 @@ export function LevelMenu({
                     handleSmartRefresh();
                   }}
                   disabled={isSyncing || refreshing}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-200 dark:hover:bg-blue-900/40 dark:hover:text-blue-400 transition disabled:opacity-50"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-blue-100 hover:bg-slate-50 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw
-                    size={15}
-                    className={`text-blue-600 dark:text-blue-400 ${isSyncing || refreshing ? "animate-spin" : ""}`}
+                    size={16}
+                    className={`text-blue-600 dark:text-blue-400 shrink-0 ${isSyncing || refreshing ? "animate-spin" : ""}`}
                   />
                   <span>{isSyncing || refreshing ? "Đang cập nhật..." : "Làm mới dữ liệu"}</span>
                 </button>
@@ -624,9 +654,9 @@ export function LevelMenu({
                       setShowAdminDropdown(false);
                       handleOpenCommuneSyncModal();
                     }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-purple-700 hover:bg-purple-50 dark:text-purple-300 dark:hover:bg-purple-900/30 transition border-t border-slate-100 dark:border-white/5"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors border-t border-slate-100 dark:border-white/5"
                   >
-                    <GitMerge size={15} className="text-purple-500" />
+                    <GitMerge size={16} className="text-purple-500 shrink-0" />
                     <span>Đồng bộ số liệu</span>
                   </button>
                 )}
@@ -639,7 +669,7 @@ export function LevelMenu({
         {/* Modal cấu hình đường dẫn tự động & Đồng bộ số liệu xã/phường */}
         {showCommuneSyncModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#0c1830] p-6 shadow-2xl">
+            <div className="w-full max-w-lg rounded-xl border border-slate-700 bg-[#0c1830] p-6 shadow-2xl">
               <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
@@ -655,7 +685,7 @@ export function LevelMenu({
                 <button
                   type="button"
                   onClick={() => setShowCommuneSyncModal(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
                 >
                   <X size={18} />
                 </button>
@@ -708,7 +738,7 @@ export function LevelMenu({
         {/* Modal Custom Link Tài liệu */}
         {showDocModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#0c1830] p-6">
+            <div className="w-full max-w-md rounded-xl border border-slate-700 bg-[#0c1830] p-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
@@ -724,7 +754,7 @@ export function LevelMenu({
                 <button
                   type="button"
                   onClick={() => setShowDocModal(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
                 >
                   <X size={18} />
                 </button>
@@ -771,7 +801,7 @@ export function LevelMenu({
         {/* ===================== MODAL XUẤT BẢNG BÁO CÁO ===================== */}
         {showExportModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#0c1830] p-6 shadow-2xl">
+            <div className="w-full max-w-md rounded-xl border border-slate-700 bg-[#0c1830] p-6 shadow-2xl">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
@@ -786,7 +816,7 @@ export function LevelMenu({
                 <button
                   type="button"
                   onClick={handleCloseExportModal}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
                 >
                   <X size={18} />
                 </button>
@@ -833,7 +863,7 @@ export function LevelMenu({
                     {EXPORT_TIER1_CONTENT.map((item) => (
                       <span
                         key={item}
-                        className="rounded-lg border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-200"
+                        className="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-200"
                       >
                         {item}
                       </span>

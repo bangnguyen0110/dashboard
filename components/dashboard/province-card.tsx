@@ -42,7 +42,7 @@ function ActionButton({
         event.stopPropagation();
         onClick();
       }}
-      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-medium transition ${className}`}
     >
       {label}
     </button>
@@ -73,7 +73,7 @@ function ProvinceCardImpl({
           onOpen(dashboard);
         }
       }}
-      className="glass group relative flex cursor-pointer flex-col rounded-2xl p-5 transition duration-300 hover:-translate-y-1 hover:shadow-glass"
+      className="glass group relative flex cursor-pointer flex-col rounded-xl p-5 transition duration-300 hover:-translate-y-1 hover:shadow-glass"
     >
       {/* Quầng sáng góc trên */}
       <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-accent/15 opacity-0 blur-2xl transition group-hover:opacity-100" />
@@ -129,7 +129,7 @@ function ProvinceCardImpl({
               }}
               aria-label={`Sửa ${unitName}`}
               title="Sửa Dashboard"
-              className="rounded-lg p-1.5 text-foreground/50 transition hover:bg-white/10 hover:text-foreground"
+              className="rounded-xl p-1.5 text-foreground/50 transition hover:bg-white/10 hover:text-foreground"
             >
               <Edit3 size={14} />
             </button>
@@ -141,7 +141,7 @@ function ProvinceCardImpl({
               }}
               aria-label={`Xóa ${unitName}`}
               title="Xóa Dashboard"
-              className="rounded-lg p-1.5 text-foreground/50 transition hover:bg-red-500/15 hover:text-red-400"
+              className="rounded-xl p-1.5 text-foreground/50 transition hover:bg-red-500/15 hover:text-red-400"
             >
               <Trash2 size={14} />
             </button>

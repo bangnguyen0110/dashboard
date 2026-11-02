@@ -97,12 +97,12 @@ export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewPro
   return (
     <div className="space-y-6 w-full">
       {/* HEADER TRANG AI */}
-      <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-500/15 via-blue-600/10 to-purple-600/15 p-6 shadow-2xl">
+      <section className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500/15 via-blue-600/10 to-purple-600/15 p-6 shadow-2xl">
         <div className="pointer-events-none absolute -top-20 right-10 h-52 w-52 rounded-full bg-cyan-400/20 blur-3xl" />
         
         <div className="relative flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="relative grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+            <span className="relative grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.4)]">
               <Bot size={28} />
               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
@@ -111,7 +111,7 @@ export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewPro
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded-md bg-cyan-500/20 px-2.5 py-0.5 text-[11px] font-extrabold tracking-wider text-cyan-300 border border-cyan-500/30 uppercase">
+                <span className="rounded-xl bg-cyan-500/20 px-2.5 py-0.5 text-[11px] font-extrabold tracking-wider text-cyan-300 border border-cyan-500/30 uppercase">
                   TRÍ TUỆ NHÂN TẠO ĐIỀU HÀNH
                 </span>
                 {updatedAt && (
@@ -144,7 +144,7 @@ export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewPro
                     "Hãy kiểm tra và đánh giá chi tiết xem địa phương này đã xây dựng được Nền kinh tế 02 con số (mục tiêu tăng trưởng 10.71%) theo Ma trận 4 lớp và 6 động lực Tầng B của Đề án Chiến lược An Giang 2030 hay chưa? Chỉ ra các điểm sáng và vùng trũng dữ liệu cần bổ sung."
                   )
                 }
-                className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] transition hover:brightness-110 active:scale-95 disabled:opacity-50"
                 title="Kiểm tra đo lường kinh tế 02 con số (Dành riêng cho Admin)"
               >
                 <Target size={16} />
@@ -156,7 +156,7 @@ export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewPro
               type="button"
               disabled={loading}
               onClick={() => handleRunAnalysis(Boolean(analysis))}
-              className="inline-flex items-center gap-2 rounded-2xl border border-cyan-400/50 bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/50 bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] transition hover:brightness-110 active:scale-95 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -208,7 +208,7 @@ export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewPro
 
       {/* THÔNG BÁO LỖI */}
       {error && (
-        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs sm:text-sm text-rose-300 flex items-center gap-2">
+        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs sm:text-sm text-rose-300 flex items-center gap-2">
           <AlertTriangle size={18} className="shrink-0" />
           <span>{error}</span>
         </div>
@@ -217,18 +217,18 @@ export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewPro
       {/* KHU VỰC HIỂN THỊ NỘI DUNG PHÂN TÍCH */}
       <div className="w-full">
         {loading ? (
-          <div className="rounded-3xl border border-[#1d293d] bg-[#0c1830]/90 p-8 shadow-2xl space-y-4 animate-pulse">
+          <div className="rounded-xl border border-[#1d293d] bg-[#0c1830]/90 p-8 shadow-2xl space-y-4 animate-pulse">
             <div className="flex items-center gap-3">
               <div className="h-6 w-6 rounded-full bg-cyan-500/30" />
-              <div className="h-5 w-1/3 rounded bg-slate-800" />
+              <div className="h-5 w-1/3 rounded-xl bg-slate-800" />
             </div>
-            <div className="h-4 w-full rounded bg-slate-800/60" />
-            <div className="h-4 w-5/6 rounded bg-slate-800/40" />
-            <div className="h-4 w-4/6 rounded bg-slate-800/60" />
-            <div className="h-20 w-full rounded-2xl bg-slate-900/60 mt-4" />
+            <div className="h-4 w-full rounded-xl bg-slate-800/60" />
+            <div className="h-4 w-5/6 rounded-xl bg-slate-800/40" />
+            <div className="h-4 w-4/6 rounded-xl bg-slate-800/60" />
+            <div className="h-20 w-full rounded-xl bg-slate-900/60 mt-4" />
           </div>
         ) : analysis ? (
-          <div className="rounded-3xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/95 p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+          <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/95 p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
             <div className="flex items-center gap-2 pb-4 border-b border-white/5 mb-6 text-emerald-400 font-bold text-xs uppercase tracking-wider">
               <CheckCircle2 size={16} />
               <span>Báo cáo chiến lược do AI trích xuất từ dữ liệu thời gian thực</span>
@@ -239,8 +239,8 @@ export function AiAnalysisView({ dashboard, isAdmin = false }: AiAnalysisViewPro
             </div>
           </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-slate-700/70 bg-[#0a1124]/60 p-12 text-center flex flex-col items-center justify-center">
-            <span className="grid h-16 w-16 place-items-center rounded-3xl bg-cyan-500/10 text-cyan-400 mb-4 shadow-[0_0_25px_rgba(6,182,212,0.2)]">
+          <div className="rounded-xl border border-dashed border-slate-700/70 bg-[#0a1124]/60 p-12 text-center flex flex-col items-center justify-center">
+            <span className="grid h-16 w-16 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 mb-4 shadow-[0_0_25px_rgba(6,182,212,0.2)]">
               <Target size={32} />
             </span>
             <h3 className="text-lg font-bold text-slate-100">

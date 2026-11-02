@@ -42,7 +42,7 @@ export function MetricCard({ metric, info, targetUrl, onEditLink }: MetricCardPr
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") handleOpen();
       }}
-      className={`glass group relative cursor-pointer overflow-hidden rounded-2xl p-5 transition duration-300 select-none hover:-translate-y-1 ${
+      className={`glass group relative cursor-pointer overflow-hidden rounded-xl p-5 transition duration-300 select-none hover:-translate-y-1 ${
         targetUrl
                     ? "hover:shadow-[0_0_42px_-6px_var(--accent-cyan)]"
           : "hover:shadow-glass"
@@ -75,7 +75,7 @@ export function MetricCard({ metric, info, targetUrl, onEditLink }: MetricCardPr
           }}
           aria-label={`Cài đặt link chuyển hướng cho ${metric.label}`}
           title="Cài đặt link chuyển hướng"
-          className="glass gear rounded-lg p-2 text-foreground/60 transition hover:text-accent"
+          className="glass gear rounded-xl p-2 text-foreground/60 transition hover:text-accent"
         >
           <Settings size={16} />
         </button>

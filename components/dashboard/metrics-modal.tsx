@@ -189,7 +189,7 @@ export function MetricsModal({ dashboard, onClose, onSaved }: MetricsModalProps)
                     type="button"
                     onClick={() => removeMetric(key)}
                     aria-label={`Xóa chỉ tiêu ${metric.label}`}
-                    className="shrink-0 rounded-lg p-2 text-foreground/50 transition hover:bg-red-500/15 hover:text-red-400"
+                    className="shrink-0 rounded-xl p-2 text-foreground/50 transition hover:bg-red-500/15 hover:text-red-400"
                   >
                     <Trash2 size={15} />
                   </button>

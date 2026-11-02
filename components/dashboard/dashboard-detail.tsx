@@ -500,12 +500,12 @@ function AiAdvisorModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative flex flex-col w-full max-w-4xl max-h-[92vh] bg-[#071326] border border-[#1e3a5f] rounded-3xl shadow-2xl overflow-hidden text-slate-100">
+      <div className="relative flex flex-col w-full max-w-4xl max-h-[92vh] bg-[#071326] border border-[#1e3a5f] rounded-xl shadow-2xl overflow-hidden text-slate-100">
         
         {/* Header Modal */}
         <div className="relative shrink-0 px-6 py-4 border-b border-white/10 bg-gradient-to-r from-cyan-950/60 via-[#0a1c38] to-[#071326] flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-300">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-400/40 bg-gradient-to-br from-cyan-500/20 to-blue-600/30 text-cyan-300">
               <Bot size={20} />
             </span>
             <div>
@@ -537,7 +537,7 @@ function AiAdvisorModal({
                   key={tab.id}
                   type="button"
                   onClick={() => setSelectedScope(tab.id as any)}
-                  className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
+                  className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-bold transition-all ${
                     isActive ? "bg-[#0d274c] text-[#00d2ff] border border-[#00d2ff]/40" : "bg-slate-900 text-slate-400"
                   }`}
                 >
@@ -551,10 +551,10 @@ function AiAdvisorModal({
           <div className="flex flex-wrap items-center gap-2">
             {analysis && (
               <>
-                <button type="button" onClick={handleDownloadWord} className="inline-flex items-center gap-1 rounded-lg bg-blue-600/20 border border-blue-400/40 px-2.5 py-1 text-xs font-bold text-blue-300 hover:bg-blue-600/30">
+                <button type="button" onClick={handleDownloadWord} className="inline-flex items-center gap-1 rounded-xl bg-blue-600/20 border border-blue-400/40 px-2.5 py-1 text-xs font-bold text-blue-300 hover:bg-blue-600/30">
                   <FileText size={12} /> Word (.doc)
                 </button>
-                <button type="button" onClick={handleDownloadPdf} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600/20 border border-emerald-400/40 px-2.5 py-1 text-xs font-bold text-emerald-300 hover:bg-emerald-600/30">
+                <button type="button" onClick={handleDownloadPdf} className="inline-flex items-center gap-1 rounded-xl bg-emerald-600/20 border border-emerald-400/40 px-2.5 py-1 text-xs font-bold text-emerald-300 hover:bg-emerald-600/30">
                   <Printer size={12} /> PDF (.pdf)
                 </button>
               </>
@@ -570,7 +570,7 @@ function AiAdvisorModal({
                     "Hãy kiểm tra và đánh giá chi tiết xem địa phương này đã xây dựng được Nền kinh tế 02 con số (mục tiêu tăng trưởng 10.71%) theo Ma trận 4 lớp và 6 động lực Tầng B của Đề án Chiến lược An Giang 2030 hay chưa? Hãy vẽ bảng so sánh trực quan, chỉ ra các điểm sáng, điểm mù dữ liệu và lộ trình 30 ngày thực chiến bằng tiếng Việt có dấu đầy đủ."
                   )
                 }
-                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-700 px-3 py-1 text-xs font-bold text-white shadow-md hover:brightness-110 transition disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-700 px-3 py-1 text-xs font-bold text-white shadow-md hover:brightness-110 transition disabled:opacity-50"
                 title="Đánh giá mức độ sẵn sàng Kinh tế 02 con số (Dành riêng cho Admin)"
               >
                 <Target size={13} />
@@ -582,7 +582,7 @@ function AiAdvisorModal({
               type="button"
               disabled={loading}
               onClick={() => handleRunAnalysis(Boolean(analysis))}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500 px-3 py-1 text-xs font-bold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-cyan-500 px-3 py-1 text-xs font-bold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
             >
               {loading ? <RefreshCw size={12} className="animate-spin" /> : <Sparkles size={12} />}
               <span>{analysis ? "Phân tích lại" : "Bắt đầu phân tích"}</span>
@@ -618,7 +618,7 @@ function AiAdvisorModal({
           {!loading && analysis && (
             <div className="space-y-4">
               <div className="rounded-xl border border-white/10 bg-[#050e1c] p-6 text-slate-200 shadow-xl">
-                <div className="text-[11px] text-cyan-400 italic mb-3 flex items-center gap-1.5 bg-cyan-500/10 p-2 rounded-lg border border-cyan-500/20">
+                <div className="text-[11px] text-cyan-400 italic mb-3 flex items-center gap-1.5 bg-cyan-500/10 p-2 rounded-xl border border-cyan-500/20">
                   <Sparkles size={13} /> Bạn có thể chỉnh sửa trực tiếp văn bản hoặc <strong>bôi đen bất kỳ đoạn văn nào</strong> để xuất hiện Tooltip <strong>Giải thích</strong> và <strong>Phân tích sâu</strong>.
                 </div>
 
@@ -626,7 +626,7 @@ function AiAdvisorModal({
                   contentEditable
                   suppressContentEditableWarning
                   onBlur={(e) => setAnalysis(e.currentTarget.innerText)}
-                  className="outline-none focus:ring-1 focus:ring-cyan-500/40 rounded-lg p-2 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-sans select-text min-h-[200px]"
+                  className="outline-none focus:ring-1 focus:ring-cyan-500/40 rounded-xl p-2 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-sans select-text min-h-[200px]"
                 >
                   {analysis}
                 </div>
@@ -649,13 +649,13 @@ function AiAdvisorModal({
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
                     <Bot size={16} />
                   </span>
-                  <div className="rounded-2xl rounded-tl-sm bg-[#061225] border border-cyan-500/30 p-4 text-xs sm:text-sm text-slate-200 shadow-xl whitespace-pre-line font-sans leading-relaxed">
+                  <div className="rounded-xl rounded-tl-sm bg-[#061225] border border-cyan-500/30 p-4 text-xs sm:text-sm text-slate-200 shadow-xl whitespace-pre-line font-sans leading-relaxed">
                     {msg.content}
                   </div>
                 </div>
               ) : (
                 <div className="flex items-end max-w-[85%] sm:max-w-[75%]">
-                  <div className="rounded-2xl rounded-tr-sm bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-3 text-xs sm:text-sm text-white shadow-md whitespace-pre-line font-sans leading-relaxed">
+                  <div className="rounded-xl rounded-tr-sm bg-gradient-to-r from-cyan-600 to-blue-600 px-4 py-3 text-xs sm:text-sm text-white shadow-md whitespace-pre-line font-sans leading-relaxed">
                     {msg.content}
                   </div>
                 </div>
@@ -668,7 +668,7 @@ function AiAdvisorModal({
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
                 <Bot size={16} />
               </span>
-              <div className="p-4 rounded-2xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
+              <div className="p-4 rounded-xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
                 <RefreshCw size={15} className="animate-spin text-cyan-400" />
                 <span>AI đang phân tích đoạn văn bản bạn vừa bôi đen...</span>
               </div>
@@ -680,7 +680,7 @@ function AiAdvisorModal({
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse">
                 <Bot size={16} />
               </span>
-              <div className="p-4 rounded-2xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
+              <div className="p-4 rounded-xl rounded-tl-sm border border-cyan-500/30 bg-cyan-950/30 text-xs text-cyan-300 flex items-center gap-3 animate-pulse shadow-md">
                 <RefreshCw size={15} className="animate-spin text-cyan-400" />
                 <span>Trợ lý AI đang tra cứu cơ sở dữ liệu và trả lời câu hỏi của bạn...</span>
               </div>
@@ -695,14 +695,14 @@ function AiAdvisorModal({
               <button
                 type="button"
                 onClick={() => handleSubAiAction("explain")}
-                className="inline-flex items-center gap-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 px-3 py-1.5 text-xs font-bold text-cyan-300 border border-cyan-500/40 transition"
+                className="inline-flex items-center gap-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 px-3 py-1.5 text-xs font-bold text-cyan-300 border border-cyan-500/40 transition"
               >
                 <Lightbulb size={13} className="text-amber-300" /> Giải thích
               </button>
               <button
                 type="button"
                 onClick={() => handleSubAiAction("deep_analyze")}
-                className="inline-flex items-center gap-1 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 px-3 py-1.5 text-xs font-bold text-blue-300 border border-blue-500/40 transition"
+                className="inline-flex items-center gap-1 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 px-3 py-1.5 text-xs font-bold text-blue-300 border border-blue-500/40 transition"
               >
                 <SearchCode size={13} className="text-cyan-300" /> Phân tích sâu
               </button>
@@ -1486,7 +1486,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       <div className="relative min-h-screen bg-[#e8f1fa] dark:bg-[#0a1124]">
         <div className="dashboard-bg" />
         <main className="w-full px-4 py-10 sm:px-6">
-          <div className="glass h-40 animate-pulse rounded-3xl" />
+          <div className="glass h-40 animate-pulse rounded-xl" />
         </main>
       </div>
     );
@@ -1496,7 +1496,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     return (
       <div className="relative flex min-h-screen items-center justify-center p-4 bg-[#e8f1fa] dark:bg-[#0a1124]">
         <div className="dashboard-bg" />
-        <div className="glass w-full max-w-md rounded-3xl p-8 text-center">
+        <div className="glass w-full max-w-md rounded-xl p-8 text-center">
           <h1 className="text-xl font-bold">Không tìm thấy Dashboard</h1>
           <p className="mt-2 text-sm opacity-60">Dashboard không tồn tại hoặc đã bị xóa.</p>
           <button
@@ -1533,17 +1533,18 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         <h1 className="text-lg sm:text-2xl font-black uppercase tracking-wider text-white">
           {cleanDashboardTitle(dashboard.title)}
         </h1>
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-1 text-xs text-blue-100 dark:text-slate-300">
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-2 text-xs text-blue-100 dark:text-slate-300">
           <span>{dashboard.unit?.name ?? ""}, Việt Nam</span>
-          {syncTimeFormatted && (
-            <>
-              <span className="opacity-40">•</span>
-              <span className="inline-flex items-center gap-1.5 font-mono text-[11px] bg-white/10 dark:bg-white/5 px-2.5 py-0.5 rounded-full border border-white/15">
-                <Clock size={12} className="shrink-0 text-cyan-300" />
-                <span>Dữ liệu đồng bộ lúc: {syncTimeFormatted}</span>
-              </span>
-            </>
-          )}
+          <span className="opacity-40">•</span>
+          <span className="flex items-center gap-2 px-3 py-1 bg-emerald-500/15 border border-emerald-400/30 rounded-full text-emerald-100 dark:text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+            </span>
+            <span className="font-semibold tracking-wide text-[11px] md:text-xs">
+              Cập nhật lúc: {syncTimeFormatted || "14:58 31/10/2026"}
+            </span>
+          </span>
         </div>
       </header>
 
@@ -1556,6 +1557,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         onSyncLive={() => handleLiveSync(false)}
         isSyncing={isSyncing}
         onOpenImportPdf={() => setShowImportPdf(true)}
+        onOpenMacroModal={() => setShowMacroModal(true)}
       />
 
       {/* 3. NỘI DUNG CHÍNH (FULL WIDTH 100%) */}
@@ -1563,7 +1565,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           {/* ================= TẦNG 1 ================= */}
           {currentLevel === 1 ? (
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
+              <section className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -1573,42 +1575,30 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {isAdmin && (
-                      <>
-                        {/* 📊 NÚT MỞ MODAL NHẬP LIỆU VĨ MÔ TẦNG B */}
-                        <button
-                          type="button"
-                          onClick={() => setShowMacroModal(true)}
-                          className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20 shadow-lg"
-                          title="Cấu hình chỉ số vĩ mô Tầng B (GMV, Kinh tế đêm, Lưu trú...)"
-                        >
-                          <TrendingUp size={14} /> Cấu hình Vĩ mô Tầng B
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setShowLink(true)}
-                          className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
-                        >
-                          <Link2 size={14} /> Thiết lập Link
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        onClick={() => setShowLink(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+                      >
+                        <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
+                      </button>
                     )}
                     {/* Nút Bộ lọc — đặt NGAY BÊN TRÁI nút "Danh sách xã/phường" */}
                     <button
                       type="button"
                       onClick={() => setShowFilterCompare(true)}
-                      className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
                       title="Bộ lọc và so sánh thông tin"
                     >
-                      <SlidersHorizontal size={14} /> Bộ lọc
+                      <SlidersHorizontal size={14} className="text-blue-600 dark:text-blue-400" /> Bộ lọc
                     </button>
                     {isProvince && (
                       <button
                         type="button"
                         onClick={() => setShowCommuneList(true)}
-                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
                       >
-                        <Building2 size={14} /> Danh sách xã/phường ({communes.length})
+                        <Building2 size={14} className="text-blue-600 dark:text-blue-400" /> Danh sách xã/phường ({communes.length})
                       </button>
                     )}
                   </div>
@@ -1740,7 +1730,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           ) : currentLevel === 2 ? (
             /* ================= TẦNG 2 ================= */
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
+              <section className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -1754,18 +1744,18 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                         <button
                           type="button"
                           onClick={() => setShowLevel2IdModal(true)}
-                          className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 px-3.5 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 shadow-lg"
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
                           title="Nhập ID để tự động bóc tách toàn bộ chỉ số Nhóm A-E"
                         >
-                          <Link2 size={14} /> Thiết lập ID Tầng 2
+                          <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập ID Tầng 2
                         </button>
 
                         <button
                           type="button"
                           onClick={() => setShowLink(true)}
-                          className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
                         >
-                          <Link2 size={14} /> Thiết lập Link
+                          <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
                         </button>
                       </>
                     )}
@@ -1786,7 +1776,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           ) : currentLevel === 3 ? (
             /* ================= TẦNG 3 ================= */
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
+              <section className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -1799,9 +1789,9 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       <button
                         type="button"
                         onClick={() => setShowLink(true)}
-                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
                       >
-                        <Link2 size={14} /> Thiết lập Link
+                        <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
                       </button>
                     )}
                   </div>
@@ -1821,7 +1811,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           ) : currentLevel === 4 ? (
             /* ================= TẦNG 4 ================= */
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
+              <section className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -1834,9 +1824,9 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       <button
                         type="button"
                         onClick={() => setShowLink(true)}
-                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
                       >
-                        <Link2 size={14} /> Thiết lập Link
+                        <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
                       </button>
                     )}
                   </div>
@@ -1856,7 +1846,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           ) : currentLevel === 5 ? (
             /* ================= TẦNG 5 ================= */
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
+              <section className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
                 <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
                 <div className="relative flex flex-wrap items-start justify-between gap-4">
                   <div>
@@ -1869,9 +1859,9 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       <button
                         type="button"
                         onClick={() => setShowLink(true)}
-                        className="glass inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-foreground/80 transition hover:text-accent"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
                       >
-                        <Link2 size={14} /> Thiết lập Link
+                        <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
                       </button>
                     )}
                   </div>
@@ -1889,8 +1879,8 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
               />
             </div>
           ) : (
-            <section className="glass flex flex-col items-center justify-center gap-3 rounded-3xl p-10 text-center">
-              <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/15 text-accent">
+            <section className="glass flex flex-col items-center justify-center gap-3 rounded-xl p-10 text-center">
+              <span className="grid h-16 w-16 place-items-center rounded-xl bg-accent/15 text-accent">
                 <activeLevel.icon size={28} />
               </span>
               <h3 className="text-xl font-bold">{activeLevel.title}</h3>
@@ -1945,7 +1935,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
       {/* 🌟 MODAL TIẾN TRÌNH KHI ĐANG CÀO DỮ LIỆU VÀ ĐỒNG BỘ */}
       {isSyncing && (
         <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="flex flex-col items-center justify-center w-full max-w-md bg-[#071326] border border-cyan-500/40 rounded-3xl p-6 shadow-2xl text-slate-100 space-y-4">
+          <div className="flex flex-col items-center justify-center w-full max-w-md bg-[#071326] border border-cyan-500/40 rounded-xl p-6 shadow-2xl text-slate-100 space-y-4">
             <div className="relative grid h-16 w-16 place-items-center rounded-full bg-cyan-500/10 text-cyan-400 animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.3)]">
               <RefreshCw size={30} className="animate-spin text-cyan-400" />
             </div>

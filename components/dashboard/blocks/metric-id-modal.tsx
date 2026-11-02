@@ -113,7 +113,7 @@ export function MetricIdModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-      <div className="relative w-full max-w-lg bg-[#0a1124] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-2xl shadow-2xl overflow-hidden text-white my-auto">
+      <div className="relative w-full max-w-lg bg-[#0a1124] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-xl shadow-2xl overflow-hidden text-white my-auto">
         {/* Header */}
         <div className="bg-[#0c1e38] px-6 py-4 border-b border-[#1d293d] flex justify-between items-center">
           <div>
@@ -127,7 +127,7 @@ export function MetricIdModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
           >
             <X size={18} />
           </button>
@@ -173,7 +173,7 @@ export function MetricIdModal({
               id="syncCheckbox"
               checked={syncEnabled}
               onChange={(e) => setSyncEnabled(e.target.checked)}
-              className="mt-0.5 w-4 h-4 text-cyan-600 border-slate-700 rounded bg-[#0a1124] focus:ring-cyan-500 focus:ring-offset-[#0a1124] cursor-pointer"
+              className="mt-0.5 w-4 h-4 text-cyan-600 border-slate-700 rounded-xl bg-[#0a1124] focus:ring-cyan-500 focus:ring-offset-[#0a1124] cursor-pointer"
             />
             <label htmlFor="syncCheckbox" className="text-xs text-slate-300 cursor-pointer select-none">
               <span className="font-semibold text-slate-200 block mb-0.5">Đồng bộ dữ liệu từ web nguồn</span>

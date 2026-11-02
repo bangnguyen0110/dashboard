@@ -394,7 +394,7 @@ export function DashboardClient(init: DashboardInit) {
     const blockId = blockIdOf(block);
 
     return (
-      <section className="glass rounded-3xl p-5 sm:p-6">
+      <section className="glass rounded-xl p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent/15 text-accent">
@@ -419,7 +419,7 @@ export function DashboardClient(init: DashboardInit) {
             <Settings2 size={15} />
             Thiết lập
             {blockId ? (
-              <span className="rounded-md bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] text-accent">
+              <span className="rounded-xl bg-accent/15 px-1.5 py-0.5 font-mono text-[11px] text-accent">
                 {blockId}
               </span>
             ) : null}
@@ -443,7 +443,7 @@ export function DashboardClient(init: DashboardInit) {
 
   const renderCharts = (
     <div className="grid gap-6 lg:grid-cols-2">
-      <section className="glass rounded-3xl p-5 sm:p-6">
+      <section className="glass rounded-xl p-5 sm:p-6">
         <h3 className="text-base font-semibold">Biểu đồ cơ cấu</h3>
         <p className="text-xs opacity-60">Cơ cấu chỉ tiêu kinh tế số hiện tại</p>
         <div className="mt-4 h-72">
@@ -473,7 +473,7 @@ export function DashboardClient(init: DashboardInit) {
         </div>
       </section>
 
-      <section className="glass rounded-3xl p-5 sm:p-6">
+      <section className="glass rounded-xl p-5 sm:p-6">
         <h3 className="text-base font-semibold">Tỉ lệ CĐS so mục tiêu</h3>
         <p className="text-xs opacity-60">Giá trị đạt được so với mục tiêu của từng chỉ số</p>
         <div className="mt-4 h-72">
@@ -496,8 +496,8 @@ export function DashboardClient(init: DashboardInit) {
                 wrapperStyle={{ fontSize: 12, color: "var(--foreground)" }}
                 iconType="circle"
               />
-              <Bar dataKey="value" name="Giá trị" fill="#22d3ee" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="goal" name="Mục tiêu" fill="#818cf8" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="value" name="Giá trị" fill="#22d3ee" radius={[12, 12, 0, 0]} />
+              <Bar dataKey="goal" name="Mục tiêu" fill="#818cf8" radius={[12, 12, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -544,7 +544,7 @@ export function DashboardClient(init: DashboardInit) {
 
       <main className="w-full px-4 py-6 sm:px-6">
         {/* Menu 5 tầng */}
-        <nav className="glass sticky top-20 z-30 mb-6 flex gap-1 overflow-x-auto rounded-2xl p-1.5">
+        <nav className="glass sticky top-20 z-30 mb-6 flex gap-1 overflow-x-auto rounded-xl p-1.5">
           {MENU_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = item.id === activeMenu;
@@ -569,7 +569,7 @@ export function DashboardClient(init: DashboardInit) {
         {activeMenu === 1 ? (
           <section className="space-y-6">
             {/* Hero Tầng 1 */}
-            <div className="glass relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6 sm:p-8">
+            <div className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-6 sm:p-8">
               <div className="pointer-events-none absolute -top-16 right-10 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
               <p className="text-xs font-medium uppercase tracking-widest text-accent">
                 Tầng 1 · Bộ tiêu chí
@@ -583,17 +583,17 @@ export function DashboardClient(init: DashboardInit) {
                 Webhook và cập nhật trực tiếp qua Realtime.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
-                <div className="glass rounded-2xl px-4 py-3">
+                <div className="glass rounded-xl px-4 py-3">
                   <p className="text-xs opacity-60">Tổng giá trị chỉ tiêu</p>
                   <p className="text-2xl font-bold tabular-nums">
                     {totalValue.toLocaleString("vi-VN")}
                   </p>
                 </div>
-                <div className="glass rounded-2xl px-4 py-3">
+                <div className="glass rounded-xl px-4 py-3">
                   <p className="text-xs opacity-60">Chỉ số đang theo dõi</p>
                   <p className="text-2xl font-bold tabular-nums">{ALL_METRICS.length}</p>
                 </div>
-                <div className="glass rounded-2xl px-4 py-3">
+                <div className="glass rounded-xl px-4 py-3">
                   <p className="text-xs opacity-60">Bản ghi KPI đã đồng bộ</p>
                   <p className="text-2xl font-bold tabular-nums">
                     {businessUnits.length + products.length}
@@ -607,9 +607,9 @@ export function DashboardClient(init: DashboardInit) {
             {renderCharts}
           </section>
         ) : (
-          <section className="glass relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-3xl p-10 text-center">
+          <section className="glass relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-xl p-10 text-center">
             <div className="pointer-events-none absolute -top-12 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-accent/15 blur-3xl" />
-            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/15 text-accent">
+            <span className="grid h-16 w-16 place-items-center rounded-xl bg-accent/15 text-accent">
               <activeItem.icon size={28} />
             </span>
             <h2 className="text-xl font-bold">{activeItem.label}</h2>

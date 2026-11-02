@@ -50,7 +50,7 @@ export function StatCell({
     : "";
   const hasLink = Boolean(resolvedUrl);
 
-  const boxClass = `group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-300 select-none shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none w-full ${
+  const boxClass = `group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 select-none shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none w-full ${
     fullWidth ? "col-span-full" : ""
   } ${hasLink ? "hover:-translate-y-0.5 cursor-pointer dark:hover:border-blue-400" : ""}`;
 
@@ -65,7 +65,7 @@ export function StatCell({
         <div className="flex items-center gap-2.5 min-w-0">
           {Icon && (
             <span
-              className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${iconBg} dark:border dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 transition-colors`}
+              className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${iconBg} dark:border dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 transition-colors`}
             >
               <Icon size={16} />
             </span>
@@ -87,7 +87,7 @@ export function StatCell({
                 }}
                 aria-label={`Thiết lập ID cho ${label}`}
                 title="Thiết lập ID"
-                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-amber-600 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
+                className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-amber-600 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
               >
                 <Link2 size={14} />
               </button>
@@ -102,7 +102,7 @@ export function StatCell({
                 }}
                 aria-label={`Setup số lượng cho ${label}`}
                 title="Setup số lượng (nhập tay / PDF)"
-                className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
+                className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
               >
                 <PencilLine size={14} />
               </button>

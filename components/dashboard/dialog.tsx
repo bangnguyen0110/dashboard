@@ -20,14 +20,14 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
         onClick={onClose}
         aria-hidden
       />
-      <div className="glass-strong relative w-full max-w-md rounded-2xl p-6">
+      <div className="glass-strong relative w-full max-w-md rounded-xl p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="text-lg font-semibold">{title}</h3>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="rounded-lg p-1.5 text-foreground/60 transition hover:bg-white/10 hover:text-foreground"
+            className="rounded-xl p-1.5 text-foreground/60 transition hover:bg-white/10 hover:text-foreground"
           >
             <X size={18} />
           </button>

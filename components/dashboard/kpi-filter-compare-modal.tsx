@@ -548,7 +548,7 @@ export function KpiFilterCompareModal({ open, dashboard, onClose }: KpiFilterCom
         aria-hidden="true"
       />
 
-      <div className="glass-strong relative z-50 flex h-[95vh] w-full max-w-[1500px] flex-col overflow-hidden rounded-2xl p-3.5 shadow-2xl sm:p-6">
+      <div className="glass-strong relative z-50 flex h-[95vh] w-full max-w-[1500px] flex-col overflow-hidden rounded-xl p-3.5 shadow-2xl sm:p-6">
         {/* Header */}
         <div className="mb-3 flex shrink-0 items-start justify-between gap-3 border-b border-white/5 pb-3">
           <div className="min-w-0">
@@ -564,7 +564,7 @@ export function KpiFilterCompareModal({ open, dashboard, onClose }: KpiFilterCom
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 rounded-lg p-1.5 text-foreground/60 transition hover:bg-white/10 hover:text-foreground"
+            className="shrink-0 rounded-xl p-1.5 text-foreground/60 transition hover:bg-white/10 hover:text-foreground"
             aria-label="Đóng"
           >
             <X size={18} />
@@ -761,7 +761,7 @@ function FilterBar({
   capturedPeriod,
 }: FilterBarProps) {
   return (
-    <div className="glass rounded-2xl p-3 sm:p-4">
+    <div className="glass rounded-xl p-3 sm:p-4">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         {/* Nhóm nút chuyển nhanh */}
         <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
@@ -770,7 +770,7 @@ function FilterBar({
               key={option.value}
               type="button"
               onClick={() => onKindChange(option.value)}
-              className={`rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 sm:text-xs ${
+              className={`rounded-xl px-2.5 py-1.5 text-[11px] font-semibold transition sm:px-3 sm:text-xs ${
                 kind === option.value
                   ? "bg-accent text-white shadow"
                   : "text-foreground/70 hover:text-accent"

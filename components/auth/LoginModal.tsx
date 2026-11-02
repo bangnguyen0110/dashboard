@@ -35,7 +35,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs min-h-screen overflow-y-auto">
-      <div className="relative w-full max-w-md my-auto bg-[#0a1124] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-2xl shadow-2xl overflow-hidden text-white">
+      <div className="relative w-full max-w-md my-auto bg-[#0a1124] border-x-2 border-b-2 border-[#1d293d] border-t-0 rounded-xl shadow-2xl overflow-hidden text-white">
         
         {/* Header Modal */}
         <div className="bg-[#0c1e38] px-6 py-4 border-b border-[#1d293d] flex justify-between items-center">
@@ -47,7 +47,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           >
             <X size={18} />
           </button>

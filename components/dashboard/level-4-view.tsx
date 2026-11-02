@@ -138,7 +138,7 @@ export function Level4View({
     <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
         {/* ================= KHỐI 1: CHÍNH SÁCH HỖ TRỢ ================= */}
-        <section className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 flex flex-col justify-between">
+        <section className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 flex flex-col justify-between">
           <div>
             {/* Header Khối 1 */}
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
@@ -168,7 +168,7 @@ export function Level4View({
               {/* Thẻ 1: Doanh nghiệp */}
               <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400">
                     <Building2 size={16} />
                   </div>
                   <div>
@@ -189,7 +189,7 @@ export function Level4View({
                       href={metricLinks["l4_cs_doanh_nghiep"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -201,7 +201,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_cs_doanh_nghiep", "Chính sách - Doanh nghiệp")}
-                        className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -217,7 +217,7 @@ export function Level4View({
                             matchTokens: ["doanh nghiệp", "cs_doanh_nghiep"],
                           })
                         }
-                        className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -230,7 +230,7 @@ export function Level4View({
               {/* Thẻ 2: Hộ kinh doanh */}
               <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                     <Store size={16} />
                   </div>
                   <div>
@@ -251,7 +251,7 @@ export function Level4View({
                       href={metricLinks["l4_cs_ho_kinh_doanh"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -263,7 +263,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_cs_ho_kinh_doanh", "Chính sách - Hộ kinh doanh")}
-                        className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -279,7 +279,7 @@ export function Level4View({
                             matchTokens: ["hộ kinh doanh", "cs_ho_kinh_doanh"],
                           })
                         }
-                        className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -292,7 +292,7 @@ export function Level4View({
               {/* Thẻ 3: Hợp tác xã */}
               <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400">
                     <Users size={16} />
                   </div>
                   <div>
@@ -313,7 +313,7 @@ export function Level4View({
                       href={metricLinks["l4_cs_hop_tac_xa"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -325,7 +325,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_cs_hop_tac_xa", "Chính sách - Hợp tác xã")}
-                        className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -341,7 +341,7 @@ export function Level4View({
                             matchTokens: ["hợp tác xã", "cs_hop_tac_xa"],
                           })
                         }
-                        className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -353,7 +353,7 @@ export function Level4View({
             </div>
 
             {/* BIỂU ĐỒ TRÒN (DONUT CHART) CHÍNH SÁCH */}
-            <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
+            <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
               <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-2">
                 <div className="flex items-center gap-2">
                   <PieChart size={15} className="text-blue-400" />
@@ -443,7 +443,7 @@ export function Level4View({
         </section>
 
         {/* ================= KHỐI 2: GIẢI ĐÁP KIẾN NGHỊ ================= */}
-        <section className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 flex flex-col justify-between">
+        <section className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 flex flex-col justify-between">
           <div>
             {/* Header Khối 2 */}
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-3">
@@ -473,7 +473,7 @@ export function Level4View({
               {/* Thẻ 1: Đã giải đáp */}
               <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                     <CheckCircle2 size={16} />
                   </div>
                   <div>
@@ -494,7 +494,7 @@ export function Level4View({
                       href={metricLinks["l4_kn_da_giai_dap"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -506,7 +506,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_kn_da_giai_dap", "Kiến nghị - Đã giải đáp")}
-                        className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -522,7 +522,7 @@ export function Level4View({
                             matchTokens: ["đã giải đáp", "kn_da_giai_dap"],
                           })
                         }
-                        className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -535,7 +535,7 @@ export function Level4View({
               {/* Thẻ 2: Chưa giải đáp */}
               <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400">
                     <AlertCircle size={16} />
                   </div>
                   <div>
@@ -556,7 +556,7 @@ export function Level4View({
                       href={metricLinks["l4_kn_chua_giai_dap"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -568,7 +568,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_kn_chua_giai_dap", "Kiến nghị - Chưa giải đáp")}
-                        className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -584,7 +584,7 @@ export function Level4View({
                             matchTokens: ["chưa giải đáp", "kn_chua_giai_dap"],
                           })
                         }
-                        className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -597,7 +597,7 @@ export function Level4View({
               {/* Thẻ 3: Xem xét */}
               <div className="rounded-xl border border-white/5 bg-[#0c1830]/90 p-3.5 shadow-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
                     <Clock size={16} />
                   </div>
                   <div>
@@ -618,7 +618,7 @@ export function Level4View({
                       href={metricLinks["l4_kn_xem_xet"]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                      className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                       title="Xem web"
                     >
                       <ExternalLink size={12} />
@@ -630,7 +630,7 @@ export function Level4View({
                       <button
                         type="button"
                         onClick={() => handleOpenId("l4_kn_xem_xet", "Kiến nghị - Xem xét")}
-                        className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                        className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={12} />
@@ -646,7 +646,7 @@ export function Level4View({
                             matchTokens: ["xem xét", "kn_xem_xet"],
                           })
                         }
-                        className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                        className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                         title="Setup số lượng"
                       >
                         <Edit3 size={12} />
@@ -658,7 +658,7 @@ export function Level4View({
             </div>
 
             {/* BIỂU ĐỒ CỘT (BAR CHART) GIẢI ĐÁP KIẾN NGHỊ */}
-            <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
+            <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
               <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-2">
                 <div className="flex items-center gap-2">
                   <BarChart3 size={15} className="text-emerald-400" />
@@ -695,7 +695,7 @@ export function Level4View({
                         {/* Cột */}
                         <div className="w-full max-w-[48px] h-[75px] bg-slate-900/80 rounded-t-xl border border-white/10 p-0.5 flex flex-col justify-end shadow-inner">
                           <div
-                            className={`w-full rounded-t-lg bg-gradient-to-t ${bar.gradient} shadow-lg transition-all duration-700 group-hover:brightness-125`}
+                            className={`w-full rounded-t-xl bg-gradient-to-t ${bar.gradient} shadow-lg transition-all duration-700 group-hover:brightness-125`}
                             style={{ height: `${heightPercent}%` }}
                           />
                         </div>

@@ -119,11 +119,11 @@ export function B1Section({
   ];
 
   return (
-    <section className="mb-6 w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-2xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl">
+    <section className="mb-6 w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden dark:rounded-xl dark:border-x-2 dark:border-b-2 dark:border-[#1d293d] dark:border-t-0 dark:bg-[#0a1124]/90 dark:shadow-2xl dark:backdrop-blur-xl">
       {/* Header Khối B1 */}
       <div className="bg-[#0047db] dark:bg-[#0047db] text-white px-5 py-4 flex justify-between items-center transition-colors">
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/20 bg-white/10 text-white">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/20 bg-white/10 text-white">
             <Building2 size={20} />
           </span>
           <div>
@@ -139,7 +139,7 @@ export function B1Section({
           <button
             type="button"
             onClick={() => setShowBlockId(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/20"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/20"
           >
             <Settings size={14} /> Thiết lập ID
           </button>
@@ -152,7 +152,7 @@ export function B1Section({
         {/* CỤM TRÁI (60%): 2 KHỐI SỐ LIỆU */}
         <div className="w-full space-y-5 lg:col-span-3">
           {/* Cụm 1: Tổng số */}
-          <div className="w-full rounded-2xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
+          <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
             <BannerTag1 {...bannerProps1} className="block">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-xs border-l-4 border-l-blue-500 dark:bg-[#162b54] dark:border-[#25427b] dark:border-l-4 dark:border-l-[#3b82f6]">
                 <span className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200 sm:text-base">
@@ -171,7 +171,7 @@ export function B1Section({
                           e.stopPropagation();
                           handleOpenMetricId("b1_total_units", "Tổng số ĐV kinh doanh");
                         }}
-                        className="rounded-lg border border-blue-200 bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-blue-200 bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -190,7 +190,7 @@ export function B1Section({
                               matchTokens: ["sme", "doanh nghiệp"],
                             });
                         }}
-                        className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />
@@ -269,7 +269,7 @@ export function B1Section({
           </div>
 
           {/* Cụm 2: Đã CĐS */}
-          <div className="w-full rounded-2xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
+          <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
             <BannerTag2 {...bannerProps2} className="block">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-xs border-l-4 border-l-emerald-500 dark:bg-[#162b54] dark:border-[#25427b] dark:border-l-4 dark:border-l-[#3b82f6]">
                 <span className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200 sm:text-base">
@@ -288,7 +288,7 @@ export function B1Section({
                           e.stopPropagation();
                           handleOpenMetricId("b1_total_dx", "Tổng số ĐV CĐS");
                         }}
-                        className="rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-emerald-600 transition hover:bg-emerald-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 p-2 text-emerald-600 transition hover:bg-emerald-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -308,7 +308,7 @@ export function B1Section({
                               matchTokens: ["sme cds", "sme cđs"],
                             });
                         }}
-                        className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />
@@ -391,7 +391,7 @@ export function B1Section({
         </div>
 
         {/* CỤM PHẢI (40%): BIỂU ĐỒ CỘT TỶ LỆ CHUYỂN ĐỔI SỐ (GROUPED BAR CHART) */}
-        <div className="w-full rounded-2xl border border-slate-200 shadow-sm overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none lg:col-span-2 flex flex-col justify-between">
+        <div className="w-full rounded-xl border border-slate-200 shadow-sm overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none lg:col-span-2 flex flex-col justify-between">
           {/* Header của thẻ con */}
           <div className="bg-blue-50 dark:bg-[#162b54] border-b border-blue-100 dark:border-[#25427b] px-5 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -437,7 +437,7 @@ export function B1Section({
                         <div className="w-full flex items-end justify-center gap-1.5 h-[115px] bg-white rounded-t-xl p-1 border-b border-slate-200 shadow-xs dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:shadow-none">
                           {/* Cột Tổng số */}
                           <div
-                            className="w-1/2 max-w-[24px] rounded-t-md bg-gradient-to-t from-blue-700 to-blue-400 shadow-md transition-all duration-700 relative group-hover:brightness-125 flex flex-col justify-start items-center"
+                            className="w-1/2 max-w-[24px] rounded-t-xl bg-gradient-to-t from-blue-700 to-blue-400 shadow-md transition-all duration-700 relative group-hover:brightness-125 flex flex-col justify-start items-center"
                             style={{ height: `${totalH}%` }}
                             title={`Tổng: ${g.total.toLocaleString("vi-VN")}`}
                           >
@@ -448,7 +448,7 @@ export function B1Section({
 
                           {/* Cột Đã CĐS */}
                           <div
-                            className="w-1/2 max-w-[24px] rounded-t-md bg-gradient-to-t from-emerald-600 to-teal-400 shadow-md transition-all duration-700 relative group-hover:brightness-125 flex flex-col justify-start items-center"
+                            className="w-1/2 max-w-[24px] rounded-t-xl bg-gradient-to-t from-emerald-600 to-teal-400 shadow-md transition-all duration-700 relative group-hover:brightness-125 flex flex-col justify-start items-center"
                             style={{ height: `${dxH}%` }}
                             title={`Đã CĐS: ${g.dx.toLocaleString("vi-VN")}`}
                           >

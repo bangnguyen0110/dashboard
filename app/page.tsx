@@ -185,13 +185,13 @@ export default function HomePage() {
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {/* Thông báo */}
         {notice && (
-          <div className="glass mb-6 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm">
+          <div className="glass mb-6 flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm">
             <span className="text-accent">{notice}</span>
             <button
               type="button"
               onClick={() => setNotice(null)}
               aria-label="Đóng thông báo"
-              className="rounded-lg p-1 text-foreground/50 transition hover:text-foreground"
+              className="rounded-xl p-1 text-foreground/50 transition hover:text-foreground"
             >
               <X size={15} />
             </button>
@@ -199,7 +199,7 @@ export default function HomePage() {
         )}
 
         {/* Hero giới thiệu */}
-        <section className="glass relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-8">
+        <section className="glass relative mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-8">
           <div className="pointer-events-none absolute -top-16 right-10 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
           <p className="text-xs font-medium uppercase tracking-widest text-accent">
             Nền tảng kinh tế số
@@ -229,7 +229,7 @@ export default function HomePage() {
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }, (_, i) => (
-              <div key={i} className="glass h-44 animate-pulse rounded-2xl" />
+              <div key={i} className="glass h-44 animate-pulse rounded-xl" />
             ))}
           </div>
         ) : filtered.length > 0 ? (
@@ -247,8 +247,8 @@ export default function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="glass flex flex-col items-center justify-center gap-3 rounded-3xl p-10 text-center">
-            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-accent/15 text-accent">
+          <div className="glass flex flex-col items-center justify-center gap-3 rounded-xl p-10 text-center">
+            <span className="grid h-16 w-16 place-items-center rounded-xl bg-accent/15 text-accent">
               <Search size={28} />
             </span>
             <h3 className="text-xl font-bold">Chưa có Dashboard phù hợp</h3>
@@ -303,7 +303,7 @@ export default function HomePage() {
             onClick={() => setEditing(null)}
             aria-hidden
           />
-          <div className="glass-strong relative w-full max-w-md rounded-2xl p-6">
+          <div className="glass-strong relative w-full max-w-md rounded-xl p-6">
             <h3 className="mb-4 text-lg font-semibold">
               CHỈNH SỬA DASHBOARD TỈNH
             </h3>

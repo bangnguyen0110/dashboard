@@ -98,7 +98,7 @@ export function B9Section({
   const pctLargeAi = largeTong > 0 ? ((largeAi / largeTong) * 100).toFixed(1) : "0.0";
 
   return (
-    <section className="mb-6 w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
+    <section className="mb-6 w-full rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
       {/* Header Khối B9 */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-4">
         <div className="flex items-center gap-3">
@@ -128,19 +128,19 @@ export function B9Section({
       {/* 3 CỘT TRẢI RỘNG FULL CHIỀU NGANG */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* ================= 1. HỘ KINH DOANH CÁ THỂ ================= */}
-        <div className="flex flex-col justify-between rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
+        <div className="flex flex-col justify-between rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
           <div>
             {/* Header Nhóm 1 */}
             <div className="mb-4 flex items-center justify-between border-b border-white/5 pb-3">
               <div className="flex items-center gap-2">
-                <span className="grid h-8 w-8 place-items-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
+                <span className="grid h-8 w-8 place-items-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
                   <Store size={16} />
                 </span>
                 <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">
                   1. HỘ KINH DOANH CÁ THỂ
                 </h4>
               </div>
-              <span className="text-[11px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+              <span className="text-[11px] font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-xl border border-amber-500/20">
                 Nhóm Hộ KD
               </span>
             </div>
@@ -169,7 +169,7 @@ export function B9Section({
                         href={metricLinks["b9_hkd_tong"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -180,7 +180,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_hkd_tong", "HKD - Tổng số hộ")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -196,7 +196,7 @@ export function B9Section({
                               matchTokens: ["tổng số hộ", "hkd_tong"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -233,7 +233,7 @@ export function B9Section({
                         href={metricLinks["b9_hkd_tt_so"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -244,7 +244,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_hkd_tt_so", "HKD - Thanh toán số")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -260,7 +260,7 @@ export function B9Section({
                               matchTokens: ["thanh toán số", "hkd_tt_so"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -304,7 +304,7 @@ export function B9Section({
                         href={metricLinks["b9_hkd_ecom"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -315,7 +315,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_hkd_ecom", "HKD - Bán hàng Ecom")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -331,7 +331,7 @@ export function B9Section({
                               matchTokens: ["bán hàng ecom", "hkd_ecom"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -353,19 +353,19 @@ export function B9Section({
         </div>
 
         {/* ================= 2. DOANH NGHIỆP VỪA VÀ NHỎ ================= */}
-        <div className="flex flex-col justify-between rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
+        <div className="flex flex-col justify-between rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
           <div>
             {/* Header Nhóm 2 */}
             <div className="mb-4 flex items-center justify-between border-b border-white/5 pb-3">
               <div className="flex items-center gap-2">
-                <span className="grid h-8 w-8 place-items-center rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400">
+                <span className="grid h-8 w-8 place-items-center rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400">
                   <Building2 size={16} />
                 </span>
                 <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-blue-400">
                   2. DOANH NGHIỆP VỪA VÀ NHỎ
                 </h4>
               </div>
-              <span className="text-[11px] font-bold text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+              <span className="text-[11px] font-bold text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-xl border border-blue-500/20">
                 Nhóm SME
               </span>
             </div>
@@ -394,7 +394,7 @@ export function B9Section({
                         href={metricLinks["b9_sme_tong"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -405,7 +405,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_sme_tong", "SME - Tổng số DN")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -421,7 +421,7 @@ export function B9Section({
                               matchTokens: ["tổng số dn", "sme_tong"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -458,7 +458,7 @@ export function B9Section({
                         href={metricLinks["b9_sme_cloud"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -469,7 +469,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_sme_cloud", "SME - Sử dụng Cloud")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -485,7 +485,7 @@ export function B9Section({
                               matchTokens: ["sử dụng cloud", "sme_cloud"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -534,7 +534,7 @@ export function B9Section({
                         href={metricLinks["b9_sme_qldn"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -545,7 +545,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_sme_qldn", "SME - Hệ thống QLDN")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -561,7 +561,7 @@ export function B9Section({
                               matchTokens: ["hệ thống qldn", "sme_qldn"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -583,19 +583,19 @@ export function B9Section({
         </div>
 
         {/* ================= 3. DN LỚN & TIÊN PHONG AI ================= */}
-        <div className="flex flex-col justify-between rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
+        <div className="flex flex-col justify-between rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
           <div>
             {/* Header Nhóm 3 */}
             <div className="mb-4 flex items-center justify-between border-b border-white/5 pb-3">
               <div className="flex items-center gap-2">
-                <span className="grid h-8 w-8 place-items-center rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-400">
+                <span className="grid h-8 w-8 place-items-center rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-400">
                   <Sparkles size={16} />
                 </span>
                 <h4 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-purple-400">
                   3. DN LỚN & TIÊN PHONG AI
                 </h4>
               </div>
-              <span className="text-[11px] font-bold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+              <span className="text-[11px] font-bold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-xl border border-purple-500/20">
                 Nhóm Đột phá
               </span>
             </div>
@@ -624,7 +624,7 @@ export function B9Section({
                         href={metricLinks["b9_large_tong"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -635,7 +635,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_large_tong", "DN Lớn")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -651,7 +651,7 @@ export function B9Section({
                               matchTokens: ["doanh nghiệp lớn", "large_tong"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -688,7 +688,7 @@ export function B9Section({
                         href={metricLinks["b9_large_tu_dong_hoa"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -699,7 +699,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_large_tu_dong_hoa", "DN Lớn - Tự động hóa")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -715,7 +715,7 @@ export function B9Section({
                               matchTokens: ["tự động hóa", "large_tu_dong_hoa"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -759,7 +759,7 @@ export function B9Section({
                         href={metricLinks["b9_large_ai"]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-md border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-slate-300 transition hover:text-white"
                         title="Xem link"
                       >
                         <ExternalLink size={12} />
@@ -770,7 +770,7 @@ export function B9Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId("b9_large_ai", "DN Lớn - Ứng dụng AI")}
-                          className="rounded-md border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1 text-amber-400 transition hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={12} />
@@ -786,7 +786,7 @@ export function B9Section({
                               matchTokens: ["ứng dụng ai", "large_ai"],
                             })
                           }
-                          className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1 text-cyan-400 transition hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={12} />
@@ -809,7 +809,7 @@ export function B9Section({
       </div>
 
       {/* FOOTER: TỔNG QUAN TỶ LỆ CĐS DOANH NGHIỆP */}
-      <div className="mt-5 rounded-2xl border border-white/5 bg-[#0c1830]/90 p-4 shadow-xl">
+      <div className="mt-5 rounded-xl border border-white/5 bg-[#0c1830]/90 p-4 shadow-xl">
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
           <span className="font-bold uppercase tracking-wide text-slate-300">
             TỔNG QUAN TỶ LỆ ÁP DỤNG CÔNG NGHỆ & CĐS DOANH NGHIỆP:

@@ -106,7 +106,7 @@ export function B8Section({
   ];
 
   return (
-    <section className="mb-6 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 h-full flex flex-col justify-between">
+    <section className="mb-6 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 h-full flex flex-col justify-between">
       <div>
         {/* Header Khối B8 */}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -207,10 +207,10 @@ export function B8Section({
         </div>
 
         {/* 2. BIỂU ĐỒ CỘT BAR CHART (WIDTH: 100% Ở CUỐI CÙNG) */}
-        <div className="w-full rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
+        <div className="w-full rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-3">
             <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400">
+              <span className="grid h-8 w-8 place-items-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
                 <BarChart3 size={16} />
               </span>
               <div>
@@ -247,7 +247,7 @@ export function B8Section({
                     {/* Thân cột */}
                     <div className="w-full max-w-[48px] sm:max-w-[56px] h-[105px] bg-slate-900/80 rounded-t-xl border border-white/10 p-1 flex flex-col justify-end shadow-inner">
                       <div
-                        className={`w-full rounded-t-lg bg-gradient-to-t ${bar.gradient} shadow-lg transition-all duration-700 group-hover:brightness-125`}
+                        className={`w-full rounded-t-xl bg-gradient-to-t ${bar.gradient} shadow-lg transition-all duration-700 group-hover:brightness-125`}
                         style={{ height: `${heightPercent}%` }}
                       />
                     </div>

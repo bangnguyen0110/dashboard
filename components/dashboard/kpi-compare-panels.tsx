@@ -97,7 +97,7 @@ export function PanelSkeleton({ rows = 6, withChart = false }: { rows?: number; 
       {Array.from({ length: rows }).map((_, index) => (
         <div
           key={index}
-          className="h-6 w-full animate-pulse rounded-lg bg-white/10"
+          className="h-6 w-full animate-pulse rounded-xl bg-white/10"
           style={{ animationDelay: `${index * 60}ms` }}
         />
       ))}
@@ -114,8 +114,8 @@ export function CompareEmptyState({
   description?: string;
 }) {
   return (
-    <div className="glass flex flex-col items-center justify-center gap-3 rounded-2xl px-6 py-14 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-white/5">
+    <div className="glass flex flex-col items-center justify-center gap-3 rounded-xl px-6 py-14 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-xl border border-white/10 bg-white/5">
         <Inbox size={26} className="opacity-60" />
       </div>
       <p className="text-sm font-semibold sm:text-base">{title}</p>
@@ -190,7 +190,7 @@ export function CompareTableCard({
   loading: boolean;
 }) {
   return (
-    <section className="glass flex h-full flex-col rounded-2xl p-4 sm:p-5">
+    <section className="glass flex h-full flex-col rounded-xl p-4 sm:p-5">
       <header className="mb-3 flex items-start gap-2 border-b border-white/5 pb-3">
         <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-accent">
           <Table2 size={15} />
@@ -285,7 +285,7 @@ export function CompareDiffCard({
   }));
 
   return (
-    <section className="glass flex h-full flex-col rounded-2xl p-4 sm:p-5">
+    <section className="glass flex h-full flex-col rounded-xl p-4 sm:p-5">
       <header className="mb-3 flex items-start gap-2 border-b border-white/5 pb-3">
         <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-amber-400">
           <BarChart3 size={15} />
@@ -385,7 +385,7 @@ export function CompareDiffCard({
                   }}
                   formatter={(value: unknown) => [formatDelta(Number(value)), "Chênh lệch"]}
                 />
-                <Bar dataKey="diff" radius={[6, 6, 0, 0]} maxBarSize={46}>
+                <Bar dataKey="diff" radius={[12, 12, 0, 0]} maxBarSize={46}>
                   {chartData.map((item) => (
                     <Cell
                       key={item.key}

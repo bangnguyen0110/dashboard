@@ -84,7 +84,7 @@ export function MacroMetricsModal({ dashboard, open, onClose, onSaved }: MacroMe
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative flex flex-col w-full max-w-2xl bg-[#071326] border border-cyan-500/40 rounded-3xl shadow-2xl overflow-hidden text-slate-100">
+      <div className="relative flex flex-col w-full max-w-2xl bg-[#071326] border border-cyan-500/40 rounded-xl shadow-2xl overflow-hidden text-slate-100">
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/10 bg-gradient-to-r from-emerald-950/60 via-[#0a1c38] to-[#071326] flex items-center justify-between">

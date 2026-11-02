@@ -101,7 +101,7 @@ export function Level2View({
     return (
       <div
         {...cardLinkProps(metricLinks[keyYear])}
-        className={`w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all hover:border-white/20 ${metricLinks[keyYear] ? "cursor-pointer" : ""}`}
+        className={`w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all hover:border-white/20 ${metricLinks[keyYear] ? "cursor-pointer" : ""}`}
       >
         <div className="w-full">
           <div className="flex items-start justify-between gap-2 border-b border-white/5 pb-3 w-full">
@@ -120,7 +120,7 @@ export function Level2View({
                   href={metricLinks[keyYear]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                  className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
                   title="Xem link"
                 >
                   <ExternalLink size={13} />
@@ -134,7 +134,7 @@ export function Level2View({
                       e.stopPropagation();
                       handleOpenId(keyYear, title);
                     }}
-                    className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
                     title="Thiết lập ID"
                   >
                     <LinkIcon size={13} />
@@ -151,7 +151,7 @@ export function Level2View({
                         matchTokens: [title.toLowerCase()],
                       });
                     }}
-                    className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                    className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                     title="Setup số lượng"
                   >
                     <Edit3 size={13} />
@@ -239,7 +239,7 @@ export function Level2View({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
             
             {/* THẺ A */}
-            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
@@ -280,7 +280,7 @@ export function Level2View({
             </div>
 
             {/* THẺ B */}
-            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30">
@@ -321,7 +321,7 @@ export function Level2View({
             </div>
 
             {/* THẺ C */}
-            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
@@ -366,7 +366,7 @@ export function Level2View({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
             
             {/* THẺ D */}
-            <div className="w-full block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
@@ -407,7 +407,7 @@ export function Level2View({
             </div>
 
             {/* THẺ E (HIỂN THỊ ĐỘNG CÁC MỤC THỰC TẾ TỪ WEBSITE NGUỒN) */}
-            <div className="w-full lg:col-span-2 block rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+            <div className="w-full lg:col-span-2 block rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl flex flex-col justify-between">
               <div className="w-full">
                 <div className="flex items-center gap-2.5 border-b border-white/5 pb-3 mb-4 w-full">
                   <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
@@ -554,13 +554,13 @@ export function Level2View({
       {/* ================= 5. TAB D CHI TIẾT ================= */}
       {activeTab === "D" && (
         <div className="space-y-5 w-full">
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
+          <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
             <div className="flex items-center gap-3 w-full">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
                 <TrendingUp size={20} />
               </span>
               <div>
-                <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300 border border-emerald-500/30">
+                <span className="rounded-xl bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300 border border-emerald-500/30">
                   Tab: D (Thị trường)
                 </span>
                 <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
@@ -618,13 +618,13 @@ export function Level2View({
       {/* ================= 6. TAB E CHI TIẾT (HIỂN THỊ ĐỘNG 100% CÁC MỤC THỰC TẾ) ================= */}
       {activeTab === "E" && (
         <div className="space-y-5 w-full">
-          <div className="rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
+          <div className="rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl w-full">
             <div className="flex items-center gap-3 w-full">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400">
                 <Info size={20} />
               </span>
               <div>
-                <span className="rounded-md bg-cyan-500/20 px-2 py-0.5 text-[11px] font-bold text-cyan-300 border border-cyan-500/30">
+                <span className="rounded-xl bg-cyan-500/20 px-2 py-0.5 text-[11px] font-bold text-cyan-300 border border-cyan-500/30">
                   Tab: E (Thông tin)
                 </span>
                 <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-100 mt-1">
@@ -650,7 +650,7 @@ export function Level2View({
                   <div
                     key={item.key}
                     {...cardLinkProps(targetUrl)}
-                    className={`w-full block group relative overflow-hidden rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
+                    className={`w-full block group relative overflow-hidden rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0c1830]/90 p-4 sm:p-5 shadow-xl transition-all duration-300 ${
                       hasLink ? "cursor-pointer hover:border-cyan-500/40 hover:-translate-y-0.5 hover:bg-[#0f1f3d]" : ""
                     }`}
                   >
@@ -668,7 +668,7 @@ export function Level2View({
                             href={targetUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-lg border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
+                            className="rounded-xl border border-slate-700 bg-slate-800/80 p-1.5 text-slate-300 transition hover:text-white"
                             title="Xem link"
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -684,7 +684,7 @@ export function Level2View({
                                 e.stopPropagation();
                                 handleOpenId(item.key, item.title);
                               }}
-                              className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
+                              className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-1.5 text-amber-400 transition hover:bg-amber-500/20"
                               title="Thiết lập ID"
                             >
                               <LinkIcon size={13} />
@@ -702,7 +702,7 @@ export function Level2View({
                                   matchTokens: [item.title.toLowerCase()],
                                 });
                               }}
-                              className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
+                              className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-1.5 text-cyan-400 transition hover:bg-cyan-500/20"
                               title="Setup số lượng"
                             >
                               <Edit3 size={13} />
@@ -734,7 +734,7 @@ export function Level2View({
               })}
             </div>
           ) : (
-            <div className="glass rounded-2xl p-8 text-center text-slate-400 text-xs">
+            <div className="glass rounded-xl p-8 text-center text-slate-400 text-xs">
               Chưa có dữ liệu Nhóm E. Vui lòng bấm vào nút <strong className="text-cyan-300">"Thiết lập ID Tầng 2"</strong> ở góc trên để hệ thống tự động bóc tách từ website nguồn.
             </div>
           )}

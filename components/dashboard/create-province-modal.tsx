@@ -115,7 +115,7 @@ export function CreateProvinceModal({ onClose, onCreated }: CreateProvinceModalP
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Gõ tên tỉnh để tìm…"
-                    className="w-full rounded-lg border border-white/10 bg-transparent py-1.5 pl-8 pr-2 text-sm outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full rounded-xl border border-white/10 bg-transparent py-1.5 pl-8 pr-2 text-sm outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
 
@@ -128,7 +128,7 @@ export function CreateProvinceModal({ onClose, onCreated }: CreateProvinceModalP
                       setDropdownOpen(false);
                       setSearchQuery("");
                     }}
-                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
+                    className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition ${
                       selected?.id === prov.id
                         ? "bg-accent/20 text-accent"
                         : "hover:bg-white/5"

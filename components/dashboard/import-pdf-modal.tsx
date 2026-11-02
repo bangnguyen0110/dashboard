@@ -184,7 +184,7 @@ export function ImportPdfModal({ dashboard, onClose, onSaved }: ImportPdfModalPr
           type="button"
           disabled={parsing}
           onClick={() => inputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-accent/40 bg-accent/5 px-4 py-8 text-sm font-medium text-accent transition hover:bg-accent/10 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-accent/40 bg-accent/5 px-4 py-8 text-sm font-medium text-accent transition hover:bg-accent/10 disabled:opacity-60"
         >
           {parsing ? (
             <>
@@ -214,7 +214,7 @@ export function ImportPdfModal({ dashboard, onClose, onSaved }: ImportPdfModalPr
                   <span className="w-40 shrink-0 text-xs opacity-80">{target.label}</span>
                   <select
                     onChange={(e) => fillFromOption(target.field, e.target.value)}
-                    className="glass w-32 shrink-0 rounded-lg px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-accent"
+                    className="glass w-32 shrink-0 rounded-xl px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="">— Chỉ tiêu —</option>
                     {extracted.map((_, idx) => (
@@ -229,7 +229,7 @@ export function ImportPdfModal({ dashboard, onClose, onSaved }: ImportPdfModalPr
                     value={mapped[target.field] ?? ""}
                     onChange={(e) => updateValue(target.field, e.target.value)}
                     placeholder="Số lượng"
-                    className="glass w-full rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-accent"
+                    className="glass w-full rounded-xl px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
               ))}
@@ -245,7 +245,7 @@ export function ImportPdfModal({ dashboard, onClose, onSaved }: ImportPdfModalPr
                   <span className="w-40 shrink-0 text-xs opacity-80">{target.label}</span>
                   <select
                     onChange={(e) => fillFromOption(target.field, e.target.value)}
-                    className="glass w-32 shrink-0 rounded-lg px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-accent"
+                    className="glass w-32 shrink-0 rounded-xl px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-accent"
                   >
                     <option value="">— Chỉ tiêu —</option>
                     {extracted.map((_, idx) => (
@@ -260,7 +260,7 @@ export function ImportPdfModal({ dashboard, onClose, onSaved }: ImportPdfModalPr
                     value={mapped[target.field] ?? ""}
                     onChange={(e) => updateValue(target.field, e.target.value)}
                     placeholder="Số lượng"
-                    className="glass w-full rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-accent"
+                    className="glass w-full rounded-xl px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-accent"
                   />
                 </div>
               ))}

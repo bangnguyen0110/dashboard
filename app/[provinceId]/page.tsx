@@ -79,7 +79,7 @@ export default function ProvincePage() {
     <div className="relative min-h-screen">
       <div className="dashboard-bg" />
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-        <div className="glass h-40 animate-pulse rounded-3xl" />
+        <div className="glass h-40 animate-pulse rounded-xl" />
       </main>
     </div>
   );

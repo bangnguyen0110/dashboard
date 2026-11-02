@@ -212,7 +212,7 @@ export function RevenueSetupModal({ dashboard, onClose, onSaved }: RevenueSetupM
             <button
               type="button"
               onClick={addUrlRow}
-              className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-300 transition hover:bg-cyan-500/20"
+              className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-300 transition hover:bg-cyan-500/20"
             >
               <Plus size={12} /> Thêm URL
             </button>
@@ -234,7 +234,7 @@ export function RevenueSetupModal({ dashboard, onClose, onSaved }: RevenueSetupM
                   onClick={() => removeUrlAt(index)}
                   disabled={b3Urls.length <= 1}
                   title="Xóa URL này"
-                  className="shrink-0 rounded-lg border border-white/10 bg-slate-900/60 p-2.5 text-slate-400 transition hover:border-red-400/40 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-30"
+                  className="shrink-0 rounded-xl border border-white/10 bg-slate-900/60 p-2.5 text-slate-400 transition hover:border-red-400/40 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -276,7 +276,7 @@ export function RevenueSetupModal({ dashboard, onClose, onSaved }: RevenueSetupM
             <Link2 size={14} /> MÃ NHÚNG — dán vào thẻ &lt;head&gt; website nguồn
           </div>
 
-          <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-all rounded-lg border border-white/10 bg-[#071326] p-3 text-[11px] leading-relaxed text-cyan-200">
+          <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-all rounded-xl border border-white/10 bg-[#071326] p-3 text-[11px] leading-relaxed text-cyan-200">
             {snippet}
           </pre>
 
@@ -284,7 +284,7 @@ export function RevenueSetupModal({ dashboard, onClose, onSaved }: RevenueSetupM
             <button
               type="button"
               onClick={() => void handleCopy(snippet)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-300 transition hover:bg-cyan-500/20"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-300 transition hover:bg-cyan-500/20"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? "Đã copy" : "Copy mã nhúng"}
@@ -293,18 +293,18 @@ export function RevenueSetupModal({ dashboard, onClose, onSaved }: RevenueSetupM
             <button
               type="button"
               onClick={() => void handleCopy(result.endpoint)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-slate-900/60 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:text-cyan-300"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-slate-900/60 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:text-cyan-300"
             >
               <Copy size={13} /> Copy Endpoint
             </button>
           </div>
 
           <div className="grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2">
-            <div className="rounded-lg border border-white/10 bg-slate-900/60 p-2">
+            <div className="rounded-xl border border-white/10 bg-slate-900/60 p-2">
               <p className="uppercase tracking-wide text-slate-500">Secret Token</p>
               <p className="mt-0.5 break-all font-mono text-emerald-300">{result.token}</p>
             </div>
-            <div className="rounded-lg border border-white/10 bg-slate-900/60 p-2">
+            <div className="rounded-xl border border-white/10 bg-slate-900/60 p-2">
               <p className="uppercase tracking-wide text-slate-500">Endpoint</p>
               <p className="mt-0.5 break-all font-mono text-cyan-300">{result.endpoint}</p>
             </div>

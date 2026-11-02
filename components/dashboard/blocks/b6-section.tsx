@@ -138,7 +138,7 @@ export function B6Section({
   };
 
   return (
-    <section className="mb-6 rounded-2xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 h-full flex flex-col justify-between">
+    <section className="mb-6 rounded-xl border-x-2 border-b-2 border-[#1d293d] border-t-0 bg-[#0a1124]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-6 h-full flex flex-col justify-between">
       <div>
         {/* Header Khối B6 */}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -179,7 +179,7 @@ export function B6Section({
               <div
                 key={item.key}
                 {...cardLinkProps(metricLinks[item.key])}
-                className={`w-full rounded-2xl border border-white/5 bg-[#0c1830]/90 p-4 shadow-xl transition-all duration-300 hover:border-white/15${metricLinks[item.key] ? " cursor-pointer" : ""}`}
+                className={`w-full rounded-xl border border-white/5 bg-[#0c1830]/90 p-4 shadow-xl transition-all duration-300 hover:border-white/15${metricLinks[item.key] ? " cursor-pointer" : ""}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   {/* Trái: Icon + Tiêu đề + Mô tả */}
@@ -214,7 +214,7 @@ export function B6Section({
                       </div>
 
                       <div
-                        className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                        className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-xl ${
                           isPositive
                             ? "text-emerald-400 bg-emerald-500/10"
                             : "text-rose-400 bg-rose-500/10"
@@ -232,7 +232,7 @@ export function B6Section({
                         href={targetUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-lg border border-slate-700 bg-slate-800/80 p-2 text-slate-300 transition hover:text-white hover:bg-slate-700"
+                        className="rounded-xl border border-slate-700 bg-slate-800/80 p-2 text-slate-300 transition hover:text-white hover:bg-slate-700"
                         title={`Xem web: ${targetUrl}`}
                       >
                         <ExternalLink size={14} />
@@ -244,7 +244,7 @@ export function B6Section({
                         <button
                           type="button"
                           onClick={() => handleOpenId(item.key, item.label)}
-                          className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-amber-400 transition hover:text-amber-300 hover:bg-amber-500/20"
+                          className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-2 text-amber-400 transition hover:text-amber-300 hover:bg-amber-500/20"
                           title="Thiết lập ID"
                         >
                           <LinkIcon size={14} />
@@ -260,7 +260,7 @@ export function B6Section({
                               matchTokens: [item.label.toLowerCase()],
                             })
                           }
-                          className="rounded-lg border border-cyan-500/40 bg-cyan-500/10 p-2 text-cyan-400 transition hover:text-cyan-300 hover:bg-cyan-500/20"
+                          className="rounded-xl border border-cyan-500/40 bg-cyan-500/10 p-2 text-cyan-400 transition hover:text-cyan-300 hover:bg-cyan-500/20"
                           title="Setup Số lượng"
                         >
                           <Edit3 size={14} />

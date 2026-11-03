@@ -124,6 +124,9 @@ interface LevelMenuProps {
   isSyncing?: boolean;
   onOpenImportPdf?: () => void;
   onOpenMacroModal?: () => void;
+  hideTabs?: boolean;
+  leftNode?: React.ReactNode;
+  rightExtra?: React.ReactNode;
 }
 
 export function LevelMenu({
@@ -138,6 +141,9 @@ export function LevelMenu({
   isSyncing = false,
   onOpenImportPdf,
   onOpenMacroModal,
+  hideTabs = false,
+  leftNode,
+  rightExtra,
 }: LevelMenuProps) {
   const { isAdmin } = useAuth();
   const [showDocModal, setShowDocModal] = useState(false);
@@ -524,64 +530,71 @@ export function LevelMenu({
   return (
     <>
       {/* ================= THANH MENU TAB NGANG (STICKY) ================= */}
-      <nav className="sticky top-0 z-40 bg-white dark:bg-[#0a1830] border-b border-slate-200 dark:border-white/10 shadow-sm flex justify-between items-center px-4 md:px-6">
-        {/* Khối chứa các TABS (Bên trái) */}
-        <div
-          className="flex overflow-x-auto gap-2 py-2 items-center flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {LEVELS.map((item) => {
-            const Icon = item.icon;
-            const isActive = value === item.level;
-
-            return (
-              <button
-                key={item.level}
-                type="button"
-                onClick={() => handleSelectLevel(item.level)}
-                className={`whitespace-nowrap transition-all flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${
-                  isActive
-                    ? "bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700/50"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent"
-                }`}
-              >
-                <Icon
-                  size={16}
-                  className={`shrink-0 ${
-                    isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
-                  }`}
-                />
-                <span>{item.shortText}</span>
-                <span className={isActive ? "inline" : "hidden"}>{item.longText}</span>
-              </button>
-            );
-          })}
-
-          {/* Tài liệu Chuyển đổi số */}
-          <div className="relative flex items-center group">
-            <button
-              type="button"
-              onClick={handleClickDocMenu}
-              className="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent transition"
-            >
-              <FileText size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
-              <span>Tài liệu CĐS</span>
-            </button>
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={handleOpenSetupLink}
-                className="ml-1 rounded-xl border border-slate-200 bg-white p-1 text-slate-400 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:border-[#00d2ff]/50 dark:hover:bg-[#00d2ff]/10 dark:hover:text-[#00d2ff]"
-                title="Thiết lập link tài liệu"
-              >
-                <LinkIcon size={12} />
-              </button>
-            )}
+      <nav className="sticky top-0 z-40 bg-white dark:bg-[#0a1830] border-b border-slate-200 dark:border-white/10 shadow-sm flex flex-wrap justify-between items-center px-4 md:px-6 py-2.5 gap-3">
+        {/* Khối chứa các TABS hoặc Toolbar bên trái */}
+        {hideTabs ? (
+          <div className="flex flex-wrap items-center gap-2.5">
+            {leftNode}
           </div>
-        </div>
+        ) : (
+          <div
+            className="flex overflow-x-auto gap-2 py-2 items-center flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {LEVELS.map((item) => {
+              const Icon = item.icon;
+              const isActive = value === item.level;
+
+              return (
+                <button
+                  key={item.level}
+                  type="button"
+                  onClick={() => handleSelectLevel(item.level)}
+                  className={`whitespace-nowrap transition-all flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${
+                    isActive
+                      ? "bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700/50"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent"
+                  }`}
+                >
+                  <Icon
+                    size={16}
+                    className={`shrink-0 ${
+                      isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
+                    }`}
+                  />
+                  <span>{item.shortText}</span>
+                  <span className={isActive ? "inline" : "hidden"}>{item.longText}</span>
+                </button>
+              );
+            })}
+
+            {/* Tài liệu Chuyển đổi số */}
+            <div className="relative flex items-center group">
+              <button
+                type="button"
+                onClick={handleClickDocMenu}
+                className="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent transition"
+              >
+                <FileText size={16} className="text-slate-500 dark:text-slate-400 shrink-0" />
+                <span>Tài liệu CĐS</span>
+              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={handleOpenSetupLink}
+                  className="ml-1 rounded-xl border border-slate-200 bg-white p-1 text-slate-400 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:border-[#00d2ff]/50 dark:hover:bg-[#00d2ff]/10 dark:hover:text-[#00d2ff]"
+                  title="Thiết lập link tài liệu"
+                >
+                  <LinkIcon size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Cụm nút chức năng & Popup Admin (Bên phải) */}
-        <div className="flex items-center gap-2 pl-3 shrink-0 relative">
+        <div className="flex items-center gap-2.5 pl-3 shrink-0 relative">
+          {rightExtra}
           {/* 1. Nút Chuyển Giao diện (Sáng/Tối) */}
           <button
             type="button"

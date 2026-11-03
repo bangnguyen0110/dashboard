@@ -36,8 +36,8 @@ import {
   Store,
   Layers,
   Calendar,
+  Hexagon,
 } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import { supabase } from "@/lib/supabase";
 import type { DashboardRow, KpiRow } from "@/lib/types";
 import { getValidUrl } from "@/lib/card-link";
@@ -864,6 +864,25 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     return 0.65 + (selectedMonth / 10) * 0.35;
   }, [selectedMonth]);
 
+  // 3 Loại hình DN & tỷ lệ % so với tổng số 23.097 đơn vị
+  const { currentAgriBiz, currentIndusBiz, currentServiceBiz, agriPct, indusPct, servicePct } = useMemo(() => {
+    const agri = Math.round(4120 * monthFactor);
+    const indus = Math.round(7845 * monthFactor);
+    const service = Math.round(11132 * monthFactor);
+    const total = agri + indus + service;
+    const aPct = total > 0 ? ((agri / total) * 100).toFixed(2) : "17.84";
+    const iPct = total > 0 ? ((indus / total) * 100).toFixed(2) : "33.97";
+    const sPct = total > 0 ? ((service / total) * 100).toFixed(2) : "48.19";
+    return {
+      currentAgriBiz: agri,
+      currentIndusBiz: indus,
+      currentServiceBiz: service,
+      agriPct: aPct,
+      indusPct: iPct,
+      servicePct: sPct,
+    };
+  }, [monthFactor]);
+
   const loadCommunes = async (provinceUnitId: string): Promise<void> => {
     // ===== B3: tổng doanh thu của toàn bộ xã/phường sẽ được cộng dồn vào Dashboard Tỉnh =====
     const sumB3: Record<string, number> = {
@@ -1510,6 +1529,119 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     });
   };
 
+  // Khởi tạo và cập nhật Biểu đồ Radar (Mạng nhện) 3 trục loại hình DN
+  useEffect(() => {
+    let chartInstance: any = null;
+    let isCancelled = false;
+
+    if (currentLevel !== 1 || state !== "ready") return;
+
+    let retryCount = 0;
+    const tryInitChart = async () => {
+      const canvas = document.getElementById("radarChart") as HTMLCanvasElement | null;
+      if (!canvas) {
+        if (retryCount < 6 && !isCancelled) {
+          retryCount++;
+          setTimeout(tryInitChart, 100);
+        }
+        return;
+      }
+
+      try {
+        const { default: Chart } = await import("chart.js/auto");
+        if (isCancelled) return;
+
+        const existing = Chart.getChart(canvas);
+        if (existing) {
+          existing.destroy();
+        }
+
+        const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+
+        chartInstance = new Chart(canvas, {
+          type: "radar",
+          data: {
+            labels: [
+              `Nông nghiệp (${agriPct}%)`,
+              `Công nghiệp (${indusPct}%)`,
+              `Thương mại (${servicePct}%)`,
+            ],
+            datasets: [
+              {
+                label: "Tỷ lệ cơ cấu",
+                data: [Number(agriPct), Number(indusPct), Number(servicePct)],
+                backgroundColor: isDark ? "rgba(59, 130, 246, 0.3)" : "rgba(37, 99, 235, 0.2)",
+                borderColor: isDark ? "#60a5fa" : "#2563eb",
+                borderWidth: 2,
+                pointBackgroundColor: ["#0d9488", "#0284c7", "#c026d3"],
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 1.5,
+                pointHoverBackgroundColor: "#ffffff",
+                pointHoverBorderColor: "#2563eb",
+                pointRadius: 4.5,
+                pointHoverRadius: 6.5,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                angleLines: {
+                  color: isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(148, 163, 184, 0.25)",
+                },
+                grid: {
+                  color: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(148, 163, 184, 0.25)",
+                },
+                pointLabels: {
+                  color: isDark ? "#cbd5e1" : "#475569",
+                  font: {
+                    size: 11,
+                    weight: "bold",
+                  },
+                },
+                suggestedMin: 0,
+                suggestedMax: 55,
+                ticks: {
+                  display: false,
+                  stepSize: 15,
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+              tooltip: {
+                backgroundColor: isDark ? "rgba(10, 24, 48, 0.95)" : "rgba(15, 23, 42, 0.9)",
+                titleFont: { size: 12 },
+                bodyFont: { size: 12 },
+                padding: 10,
+                cornerRadius: 8,
+                callbacks: {
+                  label: (ctx) => ` Tỷ lệ: ${ctx.raw}%`,
+                },
+              },
+            },
+          },
+        });
+      } catch (err) {
+        console.error("Lỗi khởi tạo Radar Chart:", err);
+      }
+    };
+
+    const timer = setTimeout(tryInitChart, 60);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+    };
+  }, [agriPct, indusPct, servicePct, currentLevel, state]);
+
   const isProvince = dashboard?.unit?.type === "PROVINCE";
   const activeLevel = LEVELS.find((item) => item.level === currentLevel) ?? LEVELS[0];
 
@@ -1587,11 +1719,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
   const currentEcomBiz = Math.round(8920 * monthFactor);
   const currentDomainBiz = Math.round(5105 * monthFactor);
   const currentSmePlatformBiz = Math.round(4520 * monthFactor);
-
-  // 3 Loại hình DN
-  const currentAgriBiz = Math.round(4120 * monthFactor);
-  const currentIndusBiz = Math.round(7845 * monthFactor);
-  const currentServiceBiz = Math.round(11132 * monthFactor);
 
   return (
     <div className="relative min-h-screen bg-[#e8f1fa] dark:bg-[#0a1124]">
@@ -2042,12 +2169,28 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <h6 className="text-[10px] sm:text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase mb-1 truncate">Nông nghiệp, LN & TS</h6>
-                          <span className="text-2xl sm:text-3xl font-black text-teal-700 dark:text-teal-400">{currentAgriBiz.toLocaleString("vi-VN")}</span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl sm:text-3xl font-black text-teal-700 dark:text-teal-400">{currentAgriBiz.toLocaleString("vi-VN")}</span>
+                            <span className="text-[11px] font-extrabold px-1.5 py-0.5 rounded bg-teal-200/80 dark:bg-teal-800/60 text-teal-800 dark:text-teal-200">
+                              {agriPct}%
+                            </span>
+                          </div>
                         </div>
                         <div className="p-2 bg-teal-200/70 dark:bg-teal-500/10 rounded-lg shrink-0">
                           <Sprout className="w-5 lg:w-6 h-5 lg:h-6 text-teal-700 dark:text-teal-400" />
                         </div>
                       </div>
+
+                      {/* Progress Bar Nông nghiệp */}
+                      <div className="mt-2.5 w-full">
+                        <div className="w-full h-2 bg-teal-200/60 dark:bg-teal-900/40 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-teal-600 dark:bg-teal-400 rounded-full transition-all duration-500"
+                            style={{ width: `${agriPct}%` }}
+                          />
+                        </div>
+                      </div>
+
                       {isAdmin && (
                         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-teal-200/60 dark:border-slate-800">
                           <button
@@ -2081,12 +2224,28 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <h6 className="text-[10px] sm:text-[11px] font-bold text-sky-800 dark:text-sky-300 uppercase mb-1 truncate">Công nghiệp & Xây dựng</h6>
-                          <span className="text-2xl sm:text-3xl font-black text-sky-700 dark:text-sky-400">{currentIndusBiz.toLocaleString("vi-VN")}</span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl sm:text-3xl font-black text-sky-700 dark:text-sky-400">{currentIndusBiz.toLocaleString("vi-VN")}</span>
+                            <span className="text-[11px] font-extrabold px-1.5 py-0.5 rounded bg-sky-200/80 dark:bg-sky-800/60 text-sky-800 dark:text-sky-200">
+                              {indusPct}%
+                            </span>
+                          </div>
                         </div>
                         <div className="p-2 bg-sky-200/70 dark:bg-sky-500/10 rounded-lg shrink-0">
                           <Factory className="w-5 lg:w-6 h-5 lg:h-6 text-sky-700 dark:text-sky-400" />
                         </div>
                       </div>
+
+                      {/* Progress Bar Công nghiệp */}
+                      <div className="mt-2.5 w-full">
+                        <div className="w-full h-2 bg-sky-200/60 dark:bg-sky-900/40 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-sky-600 dark:bg-sky-400 rounded-full transition-all duration-500"
+                            style={{ width: `${indusPct}%` }}
+                          />
+                        </div>
+                      </div>
+
                       {isAdmin && (
                         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-sky-200/60 dark:border-slate-800">
                           <button
@@ -2120,12 +2279,28 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                       <div className="flex justify-between items-center gap-4">
                         <div className="flex-1 min-w-0">
                           <h6 className="text-[11px] font-bold text-fuchsia-800 dark:text-fuchsia-300 uppercase mb-1 truncate">Thương mại & Dịch vụ</h6>
-                          <span className="text-3xl font-black text-fuchsia-700 dark:text-fuchsia-400">{currentServiceBiz.toLocaleString("vi-VN")}</span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-3xl font-black text-fuchsia-700 dark:text-fuchsia-400">{currentServiceBiz.toLocaleString("vi-VN")}</span>
+                            <span className="text-[11px] font-extrabold px-1.5 py-0.5 rounded bg-fuchsia-200/80 dark:bg-fuchsia-800/60 text-fuchsia-800 dark:text-fuchsia-200">
+                              {servicePct}%
+                            </span>
+                          </div>
                         </div>
                         <div className="p-2.5 bg-fuchsia-200/70 dark:bg-fuchsia-500/10 rounded-lg shrink-0">
                           <Store className="w-6 lg:w-7 h-6 lg:h-7 text-fuchsia-700 dark:text-fuchsia-400" />
                         </div>
                       </div>
+
+                      {/* Progress Bar Thương mại */}
+                      <div className="mt-2.5 w-full">
+                        <div className="w-full h-2 bg-fuchsia-200/60 dark:bg-fuchsia-900/40 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-fuchsia-600 dark:bg-fuchsia-400 rounded-full transition-all duration-500"
+                            style={{ width: `${servicePct}%` }}
+                          />
+                        </div>
+                      </div>
+
                       {isAdmin && (
                         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-fuchsia-200/60 dark:border-slate-800">
                           <button
@@ -2155,59 +2330,14 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     </div>
                   </div>
 
-                  {/* 4. BIỂU ĐỒ SƠ ĐỒ LOẠI HÌNH */}
-                  <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm mt-2 flex flex-col transition-colors">
-                    <div className="flex items-center gap-2 mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
-                      <AlignLeft className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                      <h6 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Sơ đồ tỷ trọng Loại hình</h6>
+                  {/* SƠ ĐỒ RADAR (BIỂU ĐỒ MẠNG NHỆN) */}
+                  <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-sm flex flex-col flex-1">
+                    <div className="flex items-center gap-2 mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
+                      <Hexagon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <h6 className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Biểu đồ Tỷ lệ Loại hình (Radar)</h6>
                     </div>
-                    <div className="w-full h-[180px] relative">
-                      <ResponsiveContainer height="100%" width="100%">
-                        <BarChart
-                          layout="vertical"
-                          data={[
-                            { name: "Nông nghiệp", value: currentAgriBiz, fill: "#0d9488" },
-                            { name: "Công nghiệp", value: currentIndusBiz, fill: "#0891b2" },
-                            { name: "Thương mại", value: currentServiceBiz, fill: "#c026d3" },
-                          ]}
-                          margin={{ top: 0, right: 20, left: 10, bottom: 0 }}
-                        >
-                          <XAxis type="number" hide />
-                          <YAxis
-                            type="category"
-                            dataKey="name"
-                            axisLine={false}
-                            tickLine={false}
-                            fontSize={11}
-                            fontWeight={600}
-                            fill="#64748b"
-                            width={85}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              background: "rgba(10, 24, 48, 0.95)",
-                              border: "1px solid #e2e8f0",
-                              borderRadius: "8px",
-                              padding: "8px",
-                              color: "#e2e8f0"
-                            }}
-                            cursor={{ fill: "transparent" }}
-                            formatter={(value: any) => [
-                              new Intl.NumberFormat("vi-VN").format(Number(value)) + " đơn vị",
-                              "Số lượng"
-                            ]}
-                          />
-                          <Bar dataKey="value" barSize={20} radius={[0, 4, 4, 0]}>
-                            {[
-                              { name: "Nông nghiệp", fill: "#0d9488" },
-                              { name: "Công nghiệp", fill: "#0891b2" },
-                              { name: "Thương mại", fill: "#c026d3" },
-                            ].map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.fill} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                    <div className="w-full h-[240px] flex-1 relative flex items-center justify-center">
+                      <canvas id="radarChart"></canvas>
                     </div>
                   </div>
 

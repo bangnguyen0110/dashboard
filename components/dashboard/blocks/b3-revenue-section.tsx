@@ -785,57 +785,94 @@ export function B3RevenueSection({  dashboard,
       </div>
 
       <div className="p-5 sm:p-6 space-y-6">
-        {/* ===== HÀNG 1: 5 THẺ DOANH THU ===== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
-        {cards.map((card) => {
-          const isYear = card.key === "b3_yearly";
-          const accentBorder = isYear ? "border-l-emerald-500" : "border-l-indigo-500";
-          const iconBg = isYear ? "bg-emerald-50 text-emerald-600" : "bg-indigo-50 text-indigo-600";
-          const IconComponent =
-            card.key === "b3_daily"
-              ? Clock
-              : card.key === "b3_yearly"
-                ? TrendingUp
-                : card.key === "b3_quarterly"
-                  ? BarChart3
-                  : Calendar;
+        {/* ===== THÔNG TIN DOANH THU (2 HÀNG: 3 THẺ & 2 THẺ) ===== */}
+        <div className="space-y-4">
+          {/* HÀNG 1: 3 THẺ (NGÀY, TUẦN, THÁNG) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {cards.slice(0, 3).map((card) => {
+              const isDaily = card.key === "b3_daily";
+              const accentBorder = isDaily ? "border-l-cyan-500" : "border-l-indigo-500";
+              const iconBg = isDaily ? "bg-cyan-50 text-cyan-600" : "bg-indigo-50 text-indigo-600";
+              const IconComponent = isDaily ? Clock : Calendar;
 
-          return (
-            <div
-              key={card.label}
-              className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none ${
-                isYear ? "sm:col-span-2 md:col-span-2" : ""
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${iconBg} dark:bg-[#162b54] dark:border dark:border-[#1d335d] dark:text-blue-400 transition-colors`}>
-                  <IconComponent size={16} />
-                </span>
-                {isAdmin && onSaveMetricId ? (
-                  <button
-                    type="button"
-                    onClick={() => handleOpenId(card.key, card.label)}
-                    title={`Thiết lập ID: ${card.label}`}
-                    aria-label={`Thiết lập ID ${card.label}`}
-                    className="z-10 grid h-6 w-6 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
-                  >
-                    <Link2 size={12} />
-                  </button>
-                ) : null}
-              </div>
-              <p className="text-[11px] font-semibold leading-relaxed text-slate-600 dark:text-slate-300 sm:text-xs">
-                {card.label}
-              </p>
-              <p className="mt-1.5 text-xl font-bold tabular-nums sm:text-2xl text-slate-900 dark:text-blue-400">
-                {numberFmt.format(card.value)}
-              </p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                VNĐ
-              </p>
-            </div>
-          );
-        })}
-      </div>
+              return (
+                <div
+                  key={card.label}
+                  className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none`}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${iconBg} dark:bg-[#162b54] dark:border dark:border-[#1d335d] dark:text-blue-400 transition-colors`}>
+                      <IconComponent size={16} />
+                    </span>
+                    {isAdmin && onSaveMetricId ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenId(card.key, card.label)}
+                        title={`Thiết lập ID: ${card.label}`}
+                        aria-label={`Thiết lập ID ${card.label}`}
+                        className="z-10 grid h-6 w-6 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
+                      >
+                        <Link2 size={12} />
+                      </button>
+                    ) : null}
+                  </div>
+                  <p className="text-[11px] font-semibold leading-relaxed text-slate-600 dark:text-slate-300 sm:text-xs">
+                    {card.label}
+                  </p>
+                  <p className="mt-1.5 text-xl font-bold tabular-nums sm:text-2xl text-slate-900 dark:text-blue-400">
+                    {numberFmt.format(card.value)}
+                  </p>
+                  <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                    VNĐ
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* HÀNG 2: 2 THẺ (QUÝ, NĂM) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {cards.slice(3, 5).map((card) => {
+              const isYear = card.key === "b3_yearly";
+              const accentBorder = isYear ? "border-l-emerald-500" : "border-l-amber-500";
+              const iconBg = isYear ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600";
+              const IconComponent = isYear ? TrendingUp : BarChart3;
+
+              return (
+                <div
+                  key={card.label}
+                  className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 shadow-sm hover:shadow-md border-l-4 ${accentBorder} dark:bg-[#0f1f3a] dark:border-[#1d335d] dark:border-l-4 dark:border-l-[#3b82f6] dark:shadow-none dark:hover:shadow-none`}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${iconBg} dark:bg-[#162b54] dark:border dark:border-[#1d335d] dark:text-blue-400 transition-colors`}>
+                      <IconComponent size={16} />
+                    </span>
+                    {isAdmin && onSaveMetricId ? (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenId(card.key, card.label)}
+                        title={`Thiết lập ID: ${card.label}`}
+                        aria-label={`Thiết lập ID ${card.label}`}
+                        className="z-10 grid h-6 w-6 place-items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:border-[#1d335d] dark:bg-[#162b54] dark:text-blue-400 dark:hover:bg-[#1d335d] transition"
+                      >
+                        <Link2 size={12} />
+                      </button>
+                    ) : null}
+                  </div>
+                  <p className="text-[11px] font-semibold leading-relaxed text-slate-600 dark:text-slate-300 sm:text-xs">
+                    {card.label}
+                  </p>
+                  <p className="mt-1.5 text-xl font-bold tabular-nums sm:text-2xl text-slate-900 dark:text-blue-400">
+                    {numberFmt.format(card.value)}
+                  </p>
+                  <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                    VNĐ
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
       {/* ===== HÀNG 2: BIỂU ĐỒ ĐƯỜNG ===== */}
       <div className="mt-5 rounded-xl border border-slate-200 shadow-sm overflow-hidden dark:border dark:border-[#1d335d] dark:shadow-none">

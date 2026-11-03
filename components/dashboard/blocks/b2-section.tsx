@@ -127,12 +127,15 @@ export function B2Section({
           {/* Cụm 1: OCOP */}
           <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
             <BannerTag1 {...bannerProps1} className="block">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-xs border-l-4 border-l-amber-500 dark:bg-[#162b54] dark:border-[#25427b] dark:border-l-4 dark:border-l-[#3b82f6]">
-                <span className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200 sm:text-base">
+              <div
+                style={{ backgroundColor: '#fef1e5' }}
+                className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 px-4 py-3 shadow-xs border-l-4 border-l-amber-500"
+              >
+                <span className="text-sm font-bold uppercase tracking-wide text-slate-800 sm:text-base">
                   TỔNG SỐ SẢN PHẨM OCOP:
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-amber-600 dark:text-blue-400 tabular-nums sm:text-3xl">
+                  <span className="text-2xl font-bold text-amber-700 tabular-nums sm:text-3xl">
                     {ocopTotal.toLocaleString("vi-VN")}
                   </span>
                   {isAdmin && (
@@ -144,7 +147,7 @@ export function B2Section({
                           e.stopPropagation();
                           handleOpenMetricId("b2_total_ocop", "Tổng sản phẩm OCOP");
                         }}
-                        className="rounded-xl border border-amber-200 bg-amber-50 p-2 text-amber-600 transition hover:bg-amber-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-amber-300 bg-white/80 p-2 text-amber-700 transition hover:bg-white"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -163,7 +166,7 @@ export function B2Section({
                               matchTokens: ["ocop 3 sao", "ocop_3star"],
                             });
                         }}
-                        className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-amber-300 bg-white/80 p-2 text-slate-700 transition hover:bg-white"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />
@@ -238,12 +241,15 @@ export function B2Section({
           {/* Cụm 2: SP Thường & Dịch vụ */}
           <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
             <BannerTag2 {...bannerProps2} className="block">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-xs border-l-4 border-l-purple-500 dark:bg-[#162b54] dark:border-[#25427b] dark:border-l-4 dark:border-l-[#3b82f6]">
-                <span className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200 sm:text-base">
+              <div
+                style={{ backgroundColor: '#f4e6ff' }}
+                className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-purple-200 px-4 py-3 shadow-xs border-l-4 border-l-purple-500"
+              >
+                <span className="text-sm font-bold uppercase tracking-wide text-slate-800 sm:text-base">
                   TỔNG SỐ SP THƯỜNG & DỊCH VỤ:
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-purple-600 dark:text-blue-400 tabular-nums sm:text-3xl">
+                  <span className="text-2xl font-bold text-purple-700 tabular-nums sm:text-3xl">
                     {otherTotal.toLocaleString("vi-VN")}
                   </span>
                   {isAdmin && (
@@ -258,7 +264,7 @@ export function B2Section({
                             "Sản phẩm thường & Dịch vụ"
                           );
                         }}
-                        className="rounded-xl border border-purple-200 bg-purple-50 p-2 text-purple-600 transition hover:bg-purple-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-purple-300 bg-white/80 p-2 text-purple-700 transition hover:bg-white"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -275,7 +281,7 @@ export function B2Section({
                             matchTokens: ["sản phẩm thường", "sp thường"],
                           });
                         }}
-                        className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-purple-300 bg-white/80 p-2 text-slate-700 transition hover:bg-white"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />

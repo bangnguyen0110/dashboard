@@ -856,6 +856,14 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
     matchTokens: string[];
   } | null>(null);
 
+  const [selectedMonth, setSelectedMonth] = useState<number>(10);
+
+  // Hệ số biến thiên theo tháng chọn (Tháng 1 -> Tháng 10)
+  // Tháng 10 là dữ liệu hiện tại (100%), các tháng trước thấp hơn một cách hợp lý và nhất quán
+  const monthFactor = useMemo(() => {
+    return 0.65 + (selectedMonth / 10) * 0.35;
+  }, [selectedMonth]);
+
   const loadCommunes = async (provinceUnitId: string): Promise<void> => {
     // ===== B3: tổng doanh thu của toàn bộ xã/phường sẽ được cộng dồn vào Dashboard Tỉnh =====
     const sumB3: Record<string, number> = {
@@ -1547,14 +1555,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         year: "numeric",
       })
     : null;
-
-  const [selectedMonth, setSelectedMonth] = useState<number>(10);
-
-  // Hệ số biến thiên theo tháng chọn (Tháng 1 -> Tháng 10)
-  // Tháng 10 là dữ liệu hiện tại (100%), các tháng trước thấp hơn một cách hợp lý và nhất quán
-  const monthFactor = useMemo(() => {
-    return 0.65 + (selectedMonth / 10) * 0.35;
-  }, [selectedMonth]);
 
   // Dữ liệu tính toán cho 4 ô KPI hàng đầu (BƯỚC 2)
   const topSmeTotal = Number(b1.sme_total ?? 0);

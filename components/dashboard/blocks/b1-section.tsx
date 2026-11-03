@@ -154,12 +154,15 @@ export function B1Section({
           {/* Cụm 1: Tổng số */}
           <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
             <BannerTag1 {...bannerProps1} className="block">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-xs border-l-4 border-l-blue-500 dark:bg-[#162b54] dark:border-[#25427b] dark:border-l-4 dark:border-l-[#3b82f6]">
-                <span className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200 sm:text-base">
+              <div
+                style={{ backgroundColor: '#cbecff' }}
+                className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-blue-200 px-4 py-3 shadow-xs border-l-4 border-l-blue-600"
+              >
+                <span className="text-sm font-bold uppercase tracking-wide text-slate-800 sm:text-base">
                   TỔNG SỐ DOANH NGHIỆP / HKD / HTX:
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 tabular-nums sm:text-3xl">
+                  <span className="text-2xl font-bold text-blue-700 tabular-nums sm:text-3xl">
                     {totalUnits.toLocaleString("vi-VN")}
                   </span>
                   {isAdmin && (
@@ -171,7 +174,7 @@ export function B1Section({
                           e.stopPropagation();
                           handleOpenMetricId("b1_total_units", "Tổng số ĐV kinh doanh");
                         }}
-                        className="rounded-xl border border-blue-200 bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-blue-300 bg-white/80 p-2 text-blue-700 transition hover:bg-white"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -190,7 +193,7 @@ export function B1Section({
                               matchTokens: ["sme", "doanh nghiệp"],
                             });
                         }}
-                        className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-blue-300 bg-white/80 p-2 text-slate-700 transition hover:bg-white"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />
@@ -271,12 +274,15 @@ export function B1Section({
           {/* Cụm 2: Đã CĐS */}
           <div className="w-full rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm dark:border dark:border-[#1d335d] dark:bg-[#0a1830] dark:shadow-xl sm:p-5">
             <BannerTag2 {...bannerProps2} className="block">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-xs border-l-4 border-l-emerald-500 dark:bg-[#162b54] dark:border-[#25427b] dark:border-l-4 dark:border-l-[#3b82f6]">
-                <span className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200 sm:text-base">
+              <div
+                style={{ backgroundColor: '#c8eee1' }}
+                className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-200 px-4 py-3 shadow-xs border-l-4 border-l-emerald-600"
+              >
+                <span className="text-sm font-bold uppercase tracking-wide text-slate-800 sm:text-base">
                   TỔNG SỐ DOANH NGHIỆP / HKD / HTX CĐS:
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-emerald-600 dark:text-blue-400 tabular-nums sm:text-3xl">
+                  <span className="text-2xl font-bold text-emerald-700 tabular-nums sm:text-3xl">
                     {totalDx.toLocaleString("vi-VN")}
                   </span>
                   {isAdmin && (
@@ -288,7 +294,7 @@ export function B1Section({
                           e.stopPropagation();
                           handleOpenMetricId("b1_total_dx", "Tổng số ĐV CĐS");
                         }}
-                        className="rounded-xl border border-emerald-200 bg-emerald-50 p-2 text-emerald-600 transition hover:bg-emerald-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-emerald-300 bg-white/80 p-2 text-emerald-700 transition hover:bg-white"
                         title="Thiết lập ID"
                       >
                         <LinkIcon size={14} />
@@ -308,7 +314,7 @@ export function B1Section({
                               matchTokens: ["sme cds", "sme cđs"],
                             });
                         }}
-                        className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-[#25427b] dark:bg-[#0f1f3a] dark:text-blue-400 dark:hover:bg-[#1d335d]"
+                        className="rounded-xl border border-emerald-300 bg-white/80 p-2 text-slate-700 transition hover:bg-white"
                         title="Setup Số lượng"
                       >
                         <Edit3 size={14} />

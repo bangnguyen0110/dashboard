@@ -1620,6 +1620,12 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         hideTabs={true}
         leftNode={
           <>
+            {/* Nhãn Kỳ báo cáo hiện tại */}
+            <div className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-100/60 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/50 rounded-xl text-xs shadow-xs">
+              <span className="text-slate-600 dark:text-slate-300 font-medium">Kỳ báo cáo hiện tại:</span>
+              <strong className="text-blue-700 dark:text-blue-400 font-bold">Tháng {selectedMonth} / 2026</strong>
+            </div>
+
             {/* Nút Bộ lọc */}
             <button
               type="button"
@@ -1638,6 +1644,16 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
               >
                 <Building2 size={14} className="text-blue-600 dark:text-blue-400" /> Danh sách xã/phường ({communes.length})
+              </button>
+            )}
+
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowLink(true)}
+                className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+              >
+                <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
               </button>
             )}
 
@@ -1662,16 +1678,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 <option value={1} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 1 / 2026</option>
               </select>
             </div>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => setShowLink(true)}
-                className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
-              >
-                <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
-              </button>
-            )}
           </>
         }
         rightExtra={
@@ -1693,21 +1699,6 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           {/* ================= TẦNG 1 ================= */}
           {currentLevel === 1 ? (
             <div className="space-y-6">
-              <section className="glass relative overflow-hidden rounded-xl bg-gradient-to-r from-accent/10 via-transparent to-blue-600/10 p-5 sm:p-6">
-                <div className="pointer-events-none absolute -top-16 right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
-                <div className="relative flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-widest text-accent">· {activeLevel.label}</p>
-                    <h2 className="mt-1 text-lg sm:text-2xl font-bold">Tầng 1: Bộ tiêu chí kinh tế số {isProvince ? "UBND Tỉnh" : "UBDN xã/phường"}</h2>
-                    <p className="mt-1 text-xs opacity-60">{isProvince ? "Dashboard Tỉnh" : "Dashboard Xã/Phường"}</p>
-                  </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-white/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl text-xs shadow-xs">
-                    <span className="text-slate-500 dark:text-slate-400 font-medium">Kỳ báo cáo hiện tại:</span>
-                    <strong className="text-blue-600 dark:text-blue-400 font-bold">Tháng {selectedMonth} / 2026</strong>
-                  </div>
-                </div>
-              </section>
-
               {/* BƯỚC 2: REDESIGN 4 Ô KPI ĐẦU TIÊN */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Tỷ lệ CĐS Toàn Tỉnh */}
@@ -2037,29 +2028,32 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                   </div>
 
                   {/* 2. THANH TIÊU ĐỀ LOẠI HÌNH DN */}
-                  <div className="mt-2 px-4 py-2.5 bg-blue-100 dark:bg-[#1a3263] border-b border-blue-200 dark:border-[#25427b] rounded-xl flex items-center gap-2">
-                    <h4 className="font-bold text-[13px] text-slate-800 dark:text-white uppercase tracking-wide">LOẠI HÌNH DOANH NGHIỆP</h4>
+                  <div
+                    style={{ backgroundColor: '#0047db' }}
+                    className="mt-2 px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm"
+                  >
+                    <h4 className="font-bold text-[13px] text-white uppercase tracking-wide">LOẠI HÌNH DOANH NGHIỆP</h4>
                   </div>
 
                   {/* 3. CỤM 3 THẺ LOẠI HÌNH */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Thẻ Nông nghiệp */}
-                    <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-teal-200 dark:border-teal-800/50 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                    <div className="bg-teal-100/90 dark:bg-teal-950/40 p-4 rounded-xl border border-teal-300 text-teal-900 dark:text-teal-100 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
-                          <h6 className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">Nông nghiệp, LN & TS</h6>
-                          <span className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">{currentAgriBiz.toLocaleString("vi-VN")}</span>
+                          <h6 className="text-[10px] sm:text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase mb-1 truncate">Nông nghiệp, LN & TS</h6>
+                          <span className="text-2xl sm:text-3xl font-black text-teal-700 dark:text-teal-400">{currentAgriBiz.toLocaleString("vi-VN")}</span>
                         </div>
-                        <div className="p-2 bg-teal-50 dark:bg-teal-500/10 rounded-lg shrink-0">
-                          <Sprout className="w-5 lg:w-6 h-5 lg:h-6 text-teal-500 dark:text-teal-400" />
+                        <div className="p-2 bg-teal-200/70 dark:bg-teal-500/10 rounded-lg shrink-0">
+                          <Sprout className="w-5 lg:w-6 h-5 lg:h-6 text-teal-700 dark:text-teal-400" />
                         </div>
                       </div>
                       {isAdmin && (
-                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-teal-200/60 dark:border-slate-800">
                           <button
                             type="button"
                             onClick={() => setTopEntIdModal({ key: "b1_sector_agri", label: "Nông nghiệp, LN & TS" })}
-                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                            className="flex-1 py-1.5 bg-white/80 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded border border-teal-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
                           >
                             Thiết lập ID
                           </button>
@@ -2074,7 +2068,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                                 matchTokens: ["nông nghiệp", "agri"],
                               })
                             }
-                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                            className="flex-1 py-1.5 bg-white/80 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded border border-teal-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
                           >
                             Setup số lượng
                           </button>
@@ -2083,22 +2077,22 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     </div>
 
                     {/* Thẻ Công nghiệp */}
-                    <div className="bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-cyan-200 dark:border-cyan-800/50 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                    <div className="bg-sky-100/90 dark:bg-sky-950/40 p-4 rounded-xl border border-sky-300 text-sky-900 dark:text-sky-100 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
-                          <h6 className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">Công nghiệp & Xây dựng</h6>
-                          <span className="text-2xl sm:text-3xl font-black text-cyan-600 dark:text-cyan-400">{currentIndusBiz.toLocaleString("vi-VN")}</span>
+                          <h6 className="text-[10px] sm:text-[11px] font-bold text-sky-800 dark:text-sky-300 uppercase mb-1 truncate">Công nghiệp & Xây dựng</h6>
+                          <span className="text-2xl sm:text-3xl font-black text-sky-700 dark:text-sky-400">{currentIndusBiz.toLocaleString("vi-VN")}</span>
                         </div>
-                        <div className="p-2 bg-cyan-50 dark:bg-cyan-500/10 rounded-lg shrink-0">
-                          <Factory className="w-5 lg:w-6 h-5 lg:h-6 text-cyan-500 dark:text-cyan-400" />
+                        <div className="p-2 bg-sky-200/70 dark:bg-sky-500/10 rounded-lg shrink-0">
+                          <Factory className="w-5 lg:w-6 h-5 lg:h-6 text-sky-700 dark:text-sky-400" />
                         </div>
                       </div>
                       {isAdmin && (
-                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-sky-200/60 dark:border-slate-800">
                           <button
                             type="button"
                             onClick={() => setTopEntIdModal({ key: "b1_sector_indus", label: "Công nghiệp & Xây dựng" })}
-                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                            className="flex-1 py-1.5 bg-white/80 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded border border-sky-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
                           >
                             Thiết lập ID
                           </button>
@@ -2113,7 +2107,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                                 matchTokens: ["công nghiệp", "xây dựng", "indus"],
                               })
                             }
-                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                            className="flex-1 py-1.5 bg-white/80 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded border border-sky-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
                           >
                             Setup số lượng
                           </button>
@@ -2122,22 +2116,22 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                     </div>
 
                     {/* Thẻ Thương mại */}
-                    <div className="col-span-1 sm:col-span-2 bg-white dark:bg-[#0a1830] p-4 rounded-xl border border-fuchsia-200 dark:border-fuchsia-800/50 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                    <div className="col-span-1 sm:col-span-2 bg-fuchsia-100/90 dark:bg-fuchsia-950/40 p-4 rounded-xl border border-fuchsia-300 text-fuchsia-900 dark:text-fuchsia-100 shadow hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
                       <div className="flex justify-between items-center gap-4">
                         <div className="flex-1 min-w-0">
-                          <h6 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 truncate">Thương mại & Dịch vụ</h6>
-                          <span className="text-3xl font-black text-fuchsia-600 dark:text-fuchsia-400">{currentServiceBiz.toLocaleString("vi-VN")}</span>
+                          <h6 className="text-[11px] font-bold text-fuchsia-800 dark:text-fuchsia-300 uppercase mb-1 truncate">Thương mại & Dịch vụ</h6>
+                          <span className="text-3xl font-black text-fuchsia-700 dark:text-fuchsia-400">{currentServiceBiz.toLocaleString("vi-VN")}</span>
                         </div>
-                        <div className="p-2.5 bg-fuchsia-50 dark:bg-fuchsia-500/10 rounded-lg shrink-0">
-                          <Store className="w-6 lg:w-7 h-6 lg:h-7 text-fuchsia-500 dark:text-fuchsia-400" />
+                        <div className="p-2.5 bg-fuchsia-200/70 dark:bg-fuchsia-500/10 rounded-lg shrink-0">
+                          <Store className="w-6 lg:w-7 h-6 lg:h-7 text-fuchsia-700 dark:text-fuchsia-400" />
                         </div>
                       </div>
                       {isAdmin && (
-                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-fuchsia-200/60 dark:border-slate-800">
                           <button
                             type="button"
                             onClick={() => setTopEntIdModal({ key: "b1_sector_service", label: "Thương mại & Dịch vụ" })}
-                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                            className="flex-1 py-1.5 bg-white/80 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded border border-fuchsia-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
                           >
                             Thiết lập ID
                           </button>
@@ -2152,7 +2146,7 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                                 matchTokens: ["thương mại", "dịch vụ", "trade"],
                               })
                             }
-                            className="flex-1 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-bold rounded border"
+                            className="flex-1 py-1.5 bg-white/80 hover:bg-white dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded border border-fuchsia-200 dark:border-slate-600 text-[10px] font-bold transition-colors"
                           >
                             Setup số lượng
                           </button>

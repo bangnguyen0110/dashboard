@@ -1745,52 +1745,102 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
         onOpenImportPdf={() => setShowImportPdf(true)}
         onOpenMacroModal={() => setShowMacroModal(true)}
         hideTabs={true}
+        mobileOpen={mobileMenuOpen}
         leftNode={
           <>
-            {/* Nhãn Kỳ báo cáo hiện tại */}
-            <div className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-100/60 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/50 rounded-xl text-xs shadow-xs">
+            {/* Nút Hamburger menu trên Mobile */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="flex md:hidden items-center justify-center p-2 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 transition-colors shadow-sm"
+              title="Mở menu tùy chọn"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+
+            {/* Toolbar đầy đủ trên Desktop */}
+            <div className="hidden md:flex items-center gap-2.5">
+              {/* Nhãn Kỳ báo cáo hiện tại */}
+              <div className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-100/60 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/50 rounded-xl text-xs shadow-xs">
+                <span className="text-slate-600 dark:text-slate-300 font-medium">Kỳ báo cáo hiện tại:</span>
+                <strong className="text-blue-700 dark:text-blue-400 font-bold">Tháng {selectedMonth} / 2026</strong>
+              </div>
+
+              {/* Nút Bộ lọc */}
+              <button
+                type="button"
+                onClick={() => setShowFilterCompare(true)}
+                className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+                title="Bộ lọc và so sánh thông tin"
+              >
+                <SlidersHorizontal size={14} className="text-blue-600 dark:text-blue-400" /> Bộ lọc
+              </button>
+
+              {/* Nút Danh sách xã/phường */}
+              {isProvince && (
+                <button
+                  type="button"
+                  onClick={() => setShowCommuneList(true)}
+                  className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+                >
+                  <Building2 size={14} className="text-blue-600 dark:text-blue-400" /> Danh sách xã/phường ({communes.length})
+                </button>
+              )}
+
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setShowLink(true)}
+                  className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+                >
+                  <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
+                </button>
+              )}
+
+              {/* Thẻ select Chọn kỳ báo cáo (tháng) */}
+              <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700/50 rounded-xl px-3 py-1.5 shadow-sm text-xs">
+                <Calendar size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                  className="bg-transparent text-xs font-bold text-blue-700 dark:text-blue-300 focus:outline-none cursor-pointer pr-1"
+                  title="Chọn kỳ báo cáo"
+                >
+                  <option value={10} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 10 / 2026 (Hiện tại)</option>
+                  <option value={9} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 9 / 2026</option>
+                  <option value={8} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 8 / 2026</option>
+                  <option value={7} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 7 / 2026</option>
+                  <option value={6} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 6 / 2026</option>
+                  <option value={5} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 5 / 2026</option>
+                  <option value={4} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 4 / 2026</option>
+                  <option value={3} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 3 / 2026</option>
+                  <option value={2} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 2 / 2026</option>
+                  <option value={1} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 1 / 2026</option>
+                </select>
+              </div>
+            </div>
+          </>
+        }
+        mobileNode={
+          <div className="space-y-2.5">
+            {/* Nhãn Kỳ báo cáo hiện tại trên mobile */}
+            <div className="flex items-center justify-between px-3.5 py-2 bg-blue-100/60 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/50 rounded-xl text-xs shadow-xs">
               <span className="text-slate-600 dark:text-slate-300 font-medium">Kỳ báo cáo hiện tại:</span>
               <strong className="text-blue-700 dark:text-blue-400 font-bold">Tháng {selectedMonth} / 2026</strong>
             </div>
 
-            {/* Nút Bộ lọc */}
-            <button
-              type="button"
-              onClick={() => setShowFilterCompare(true)}
-              className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
-              title="Bộ lọc và so sánh thông tin"
-            >
-              <SlidersHorizontal size={14} className="text-blue-600 dark:text-blue-400" /> Bộ lọc
-            </button>
-
-            {/* Nút Danh sách xã/phường */}
-            {isProvince && (
-              <button
-                type="button"
-                onClick={() => setShowCommuneList(true)}
-                className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
-              >
-                <Building2 size={14} className="text-blue-600 dark:text-blue-400" /> Danh sách xã/phường ({communes.length})
-              </button>
-            )}
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => setShowLink(true)}
-                className="flex items-center gap-2 px-3.5 py-2 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
-              >
-                <Link2 size={14} className="text-blue-600 dark:text-blue-400" /> Thiết lập Link
-              </button>
-            )}
-
-            {/* Thẻ select Chọn kỳ báo cáo (tháng) */}
-            <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700/50 rounded-xl px-3 py-1.5 shadow-sm text-xs">
-              <Calendar size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+            {/* Thẻ select Chọn kỳ báo cáo (tháng) trên mobile */}
+            <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700/50 rounded-xl px-3.5 py-2.5 shadow-sm text-xs">
+              <Calendar size={15} className="text-blue-600 dark:text-blue-400 shrink-0" />
+              <span className="text-slate-600 dark:text-slate-300 font-medium shrink-0">Chọn kỳ:</span>
               <select
                 value={selectedMonth}
-                onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                className="bg-transparent text-xs font-bold text-blue-700 dark:text-blue-300 focus:outline-none cursor-pointer pr-1"
+                onChange={(e) => {
+                  setSelectedMonth(Number(e.target.value));
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full bg-transparent text-xs font-bold text-blue-700 dark:text-blue-300 focus:outline-none cursor-pointer"
                 title="Chọn kỳ báo cáo"
               >
                 <option value={10} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 10 / 2026 (Hiện tại)</option>
@@ -1805,17 +1855,61 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 <option value={1} className="bg-white dark:bg-[#0a1830] text-slate-800 dark:text-slate-100">Tháng 1 / 2026</option>
               </select>
             </div>
-          </>
+
+            {/* Nút Bộ lọc trên mobile */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowFilterCompare(true);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+            >
+              <SlidersHorizontal size={15} className="text-blue-600 dark:text-blue-400" />
+              <span>Bộ lọc & so sánh thông tin</span>
+            </button>
+
+            {/* Nút Danh sách xã/phường trên mobile */}
+            {isProvince && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCommuneList(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+              >
+                <Building2 size={15} className="text-blue-600 dark:text-blue-400" />
+                <span>Danh sách xã/phường ({communes.length})</span>
+              </button>
+            )}
+
+            {/* Nút Thiết lập Link trên mobile */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLink(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-xl text-xs font-bold transition-all shadow-sm"
+              >
+                <Link2 size={15} className="text-blue-600 dark:text-blue-400" />
+                <span>Thiết lập Link liên kết</span>
+              </button>
+            )}
+          </div>
         }
         rightExtra={
           /* Huy hiệu Cập nhật lúc */
-          <div className="flex items-center gap-2 px-3.5 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-emerald-700 dark:text-emerald-400 shadow-sm">
-            <span className="relative flex h-2.5 w-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-emerald-700 dark:text-emerald-400 shadow-sm text-xs">
+            <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-emerald-500"></span>
             </span>
-            <span className="font-bold text-xs tracking-wide">
-              Cập nhật lúc: {selectedMonth === 10 ? (syncTimeFormatted || "14:50 31/10/2026") : `17:00 ${selectedMonth === 2 ? "28/02" : selectedMonth === 4 || selectedMonth === 6 || selectedMonth === 9 ? "30/0" + selectedMonth : "31/" + (selectedMonth < 10 ? "0" + selectedMonth : selectedMonth)}/2026`}
+            <span className="font-bold tracking-tight sm:tracking-wide truncate">
+              <span className="hidden sm:inline">Cập nhật lúc: </span>
+              {selectedMonth === 10 ? (syncTimeFormatted || "14:50 31/10/2026") : `17:00 ${selectedMonth === 2 ? "28/02" : selectedMonth === 4 || selectedMonth === 6 || selectedMonth === 9 ? "30/0" + selectedMonth : "31/" + (selectedMonth < 10 ? "0" + selectedMonth : selectedMonth)}/2026`}
             </span>
           </div>
         }
@@ -1826,32 +1920,32 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
           {/* ================= TẦNG 1 ================= */}
           {currentLevel === 1 ? (
             <div className="space-y-6">
-              {/* BƯỚC 2: REDESIGN 4 Ô KPI ĐẦU TIÊN */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* BƯỚC 2: REDESIGN 4 Ô KPI ĐẦU TIÊN (2 CỘT TRÊN MOBILE) */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
                 {/* 1. Tỷ lệ CĐS Toàn Tỉnh */}
                 <div
                   onClick={() => setIsCdsModalOpen(true)}
-                  className="bg-gradient-to-br from-blue-50 to-white dark:from-[#0f1f3a] dark:to-[#0a1830] p-5 rounded-2xl border border-blue-200 dark:border-blue-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
+                  className="bg-gradient-to-br from-blue-50 to-white dark:from-[#0f1f3a] dark:to-[#0a1830] p-3.5 sm:p-5 rounded-2xl border border-blue-200 dark:border-blue-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
                 >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
-                      <TrendingUp size={20} />
+                  <div className="flex justify-between items-start mb-3 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 shrink-0">
+                      <TrendingUp size={18} className="sm:w-5 sm:h-5" />
                     </div>
                     <span
-                      className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors"
+                      className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-blue-100 dark:border-blue-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors"
                     >
-                      Chi tiết <ArrowUpRight size={14} />
+                      <span className="hidden sm:inline">Chi tiết</span> <ArrowUpRight size={13} />
                     </span>
                   </div>
-                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h6 className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1 truncate">
                     Tỷ lệ CĐS {isProvince ? "Toàn Tỉnh" : "Địa phương"}
                   </h6>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
+                    <span className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
                       {currentCdsRate}%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-medium mt-1">
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-1 truncate">
                     {topTotalDx.toLocaleString("vi-VN")} / {topTotalUnits.toLocaleString("vi-VN")} đơn vị
                   </p>
                 </div>
@@ -1859,27 +1953,27 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 {/* 2. Tỷ lệ Sản phẩm OCOP */}
                 <div
                   onClick={() => setIsOcopModalOpen(true)}
-                  className="bg-gradient-to-br from-amber-50 to-white dark:from-[#1f160a] dark:to-[#0a1830] p-5 rounded-2xl border border-amber-200 dark:border-amber-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
+                  className="bg-gradient-to-br from-amber-50 to-white dark:from-[#1f160a] dark:to-[#0a1830] p-3.5 sm:p-5 rounded-2xl border border-amber-200 dark:border-amber-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
                 >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800">
-                      <Package size={20} />
+                  <div className="flex justify-between items-start mb-3 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800 shrink-0">
+                      <Package size={18} className="sm:w-5 sm:h-5" />
                     </div>
                     <span
-                      className="flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-lg border border-amber-100 dark:border-amber-800 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors"
+                      className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-amber-100 dark:border-amber-800 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors"
                     >
-                      Chi tiết <ArrowUpRight size={14} />
+                      <span className="hidden sm:inline">Chi tiết</span> <ArrowUpRight size={13} />
                     </span>
                   </div>
-                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h6 className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1 truncate">
                     Tỷ lệ Sản phẩm OCOP
                   </h6>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight">
+                    <span className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight">
                       {currentOcopRate}%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-medium mt-1">
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-1 truncate">
                     {topTotalOcop.toLocaleString("vi-VN")} / {topTotalAll.toLocaleString("vi-VN")} sản phẩm
                   </p>
                 </div>
@@ -1887,50 +1981,50 @@ export function DashboardDetail({ dashboardId, backHref }: DashboardDetailProps)
                 {/* 3. Tăng trưởng DT (Tháng) */}
                 <div
                   onClick={() => setIsRevenueModalOpen(true)}
-                  className="bg-gradient-to-br from-emerald-50 to-white dark:from-[#0a1f16] dark:to-[#0a1830] p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
+                  className="bg-gradient-to-br from-emerald-50 to-white dark:from-[#0a1f16] dark:to-[#0a1830] p-3.5 sm:p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group cursor-pointer"
                 >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">
-                      <BarChart3 size={20} />
+                  <div className="flex justify-between items-start mb-3 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 shrink-0">
+                      <BarChart3 size={18} className="sm:w-5 sm:h-5" />
                     </div>
                     <span
-                      className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors"
+                      className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors"
                     >
-                      Chi tiết <ArrowUpRight size={14} />
+                      <span className="hidden sm:inline">Chi tiết</span> <ArrowUpRight size={13} />
                     </span>
                   </div>
-                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h6 className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1 truncate">
                     Tăng trưởng DT (Tháng)
                   </h6>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+                    <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
                       +{currentMonthlyGrowth}%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-medium mt-1">
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-1 truncate">
                     DT: {formatVnNumber(currentMonthlyRev)} VNĐ
                   </p>
                 </div>
 
                 {/* 4. Tăng trưởng 02 con số */}
-                <div className="bg-gradient-to-br from-purple-50 to-white dark:from-[#1a0f2e] dark:to-[#0a1830] p-5 rounded-2xl border border-purple-200 dark:border-purple-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800">
-                      <Target size={20} />
+                <div className="bg-gradient-to-br from-purple-50 to-white dark:from-[#1a0f2e] dark:to-[#0a1830] p-3.5 sm:p-5 rounded-2xl border border-purple-200 dark:border-purple-500/20 shadow-md hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 relative group">
+                  <div className="flex justify-between items-start mb-3 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800 shrink-0">
+                      <Target size={18} className="sm:w-5 sm:h-5" />
                     </div>
-                    <span className="flex items-center gap-1 text-[11px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg border border-purple-100 dark:border-purple-800">
+                    <span className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-purple-100 dark:border-purple-800">
                       Mục tiêu
                     </span>
                   </div>
-                  <h6 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                  <h6 className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1 truncate">
                     Tăng trưởng 02 con số
                   </h6>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight">
+                    <span className="text-2xl sm:text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight">
                       10.71%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-medium mt-1">
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-1 truncate">
                     Mục tiêu KT số Đề án 2030
                   </p>
                 </div>

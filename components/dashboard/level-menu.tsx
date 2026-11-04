@@ -127,6 +127,7 @@ interface LevelMenuProps {
   hideTabs?: boolean;
   leftNode?: React.ReactNode;
   rightExtra?: React.ReactNode;
+  mobileNode?: React.ReactNode;
 }
 
 export function LevelMenu({
@@ -144,6 +145,7 @@ export function LevelMenu({
   hideTabs = false,
   leftNode,
   rightExtra,
+  mobileNode,
 }: LevelMenuProps) {
   const { isAdmin } = useAuth();
   const [showDocModal, setShowDocModal] = useState(false);
@@ -530,17 +532,18 @@ export function LevelMenu({
   return (
     <>
       {/* ================= THANH MENU TAB NGANG (STICKY) ================= */}
-      <nav className="sticky top-0 z-40 bg-white dark:bg-[#0a1830] border-b border-slate-200 dark:border-white/10 shadow-sm flex flex-wrap justify-between items-center px-4 md:px-6 py-2.5 gap-3">
-        {/* Khối chứa các TABS hoặc Toolbar bên trái */}
-        {hideTabs ? (
-          <div className="flex flex-wrap items-center gap-2.5">
-            {leftNode}
-          </div>
-        ) : (
-          <div
-            className="flex overflow-x-auto gap-2 py-2 items-center flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-            style={{ scrollbarWidth: "none" }}
-          >
+      <nav className="sticky top-0 z-40 bg-white dark:bg-[#0a1830] border-b border-slate-200 dark:border-white/10 shadow-sm px-4 md:px-6 py-2.5 transition-colors">
+        <div className="flex justify-between items-center gap-3">
+          {/* Khối chứa các TABS hoặc Toolbar bên trái */}
+          {hideTabs ? (
+            <div className="flex items-center gap-2.5 min-w-0">
+              {leftNode}
+            </div>
+          ) : (
+            <div
+              className="flex overflow-x-auto gap-2 py-2 items-center flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              style={{ scrollbarWidth: "none" }}
+            >
             {LEVELS.map((item) => {
               const Icon = item.icon;
               const isActive = value === item.level;
@@ -677,6 +680,14 @@ export function LevelMenu({
             )}
           </div>
         </div>
+      </div>
+
+        {/* Khung Drawer / Dropdown Accordion trên Mobile khi mở */}
+        {mobileOpen && mobileNode && (
+          <div className="md:hidden pt-3 mt-2.5 border-t border-slate-200 dark:border-white/10 flex flex-col gap-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+            {mobileNode}
+          </div>
+        )}
       </nav>
 
         {/* Modal cấu hình đường dẫn tự động & Đồng bộ số liệu xã/phường */}

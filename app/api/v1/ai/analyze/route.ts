@@ -13,7 +13,7 @@ const supabase = createClient(
  * QUẢN LÝ 2 GEMINI API KEY (Failover Rotation) — chống lỗi 503 (High Demand)
  * ==================================================================== */
 const GEMINI_API_KEY_1 = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
-const GEMINI_API_KEY_2 = process.env.GEMINI_API_KEY_2 || "";
+const GEMINI_API_KEY_2 = process.env.GEMINI_API_2 || "";
 
 const GEMINI_KEYS: string[] = [GEMINI_API_KEY_1, GEMINI_API_KEY_2].filter(Boolean);
 
